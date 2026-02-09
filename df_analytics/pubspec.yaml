@@ -1,0 +1,15 @@
+name: df_analytics
+description: Reusable analytics (Firebase, ATT, Meta conversion tracking, installation tracking).
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_analytics: ^12.0.4
+  app_tracking_transparency: ^2.0.4
+  facebook_app_events: ^0.24.0
+  shared_preferences: ^2.3.2

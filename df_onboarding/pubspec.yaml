@@ -1,0 +1,13 @@
+name: df_onboarding
+description: Reusable onboarding flow with configurable pages and Riverpod.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.0.3
+  shared_preferences: ^2.3.2

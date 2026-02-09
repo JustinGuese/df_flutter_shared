@@ -1,0 +1,19 @@
+name: df_firebase_auth
+description: Reusable Firebase Auth with API client, login/register screens, and Riverpod providers.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.0.3
+  firebase_auth: ^6.1.2
+  google_sign_in: ^7.2.0
+  sign_in_with_apple: ^7.0.1
+  crypto: ^3.0.5
+  dio: ^5.7.0
+  go_router: ^17.0.0
+  flutter_signin_button: ^2.0.0
