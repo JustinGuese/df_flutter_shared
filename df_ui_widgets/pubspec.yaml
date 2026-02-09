@@ -1,0 +1,11 @@
+name: df_ui_widgets
+description: Reusable UI widgets (chips, bullet list, loading action) with optional theme/color parameters.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter

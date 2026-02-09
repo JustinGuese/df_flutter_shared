@@ -1,0 +1,12 @@
+name: df_core_utils
+description: Reusable utilities (date, keyword, summary parsing, animation constants).
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  intl: ^0.20.2
