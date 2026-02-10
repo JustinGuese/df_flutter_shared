@@ -6,10 +6,24 @@ Reusable AI chat backend: Dio-based repository with configurable endpoints and S
 
 ## What’s included
 
-- **ChatConfig** – Endpoint paths (with `{chatId}` placeholder), default page size, streaming placeholder text, user/bot display names.
-- **ChatRepository** – `getChat()`, `getMessages()`, `sendMessage()`, `resetChat()`, `streamMessage()` (SSE token stream). Paths and page size come from config.
-- **ChatState / ChatController** – Riverpod `Notifier`: load chat, send message (streaming or fallback), reset, and optional `onMessageSent` callback for analytics.
-- **Models** – `Chat`, `Message`, `MessageRole`, `SourceDocument` (JSON-serializable; `SourceDocument` is optional for apps that don’t use it).
+- **ChatConfig**
+  - Endpoint paths (with `{chatId}` placeholder) and **optional `basePath`** (e.g. `/api/v1/projects/{projectName}`) so all endpoints can be resolved relative to a project or scope.
+  - Default page size, streaming placeholder text, user/bot display names.
+  - Optional `streamEndpoint`; when null/empty, the controller uses non-streaming mode.
+- **ChatRepository**
+  - `getChat()`, `getMessages()`, `sendMessage()`, `resetChat()`, `streamMessage()` (SSE token stream).
+  - **Non-streaming `sendMessageSync(...)`** that returns a `MessagePair` (user + bot messages) for backends that respond with a full pair instead of a stream.
+  - All paths are resolved via `basePath` + endpoint templates.
+- **ChatState / ChatController**
+  - Riverpod `Notifier`: load chat, send message (streaming or non-streaming), reset, and optional `onMessageSent` callback for analytics.
+  - In **streaming mode** (when `streamEndpoint` is set), `sendMessage` behaves as before using SSE tokens.
+  - In **non-streaming mode** (when `streamEndpoint` is null/empty), `sendMessage` calls `sendMessageSync` and updates state from the returned `MessagePair`.
+- **Models**
+  - `Chat`, `Message`, `MessageRole`.
+  - **`SourceDocument`** with richer citation fields for document-centric chats:
+    - `entryId`, `entryDate`, `snippet`.
+    - Optional: `documentId`, `fileName`, `previewUrl`, `downloadUrl`, `chunkText`, `startIndex`, `endIndex`.
+  - `MessagePair` – wraps a user `Message` and bot `Message` for non-streaming responses.
 
 ---
 
@@ -36,7 +50,29 @@ Reusable AI chat backend: Dio-based repository with configurable endpoints and S
    // ], ...))
    ```
 
-3. Optionally override `chatConfigProvider` if you need different endpoints or display names (defaults: `/chats`, `/chats/{chatId}/messages`, etc.).
+3. Optionally override `chatConfigProvider` if you need different endpoints or display names (defaults: `/chats`, `/chats/{chatId}/messages`, etc.), or to enable:
+
+   - **Project-scoped chats** via `basePath`:
+     ```dart
+     final chatConfigOverride = chatConfigProvider.overrideWith(
+       (ref) => const ChatConfig(
+         basePath: '/api/v1/projects/my-project',
+         chatEndpoint: '/chats/my-chat',
+         messagesEndpoint: '/chats/my-chat/messages',
+         // streamEndpoint: '/chats/my-chat/stream', // optional
+       ),
+     );
+     ```
+
+   - **Non-streaming backends** by leaving `streamEndpoint` null/empty and using `sendMessageSync`:
+     ```dart
+     const ChatConfig(
+       basePath: '/api/v1/projects/my-project',
+       chatEndpoint: '/chats/my-chat',
+       messagesEndpoint: '/chats/my-chat/messages',
+       streamEndpoint: '', // or null -> use MessagePair-based non-streaming
+     );
+     ```
 
 4. In your chat screen, wire analytics (or other side effects) when a message is sent:
 
@@ -47,6 +83,19 @@ Reusable AI chat backend: Dio-based repository with configurable endpoints and S
    ```
 
 5. On logout (or account switch), invalidate chat state so the next user doesn’t see the previous user’s messages: `ref.invalidate(chatProvider)` or call `ref.read(chatProvider.notifier).reset()`.
+
+---
+
+## Accessing citations from ChatController
+
+When your backend returns `source_documents` in message JSON, `df_chat` maps them to `SourceDocument` and then attaches them to `flutter_chat_types.TextMessage` metadata in `ChatController`:
+
+- Each `types.TextMessage` in `ChatState.messages` may contain:
+  ```dart
+  final meta = (message as types.TextMessage).metadata;
+  final docsJson = meta?['sourceDocuments'] as List<dynamic>?;
+  ```
+- `docsJson` is a `List<Map<String, dynamic>>` compatible with `SourceDocument.fromJson`, so apps can reconstruct richer domain models (e.g. app-specific `Citation`) for UI components like citation cards, previews, download links, etc.
 
 ---
 

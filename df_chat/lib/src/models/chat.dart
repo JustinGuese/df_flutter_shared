@@ -40,6 +40,13 @@ class SourceDocument {
     this.entryId,
     this.entryDate,
     required this.snippet,
+    this.documentId,
+    this.fileName,
+    this.previewUrl,
+    this.downloadUrl,
+    this.chunkText,
+    this.startIndex,
+    this.endIndex,
   });
 
   factory SourceDocument.fromJson(Map<String, dynamic> json) =>
@@ -52,6 +59,28 @@ class SourceDocument {
   @JsonKey(name: 'entry_date')
   final String? entryDate;
   final String snippet;
+
+  /// Optional richer citation metadata for document-centric chats.
+  @JsonKey(name: 'document_id')
+  final int? documentId;
+
+  @JsonKey(name: 'file_name')
+  final String? fileName;
+
+  @JsonKey(name: 'preview_url')
+  final String? previewUrl;
+
+  @JsonKey(name: 'download_url')
+  final String? downloadUrl;
+
+  @JsonKey(name: 'chunk_text')
+  final String? chunkText;
+
+  @JsonKey(name: 'start_index')
+  final int? startIndex;
+
+  @JsonKey(name: 'end_index')
+  final int? endIndex;
 }
 
 @JsonSerializable()
@@ -79,4 +108,24 @@ class Message {
   final DateTime createdAt;
   @JsonKey(name: 'source_documents', defaultValue: <SourceDocument>[])
   final List<SourceDocument> sourceDocuments;
+}
+
+/// Represents a non-streaming user/bot message pair returned from the API.
+@JsonSerializable()
+class MessagePair {
+  MessagePair({
+    required this.userMessage,
+    required this.botMessage,
+  });
+
+  factory MessagePair.fromJson(Map<String, dynamic> json) =>
+      _$MessagePairFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MessagePairToJson(this);
+
+  @JsonKey(name: 'user_message')
+  final Message userMessage;
+
+  @JsonKey(name: 'bot_message')
+  final Message botMessage;
 }

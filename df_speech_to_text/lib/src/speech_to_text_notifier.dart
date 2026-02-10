@@ -77,8 +77,6 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
   /// a final result from the engine.
   Timer? _finalizeTimer;
 
-  bool _waitingForFinalAfterStop = false;
-  bool _receivedFinalAfterStop = false;
 
   @override
   SpeechToTextState build() {
@@ -127,6 +125,7 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
     return lastChar == '.' || lastChar == '!' || lastChar == '?';
   }
 
+  /// Capitalize the first letter of the text.
   String _capitalize(String text) {
     if (text.isEmpty) return text;
     final trimmed = text.trimLeft();
@@ -140,13 +139,55 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
     return '$leadingWhitespace$first${trimmed.substring(1)}';
   }
 
+  /// Capitalize letters after every sentence-ending punctuation mark (.!?)
+  /// and also capitalize the very first letter.
+  String _capitalizeSentences(String text) {
+    if (text.isEmpty) return text;
+    final buffer = StringBuffer();
+    bool capitalizeNext = true;
+    for (int i = 0; i < text.length; i++) {
+      final char = text[i];
+      if (capitalizeNext && RegExp(r'[a-z]').hasMatch(char)) {
+        buffer.write(char.toUpperCase());
+        capitalizeNext = false;
+      } else {
+        buffer.write(char);
+      }
+      if ('.!?'.contains(char)) {
+        capitalizeNext = true;
+      }
+    }
+    return buffer.toString();
+  }
+
+  /// Ensure the segment ends with sentence punctuation. If not, append a period.
+  String _ensureTrailingPunctuation(String text) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return trimmed;
+    if (_endsWithSentencePunctuation(trimmed)) return trimmed;
+    return '$trimmed.';
+  }
+
+  /// Clean up whitespace: collapse multiple spaces, remove space before punctuation.
+  String _cleanupWhitespace(String text) {
+    var result = text.replaceAll(RegExp(r'\s+'), ' ');
+    result = result.replaceAll(RegExp(r'\s+([.!?,;:])'), r'$1');
+    return result.trim();
+  }
+
   void _updatePreviewFromBuffers() {
     final parts = <String>[];
     if (_segments.isNotEmpty) {
       parts.addAll(_segments);
     }
     if (_currentPartial.isNotEmpty) {
-      parts.add(_currentPartial);
+      // Capitalize partial if the previous segment ended with punctuation
+      var partial = _currentPartial;
+      if (_segments.isNotEmpty &&
+          _endsWithSentencePunctuation(_segments.last)) {
+        partial = _capitalize(partial);
+      }
+      parts.add(partial);
     }
     final preview = parts.join(' ').trim();
     state = state.copyWith(recognizedWords: preview);
@@ -158,8 +199,6 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
     _userRequestedStop = false;
     _restartCount = 0;
     _shouldRestart = false;
-    _waitingForFinalAfterStop = false;
-    _receivedFinalAfterStop = false;
     _finalizeTimer?.cancel();
     _finalizeTimer = null;
   }
@@ -167,7 +206,6 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
   void _finalize() {
     _finalizeTimer?.cancel();
     _finalizeTimer = null;
-    _waitingForFinalAfterStop = false;
 
     var full = _segments.join(' ').trim();
     if (full.isEmpty && _currentPartial.isNotEmpty) {
@@ -180,34 +218,43 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
       return;
     }
 
-    full = _capitalize(full);
-    if (!_endsWithSentencePunctuation(full)) {
-      full = '$full.';
-    }
+    // Ensure trailing punctuation, capitalize after all sentence boundaries,
+    // and clean up whitespace artifacts.
+    full = _ensureTrailingPunctuation(full);
+    full = _capitalizeSentences(full);
+    full = _cleanupWhitespace(full);
 
     // Store the finalized text as a single segment for any later reads this
-    // session.
+    // session. Do NOT reset _userRequestedStop or _shouldRestart here — those
+    // are session lifecycle flags managed by stopListening / _resetSessionBuffers.
+    // Resetting them here caused late engine results to be processed and
+    // duplicate text.
     _segments
       ..clear()
       ..add(full);
     _currentPartial = '';
-    _userRequestedStop = false;
-    _shouldRestart = false;
 
     state = state.copyWith(recognizedWords: full);
   }
 
   void _onResult(SpeechRecognitionResult result) {
+    // After the user tapped stop, ignore any late results from the engine.
+    // stopListening() already called _finalize() with whatever we had.
+    if (_userRequestedStop) return;
+
     final config = ref.read(speechToTextConfigProvider);
     final words = result.recognizedWords.trim();
     if (result.finalResult) {
       if (words.isNotEmpty) {
-        _segments.add(_capitalize(words));
+        // Each finalized segment gets punctuation and capitalization.
+        // This makes the text read properly during continuous dictation.
+        var segment = _ensureTrailingPunctuation(words);
+        segment = _capitalize(segment);
+        _segments.add(segment);
       }
       _currentPartial = '';
 
       if (_userRequestedStop || _restartCount >= config.maxRestarts) {
-        _receivedFinalAfterStop = _userRequestedStop;
         _finalize();
       } else {
         _restartCount++;
@@ -336,6 +383,14 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
       onResult: _engineResultHandler!,
       listenFor: config.listenDuration,
       pauseFor: config.pauseDuration,
+      localeId: config.localeId,
+      listenOptions: stt.SpeechListenOptions(
+        listenMode: stt.ListenMode.dictation,
+        partialResults: true,
+        cancelOnError: false,
+        autoPunctuation: true,
+        enableHapticFeedback: false,
+      ),
     );
   }
 
@@ -372,24 +427,31 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
   }
 
   Future<void> stopListening() async {
-    if (_speech == null || !state.isListening) {
+    if (_speech == null) {
       return;
     }
 
+    // User explicitly tapped "stop" in the UI. We want to:
+    // - Immediately prevent any automatic restarts
+    // - Stop the engine
+    // - Finalize whatever text we have so far
+    // - Ensure state reflects that we're no longer listening
     _userRequestedStop = true;
-    _waitingForFinalAfterStop = true;
-    final config = ref.read(speechToTextConfigProvider);
-    _finalizeTimer?.cancel();
-    _finalizeTimer = Timer(
-      config.finalizeTimeout,
-      () {
-        if (_waitingForFinalAfterStop && !_receivedFinalAfterStop) {
-          _finalize();
-        }
-      },
-    );
+    _shouldRestart = false;
 
-    await _speech!.stop();
+    _finalizeTimer?.cancel();
+    _finalizeTimer = null;
+
+    if (state.isListening) {
+      await _speech!.stop();
+    } else {
+      await _speech!.cancel();
+    }
+
+    _finalize();
+
+    // Make sure provider consumers see that listening has fully stopped.
+    state = state.copyWith(isListening: false);
   }
 
   Future<void> cancelListening() async {

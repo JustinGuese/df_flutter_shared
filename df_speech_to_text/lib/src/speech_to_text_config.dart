@@ -10,12 +10,17 @@ class SpeechToTextConfig {
     this.pauseDuration = const Duration(seconds: 3),
     this.maxRestarts = 20,
     this.finalizeTimeout = const Duration(milliseconds: 600),
+    this.localeId,
   });
 
   final Duration listenDuration;
   final Duration pauseDuration;
   final int maxRestarts;
   final Duration finalizeTimeout;
+
+  /// Optional locale for speech recognition (e.g. 'de_DE', 'en_US').
+  /// When null, uses the device default.
+  final String? localeId;
 }
 
 final speechToTextConfigProvider =

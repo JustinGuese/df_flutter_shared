@@ -56,11 +56,25 @@ class _SpeechRecordButtonState extends ConsumerState<SpeechRecordButton>
     final speechState = ref.read(speechToTextProvider);
     final speechNotifier = ref.read(speechToTextProvider.notifier);
 
-    if (speechState.isListening) {
+    // Treat both active listening and the short "finishing" window after the
+    // user taps stop as a single "recording" state for the button. This makes
+    // sure a second tap reliably stops recording instead of accidentally
+    // starting a new session while we're finalizing the last result.
+    final isRecording = speechState.isListening || _isFinishing;
+
+    if (isRecording) {
       setState(() {
         _isFinishing = true;
       });
-      await speechNotifier.stopListening();
+      // If the engine is currently listening, request a graceful stop that
+      // waits for the final result. If we're already in the "finishing"
+      // phase, fall back to a hard cancel so a second tap always stops
+      // recording promptly.
+      if (speechState.isListening) {
+        await speechNotifier.stopListening();
+      } else {
+        await speechNotifier.cancelListening();
+      }
       if (mounted) {
         setState(() {
           _isFinishing = false;
@@ -79,6 +93,9 @@ class _SpeechRecordButtonState extends ConsumerState<SpeechRecordButton>
   Widget build(BuildContext context) {
     final speechState = ref.watch(speechToTextProvider);
     final theme = Theme.of(context);
+
+    final isListening = speechState.isListening;
+    final isRecording = isListening || _isFinishing;
 
     if (speechState.error != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -118,10 +135,9 @@ class _SpeechRecordButtonState extends ConsumerState<SpeechRecordButton>
       );
     }
 
-    final isListening = speechState.isListening;
     final previewText = speechState.recognizedWords.trim();
     final showPreview =
-        widget.showPreview && (isListening || _isFinishing) && previewText.isNotEmpty;
+        widget.showPreview && isRecording && previewText.isNotEmpty;
     final wordCount =
         previewText.isEmpty ? 0 : previewText.split(RegExp(r'\s+')).length;
 
@@ -144,14 +160,14 @@ class _SpeechRecordButtonState extends ConsumerState<SpeechRecordButton>
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color:
-                              isListening
+                              isRecording
                                   ? Colors.red.shade600
                                   : theme.colorScheme.primaryContainer,
                         ),
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
-                            if (isListening)
+                            if (isRecording)
                               ...List.generate(3, (index) {
                                 final delay = index * 0.2;
                                 final animationValue =
@@ -177,9 +193,11 @@ class _SpeechRecordButtonState extends ConsumerState<SpeechRecordButton>
                                 );
                               }),
                             Icon(
-                              isListening ? Icons.mic : Icons.mic_none,
+                              // Show a clear "stop" icon whenever recording is
+                              // active so users can immediately see how to stop.
+                              isRecording ? Icons.stop : Icons.mic,
                               color:
-                                  isListening
+                                  isRecording
                                       ? Colors.white
                                       : theme.colorScheme.onPrimaryContainer,
                               size: 28,

@@ -27,6 +27,13 @@ SourceDocument _$SourceDocumentFromJson(Map<String, dynamic> json) =>
       entryId: (json['entry_id'] as num?)?.toInt(),
       entryDate: json['entry_date'] as String?,
       snippet: json['snippet'] as String,
+      documentId: (json['document_id'] as num?)?.toInt(),
+      fileName: json['file_name'] as String?,
+      previewUrl: json['preview_url'] as String?,
+      downloadUrl: json['download_url'] as String?,
+      chunkText: json['chunk_text'] as String?,
+      startIndex: (json['start_index'] as num?)?.toInt(),
+      endIndex: (json['end_index'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$SourceDocumentToJson(SourceDocument instance) =>
@@ -34,6 +41,13 @@ Map<String, dynamic> _$SourceDocumentToJson(SourceDocument instance) =>
       'entry_id': instance.entryId,
       'entry_date': instance.entryDate,
       'snippet': instance.snippet,
+      'document_id': instance.documentId,
+      'file_name': instance.fileName,
+      'preview_url': instance.previewUrl,
+      'download_url': instance.downloadUrl,
+      'chunk_text': instance.chunkText,
+      'start_index': instance.startIndex,
+      'end_index': instance.endIndex,
     };
 
 Message _$MessageFromJson(Map<String, dynamic> json) => Message(
@@ -59,3 +73,14 @@ Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{
 };
 
 const _$MessageRoleEnumMap = {MessageRole.user: 'user', MessageRole.bot: 'bot'};
+
+MessagePair _$MessagePairFromJson(Map<String, dynamic> json) => MessagePair(
+  userMessage: Message.fromJson(json['user_message'] as Map<String, dynamic>),
+  botMessage: Message.fromJson(json['bot_message'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$MessagePairToJson(MessagePair instance) =>
+    <String, dynamic>{
+      'user_message': instance.userMessage,
+      'bot_message': instance.botMessage,
+    };

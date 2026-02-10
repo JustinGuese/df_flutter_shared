@@ -12,19 +12,44 @@ class ChatRepository {
   final Dio _dio;
   final ChatConfig config;
 
-  String _resolve(String template, int chatId) =>
-      template.replaceAll('{chatId}', chatId.toString());
+  /// Resolves [path] against [config.basePath], if provided, and replaces
+  /// `{chatId}` placeholders with the numeric [chatId].
+  String _resolvePath(String path, {int? chatId}) {
+    var resolved = path;
+    if (chatId != null) {
+      resolved = resolved.replaceAll('{chatId}', chatId.toString());
+    }
+
+    final base = config.basePath;
+    if (base == null || base.isEmpty) {
+      return resolved;
+    }
+
+    if (resolved.isEmpty || resolved == '/') {
+      return base;
+    }
+
+    if (resolved.startsWith('/')) {
+      return '$base$resolved';
+    }
+
+    return '$base/$resolved';
+  }
 
   Future<Chat> getChat() async {
-    final response =
-        await _dio.get<Map<String, dynamic>>(config.chatEndpoint);
+    final response = await _dio.get<Map<String, dynamic>>(
+      _resolvePath(config.chatEndpoint),
+    );
     return Chat.fromJson(response.data!);
   }
 
-  Future<List<Message>> getMessages(int chatId,
-      {int skip = 0, int? limit}) async {
+  Future<List<Message>> getMessages(
+    int chatId, {
+    int skip = 0,
+    int? limit,
+  }) async {
     final response = await _dio.get<List<dynamic>>(
-      _resolve(config.messagesEndpoint, chatId),
+      _resolvePath(config.messagesEndpoint, chatId: chatId),
       queryParameters: {
         'skip': skip,
         'limit': limit ?? config.defaultPageSize,
@@ -36,22 +61,43 @@ class ChatRepository {
         .toList();
   }
 
+  /// Legacy single-message send used as a fallback by [ChatController].
   Future<Message> sendMessage(int chatId, String content) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      _resolve(config.messagesEndpoint, chatId),
-      queryParameters: {'content': content},
+      _resolvePath(config.messagesEndpoint, chatId: chatId),
+      data: {'content': content},
     );
     return Message.fromJson(response.data!);
   }
 
+  /// Non-streaming send that returns a full user/bot [MessagePair].
+  ///
+  /// This is used when [ChatConfig.streamEndpoint] is null or empty.
+  Future<MessagePair> sendMessageSync(int chatId, String content) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      _resolvePath(config.messagesEndpoint, chatId: chatId),
+      data: {'content': content},
+    );
+    return MessagePair.fromJson(response.data!);
+  }
+
   Future<void> resetChat(int chatId) async {
-    await _dio.delete<void>(_resolve(config.resetEndpoint, chatId));
+    await _dio.delete<void>(
+      _resolvePath(config.resetEndpoint, chatId: chatId),
+    );
   }
 
   Stream<String> streamMessage(int chatId, String content) async* {
+    final streamEndpoint = config.streamEndpoint;
+    if (streamEndpoint == null || streamEndpoint.isEmpty) {
+      throw StateError(
+        'streamEndpoint is not configured; use sendMessageSync for non-streaming chats.',
+      );
+    }
+
     final response = await _dio.post(
-      _resolve(config.streamEndpoint, chatId),
-      queryParameters: {'content': content},
+      _resolvePath(streamEndpoint, chatId: chatId),
+      data: {'content': content},
       options: Options(
         responseType: ResponseType.stream,
         headers: {'Accept': 'text/event-stream'},

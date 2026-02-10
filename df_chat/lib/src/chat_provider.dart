@@ -78,6 +78,11 @@ class ChatController extends Notifier<ChatState> {
   String get _streamingPlaceholderText =>
       ref.read(chatConfigProvider).streamingPlaceholderText;
 
+  bool get _hasStreamingEndpoint {
+    final endpoint = ref.read(chatConfigProvider).streamEndpoint;
+    return endpoint != null && endpoint.isNotEmpty;
+  }
+
   types.User get currentUser => types.User(
         id: currentUserId,
         firstName: ref.read(chatConfigProvider).currentUserName,
@@ -146,70 +151,75 @@ class ChatController extends Notifier<ChatState> {
       messages: [...state.messages, userMessage],
     );
 
-    try {
-      state = state.copyWith(isStreaming: true, error: null);
-
-      _localMessageCounter++;
-      final botMessageId = 'local_bot_${baseTimestamp}_$_localMessageCounter';
-      final botMessage = types.TextMessage(
-        id: botMessageId,
-        author: botUser,
-        createdAt: baseTimestamp + 1,
-        text: _streamingPlaceholderText,
-      );
-      final botMessageIndex = state.messages.length;
-      state = state.copyWith(
-        messages: [...state.messages, botMessage],
-      );
-      _streamingMessageIndex = botMessageIndex;
-
-      _streamSubscription?.cancel();
-      _streamSubscription = repository.streamMessage(chatId, content).listen(
-        (token) {
-          final currentMessages = List<types.Message>.from(state.messages);
-          if (_streamingMessageIndex != null &&
-              _streamingMessageIndex! < currentMessages.length) {
-            final existingMessage = currentMessages[_streamingMessageIndex!];
-            if (existingMessage is types.TextMessage) {
-              final existingText =
-                  existingMessage.text == _streamingPlaceholderText
-                      ? ''
-                      : existingMessage.text;
-              currentMessages[_streamingMessageIndex!] = types.TextMessage(
-                id: existingMessage.id,
-                author: existingMessage.author,
-                createdAt: existingMessage.createdAt,
-                text: existingText + token,
-              );
-              state = state.copyWith(messages: currentMessages);
-            }
-          }
-        },
-        onError: (error) {
-          state = state.copyWith(
-            isStreaming: false,
-            error: error.toString(),
-          );
-          _streamingMessageIndex = null;
-        },
-        onDone: () {
-          state = state.copyWith(isStreaming: false);
-          _streamingMessageIndex = null;
-          onMessageSent?.call();
-          _reloadMessages();
-        },
-      );
-    } catch (e) {
+    if (_hasStreamingEndpoint) {
       try {
-        final message = await repository.sendMessage(chatId, content);
-        final chatMessage = _messageToChatMessage(message);
-        final updatedMessages = List<types.Message>.from(state.messages);
-        if (_streamingMessageIndex != null &&
-            _streamingMessageIndex! < updatedMessages.length) {
-          updatedMessages[_streamingMessageIndex!] = chatMessage;
-        } else {
-          updatedMessages.add(chatMessage);
-        }
+        state = state.copyWith(isStreaming: true, error: null);
+
+        _localMessageCounter++;
+        final botMessageId = 'local_bot_${baseTimestamp}_$_localMessageCounter';
+        final botMessage = types.TextMessage(
+          id: botMessageId,
+          author: botUser,
+          createdAt: baseTimestamp + 1,
+          text: _streamingPlaceholderText,
+        );
+        final botMessageIndex = state.messages.length;
+        state = state.copyWith(
+          messages: [...state.messages, botMessage],
+        );
+        _streamingMessageIndex = botMessageIndex;
+
+        _streamSubscription?.cancel();
+        _streamSubscription = repository.streamMessage(chatId, content).listen(
+          (token) {
+            final currentMessages = List<types.Message>.from(state.messages);
+            if (_streamingMessageIndex != null &&
+                _streamingMessageIndex! < currentMessages.length) {
+              final existingMessage = currentMessages[_streamingMessageIndex!];
+              if (existingMessage is types.TextMessage) {
+                final existingText =
+                    existingMessage.text == _streamingPlaceholderText
+                        ? ''
+                        : existingMessage.text;
+                currentMessages[_streamingMessageIndex!] = types.TextMessage(
+                  id: existingMessage.id,
+                  author: existingMessage.author,
+                  createdAt: existingMessage.createdAt,
+                  text: existingText + token,
+                );
+                state = state.copyWith(messages: currentMessages);
+              }
+            }
+          },
+          onError: (error) {
+            state = state.copyWith(
+              isStreaming: false,
+              error: error.toString(),
+            );
+            _streamingMessageIndex = null;
+          },
+          onDone: () {
+            state = state.copyWith(isStreaming: false);
+            _streamingMessageIndex = null;
+            onMessageSent?.call();
+            _reloadMessages();
+          },
+        );
+      } catch (e) {
+        // If streaming fails unexpectedly, fall back to single-message send.
+        await _fallbackToSingleMessageSend(repository, chatId, content);
+      }
+    } else {
+      // Non-streaming mode: use MessagePair and update both messages at once.
+      try {
+        state = state.copyWith(isStreaming: true, error: null);
+        final pair = await repository.sendMessageSync(chatId, content);
+
+        final updatedMessages = List<types.Message>.from(state.messages)
+          ..addAll([
+            _messageToChatMessage(pair.userMessage),
+            _messageToChatMessage(pair.botMessage),
+          ]);
 
         onMessageSent?.call();
 
@@ -218,14 +228,45 @@ class ChatController extends Notifier<ChatState> {
           isStreaming: false,
           error: null,
         );
-        _streamingMessageIndex = null;
-      } catch (fallbackError) {
+      } catch (e) {
         state = state.copyWith(
           isStreaming: false,
-          error: fallbackError.toString(),
+          error: e.toString(),
         );
-        _streamingMessageIndex = null;
       }
+    }
+  }
+
+  Future<void> _fallbackToSingleMessageSend(
+    ChatRepository repository,
+    int chatId,
+    String content,
+  ) async {
+    try {
+      final message = await repository.sendMessage(chatId, content);
+      final chatMessage = _messageToChatMessage(message);
+      final updatedMessages = List<types.Message>.from(state.messages);
+      if (_streamingMessageIndex != null &&
+          _streamingMessageIndex! < updatedMessages.length) {
+        updatedMessages[_streamingMessageIndex!] = chatMessage;
+      } else {
+        updatedMessages.add(chatMessage);
+      }
+
+      onMessageSent?.call();
+
+      state = state.copyWith(
+        messages: updatedMessages,
+        isStreaming: false,
+        error: null,
+      );
+      _streamingMessageIndex = null;
+    } catch (fallbackError) {
+      state = state.copyWith(
+        isStreaming: false,
+        error: fallbackError.toString(),
+      );
+      _streamingMessageIndex = null;
     }
   }
 
@@ -292,11 +333,20 @@ class ChatController extends Notifier<ChatState> {
   }
 
   types.Message _messageToChatMessage(Message message) {
+    // Attach source documents in metadata so UIs can reconstruct richer
+    // citation models if desired.
+    final metadata = <String, Object?>{
+      if (message.sourceDocuments.isNotEmpty)
+        'sourceDocuments':
+            message.sourceDocuments.map((s) => s.toJson()).toList(),
+    };
+
     return types.TextMessage(
       id: message.id.toString(),
       author: message.role == MessageRole.user ? currentUser : botUser,
       createdAt: message.createdAt.millisecondsSinceEpoch,
       text: message.content,
+      metadata: metadata.isEmpty ? null : metadata,
     );
   }
 
