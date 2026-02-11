@@ -142,5 +142,28 @@ final text = state.recognizedWords;
 ## Platform notes
 
 - **iOS**: Microphone (and typically speech recognition) permission; the package uses `permission_handler` for the microphone and relies on `speech_to_text` for recognition.
-- **Android**: Microphone permission via `permission_handler`.
+  - You **must** enable the corresponding `permission_handler` flags in your app’s `ios/Podfile`, otherwise the native permission dialogs will never appear and the toggles won’t show up in Settings. Add the following to your `post_install` block:
+
+    ```ruby
+    post_install do |installer|
+      installer.pods_project.targets.each do |target|
+        flutter_additional_ios_build_settings(target)
+        target.build_configurations.each do |config|
+          # Your existing minimum iOS version
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+
+          # Enable permission_handler permissions used by df_speech_to_text
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+            '$(inherited)',
+            'PERMISSION_MICROPHONE=1',
+            'PERMISSION_SPEECH_RECOGNIZER=1',
+          ]
+        end
+      end
+    end
+    ```
+
+  - Also ensure `Info.plist` contains `NSMicrophoneUsageDescription` and `NSSpeechRecognitionUsageDescription`.
+
+- **Android**: Microphone permission via `permission_handler` and a `<uses-permission android:name="android.permission.RECORD_AUDIO" />` entry in your `AndroidManifest.xml`.
 - **Web**: Permissions are handled by the browser; the package skips native permission flows on web.
