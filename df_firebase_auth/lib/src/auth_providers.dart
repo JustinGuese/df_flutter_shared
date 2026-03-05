@@ -23,7 +23,9 @@ final googleSignInProvider = Provider<GoogleSignIn>((ref) {
   final config = ref.watch(authConfigProvider);
   final signIn = GoogleSignIn.instance;
 
-  if (!kIsWeb && config.serverClientId != null) {
+  if (kIsWeb && config.serverClientId != null) {
+    signIn.initialize(clientId: config.serverClientId);
+  } else if (!kIsWeb && config.serverClientId != null) {
     signIn.initialize(serverClientId: config.serverClientId);
   } else {
     signIn.initialize();
