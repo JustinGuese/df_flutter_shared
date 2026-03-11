@@ -1,0 +1,13 @@
+name: df_ai_consent
+description: Reusable AI data consent dialog and service for GDPR-compliant apps using Google Gemini.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.3.5
+  url_launcher: ^6.3.1

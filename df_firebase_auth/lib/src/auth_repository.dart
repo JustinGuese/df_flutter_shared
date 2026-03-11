@@ -44,70 +44,8 @@ class AuthRepository {
 
   Future<void> signInWithGoogle() async {
     try {
-      // On web, try FedCM first and fall back to popup if it fails/cancels.
+      // On web, use the standard OAuth popup — reliable regardless of FedCM support.
       if (kIsWeb) {
-        try {
-          GoogleSignInAccount? googleUser;
-          final completer = Completer<GoogleSignInAccount?>();
-          StreamSubscription? subscription;
-
-          try {
-            subscription = _googleSignIn.authenticationEvents.listen(
-              (event) {
-                try {
-                  final eventDynamic = event as dynamic;
-                  GoogleSignInAccount? account;
-
-                  if (eventDynamic is GoogleSignInAccount) {
-                    account = eventDynamic;
-                  } else if (eventDynamic.user != null) {
-                    account = eventDynamic.user as GoogleSignInAccount?;
-                  } else if (eventDynamic.account != null) {
-                    account = eventDynamic.account as GoogleSignInAccount?;
-                  }
-
-                  if (account != null && !completer.isCompleted) {
-                    completer.complete(account);
-                  }
-                } catch (e) {
-                  // Continue listening
-                }
-              },
-              onError: (error) {
-                if (!completer.isCompleted) {
-                  completer.completeError(error);
-                }
-              },
-            );
-
-            if (_googleSignIn.supportsAuthenticate()) {
-              await _googleSignIn.authenticate();
-            } else {
-              await _googleSignIn.attemptLightweightAuthentication();
-            }
-
-            googleUser = await completer.future.timeout(
-              const Duration(seconds: 30),
-              onTimeout: () => null,
-            );
-          } finally {
-            await subscription?.cancel();
-          }
-
-          if (googleUser != null) {
-            final googleAuth = googleUser.authentication;
-            final idToken = googleAuth.idToken;
-            if (idToken != null) {
-              final credential = GoogleAuthProvider.credential(idToken: idToken);
-              await _auth.signInWithCredential(credential);
-              return;
-            }
-          }
-        } catch (_) {
-          // FedCM failed — fall through to popup
-        }
-
-        // Fallback: standard OAuth popup for web
         await _auth.signInWithPopup(GoogleAuthProvider());
         return;
       }
