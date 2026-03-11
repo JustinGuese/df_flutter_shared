@@ -1,0 +1,22 @@
+name: df_whisper_speech
+description: >-
+  Speech-to-text integration for Flutter apps using the Whisper backend API
+  with SSE streaming, Riverpod state management, and platform-specific audio I/O.
+  Supports iOS, Android, and Web with real-time transcription and friendly error handling.
+version: 0.1.0
+publish_to: 'none'
+
+repository: https://github.com/JustinGuese/df_flutter_shared
+issue_tracker: https://github.com/JustinGuese/df_flutter_shared/issues
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.0.3
+  dio: ^5.7.0
+  record: ^6.2.0
+  path_provider: ^2.1.0
+  web: ^1.0.0
