@@ -23,12 +23,14 @@ final googleSignInProvider = Provider<GoogleSignIn>((ref) {
   final config = ref.watch(authConfigProvider);
   final signIn = GoogleSignIn.instance;
 
-  if (kIsWeb && config.serverClientId != null) {
-    signIn.initialize(clientId: config.serverClientId);
-  } else if (!kIsWeb && config.serverClientId != null) {
-    signIn.initialize(serverClientId: config.serverClientId);
-  } else {
-    signIn.initialize();
+  // Web uses Firebase signInWithPopup directly — skip GoogleSignIn.initialize()
+  // to avoid triggering an unwanted FedCM/One Tap prompt that will fail on most origins.
+  if (!kIsWeb) {
+    if (config.serverClientId != null) {
+      signIn.initialize(serverClientId: config.serverClientId);
+    } else {
+      signIn.initialize();
+    }
   }
 
   return signIn;

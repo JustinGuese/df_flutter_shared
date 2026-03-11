@@ -2,10 +2,11 @@ import 'package:flutter/foundation.dart'
     show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../auth_providers.dart';
+import 'google_icon.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -200,16 +201,28 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: SignInButton(
-                          Buttons.Google,
-                          text: 'Sign up with Google',
-                          onPressed:
-                              _loading ? () {} : () => _signInWithGoogle(),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                      OutlinedButton(
+                        onPressed: _loading ? null : _signInWithGoogle,
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 48),
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black87,
+                          side: const BorderSide(color: Color(0xFFDADADA)),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20)),
                           ),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GoogleIcon(),
+                            SizedBox(width: 12),
+                            Text(
+                              'Sign up with Google',
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                          ],
                         ),
                       ),
                       if (!kIsWeb &&
@@ -217,17 +230,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               defaultTargetPlatform ==
                                   TargetPlatform.macOS)) ...[
                         const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: SignInButton(
-                            Buttons.Apple,
-                            text: 'Sign up with Apple',
-                            onPressed:
-                                _loading ? () {} : () => _signInWithApple(),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                          ),
+                        SignInWithAppleButton(
+                          onPressed: _loading ? () {} : _signInWithApple,
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(20)),
                         ),
                       ],
                       const SizedBox(height: 16),

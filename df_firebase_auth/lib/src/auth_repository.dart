@@ -230,7 +230,8 @@ class AuthRepository {
   }
 
   Future<void> signOut() async {
-    await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
+    await _auth.signOut();
+    if (!kIsWeb) await _googleSignIn.signOut();
   }
 
   Future<void> sendPasswordReset(String email) =>
@@ -244,7 +245,7 @@ class AuthRepository {
 
     try {
       await user.delete();
-      await _googleSignIn.signOut();
+      if (!kIsWeb) await _googleSignIn.signOut();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
         throw Exception(
