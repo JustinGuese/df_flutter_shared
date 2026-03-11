@@ -210,21 +210,16 @@ class ChatController extends Notifier<ChatState> {
         await _fallbackToSingleMessageSend(repository, chatId, content);
       }
     } else {
-      // Non-streaming mode: use MessagePair and update both messages at once.
+      // Non-streaming mode: POST returns the bot's response directly.
+      // The user message is already in state.messages; just append the bot reply.
       try {
         state = state.copyWith(isStreaming: true, error: null);
-        final pair = await repository.sendMessageSync(chatId, content);
-
-        final updatedMessages = List<types.Message>.from(state.messages)
-          ..addAll([
-            _messageToChatMessage(pair.userMessage),
-            _messageToChatMessage(pair.botMessage),
-          ]);
+        final botMsg = await repository.sendMessage(chatId, content);
 
         onMessageSent?.call();
 
         state = state.copyWith(
-          messages: updatedMessages,
+          messages: [...state.messages, _messageToChatMessage(botMsg)],
           isStreaming: false,
           error: null,
         );

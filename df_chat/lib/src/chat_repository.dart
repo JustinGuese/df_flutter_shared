@@ -61,24 +61,13 @@ class ChatRepository {
         .toList();
   }
 
-  /// Legacy single-message send used as a fallback by [ChatController].
+  /// Send a message and return the bot's [Message] response.
   Future<Message> sendMessage(int chatId, String content) async {
     final response = await _dio.post<Map<String, dynamic>>(
       _resolvePath(config.messagesEndpoint, chatId: chatId),
-      data: {'content': content},
+      queryParameters: {'content': content},
     );
     return Message.fromJson(response.data!);
-  }
-
-  /// Non-streaming send that returns a full user/bot [MessagePair].
-  ///
-  /// This is used when [ChatConfig.streamEndpoint] is null or empty.
-  Future<MessagePair> sendMessageSync(int chatId, String content) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      _resolvePath(config.messagesEndpoint, chatId: chatId),
-      data: {'content': content},
-    );
-    return MessagePair.fromJson(response.data!);
   }
 
   Future<void> resetChat(int chatId) async {
@@ -97,7 +86,7 @@ class ChatRepository {
 
     final response = await _dio.post(
       _resolvePath(streamEndpoint, chatId: chatId),
-      data: {'content': content},
+      queryParameters: {'content': content},
       options: Options(
         responseType: ResponseType.stream,
         headers: {'Accept': 'text/event-stream'},
