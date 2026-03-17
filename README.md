@@ -13,6 +13,8 @@ Reusable Flutter packages used by PsychDiary and other apps from [DataFortress.c
 | **[df_analytics](df_analytics/)** | Analytics and installation tracking: Firebase Analytics wrapper, App Tracking Transparency (iOS), Meta (Facebook App Events + Meta Pixel), and a consent-first installation flow. Provides `AnalyticsService`, `InstallationTrackingService`, and `PrivacyTrackingDialog`; app defines event names via extensions. |
 | **[df_firebase_auth](df_firebase_auth/)** | Firebase Auth and API client: `AuthRepository` (email, Google, Apple), Dio-based `ApiClient` with Bearer token injection, Riverpod auth providers, and ready-made login/register screens. App overrides `authConfigProvider` with API URL, server client ID, logo, app name, and routes. |
 | **[df_firebase_rest](df_firebase_rest/)** | Generic REST implementation of Firebase Auth: `FirebaseRestAuth` and `FirebaseRestUser` for platforms not supported by the official SDK (Windows/Linux). Supports sign-in, sign-up, secure token storage, and automatic refresh. |
+| **[df_audio_capture](df_audio_capture/)** | Generic cross-platform audio recording: Supports microphone and system/loopback audio capture across Windows, Linux, macOS, Android, iOS, and Web. Handles decibel levels and multiple output formats. |
+| **[df_device_id](df_device_id/)** | Persistent device identification: Generates a unique UUID and stores it securely using `flutter_secure_storage` to identify unique installations. |
 | **[df_onboarding](df_onboarding/)** | Onboarding carousel: configurable pages (icon, title, subtitle, features, gradient, emoji), completion flag in SharedPreferences, and callbacks for post-onboarding actions (e.g. tracking consent, navigation). App overrides `onboardingConfigProvider` with page list and preferences key; uses `OnboardingWrapper` and `OnboardingScreen`. |
 | **[df_chat](df_chat/)** | AI chat backend: `ChatRepository` with configurable endpoints and SSE streaming, Riverpod `ChatController` / `ChatState`, and `flutter_chat_types`-compatible models. App overrides `chatRepositoryProvider` with a `ChatRepository(Dio)` instance; wire `onMessageSent` on the controller for analytics. UI (screens, quick actions) stays in the app. |
 | **[df_api_repository](df_api_repository/)** | Base repository for Dio-based APIs: `BaseApiRepository` holds `Dio` and optional `ApiRepositoryConfig` (default page size, timeouts). Helpers `getList<T>` and `getOne<T>` for paginated lists and single resources. Extend in your app (e.g. `DiaryRepository extends BaseApiRepository`) and implement endpoint-specific methods. |
@@ -46,4 +48,5 @@ From the repo root (or the app that uses them):
 - Run `flutter pub get` in each package directory after changing `pubspec.yaml`.
 - Run `flutter analyze` in each package and in the app after code changes.
 - Packages do not depend on each other; the app wires them (e.g. onboarding calls analytics for consent).
+
 

@@ -1,0 +1,23 @@
+name: df_audio_capture
+description: A generic cross-platform audio recording library supporting microphone and system/loopback audio capture.
+version: 0.1.0
+publish_to: "none"
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  record: ^6.2.0
+  desktop_audio_capture:
+    git:
+      url: https://github.com/JustinGuese/desktop_audio_capture
+      ref: main
+  cross_file: ^0.3.4
+  path: ^1.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
