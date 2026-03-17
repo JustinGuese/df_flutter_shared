@@ -26,7 +26,7 @@ class AudioLevelBar extends StatelessWidget {
           decoration: BoxDecoration(
             color: lit
                 ? theme.colorScheme.primary
-                : theme.colorScheme.outline.withOpacity(0.3),
+                : theme.colorScheme.outline.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(2),
           ),
         );

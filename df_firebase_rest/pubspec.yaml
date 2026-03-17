@@ -1,4 +1,4 @@
-﻿name: df_firebase_rest
+name: df_firebase_rest
 description: A generic REST implementation of Firebase Auth for platforms where the official SDK is not supported (e.g., Windows/Linux).
 version: 0.1.0
 publish_to: "none"
