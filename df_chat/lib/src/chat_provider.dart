@@ -202,7 +202,11 @@ class ChatController extends Notifier<ChatState> {
             state = state.copyWith(isStreaming: false);
             _streamingMessageIndex = null;
             onMessageSent?.call();
-            _reloadMessages();
+            // Delay the reload so the backend has time to persist the new
+            // messages before we fetch them (avoids a race condition where
+            // the reload runs before the backend commits the exchange and
+            // returns the pre-exchange message list, wiping local messages).
+            Future.delayed(const Duration(milliseconds: 1500), _reloadMessages);
           },
         );
       } catch (e) {
@@ -267,19 +271,12 @@ class ChatController extends Notifier<ChatState> {
 
   Future<void> _reloadMessages() async {
     if (state.chat?.id == null) return;
-    // Capture before the async gap to guard against race conditions where
-    // the backend hasn't persisted new messages yet when the stream ends.
-    final minExpected = state.messages.length;
     try {
       final repository = ref.read(chatRepositoryProvider);
-      // Fetch at least as many messages as we currently have, so we don't
-      // accidentally truncate a conversation that exceeds the default page size.
-      final fetchLimit =
-          minExpected > _defaultPageSize ? minExpected + 5 : _defaultPageSize;
       final messages = await repository.getMessages(
         state.chat!.id!,
         skip: 0,
-        limit: fetchLimit,
+        limit: _defaultPageSize,
       );
       final chatMessages =
           messages.map((m) => _messageToChatMessage(m)).toList();
@@ -297,13 +294,7 @@ class ChatController extends Notifier<ChatState> {
         (a, b) => (a.createdAt ?? 0).compareTo(b.createdAt ?? 0),
       );
 
-      // Only update state if the backend returned at least as many messages
-      // as we currently have. A lower count means the backend hasn't finished
-      // persisting the just-streamed messages yet (race condition); in that
-      // case keep the locally-built state which is already correct.
-      if (uniqueMessages.length >= minExpected) {
-        state = state.copyWith(messages: uniqueMessages);
-      }
+      state = state.copyWith(messages: uniqueMessages);
     } catch (e) {
       // Silently fail reload
     }
