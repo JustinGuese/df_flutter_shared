@@ -267,12 +267,19 @@ class ChatController extends Notifier<ChatState> {
 
   Future<void> _reloadMessages() async {
     if (state.chat?.id == null) return;
+    // Capture before the async gap to guard against race conditions where
+    // the backend hasn't persisted new messages yet when the stream ends.
+    final minExpected = state.messages.length;
     try {
       final repository = ref.read(chatRepositoryProvider);
+      // Fetch at least as many messages as we currently have, so we don't
+      // accidentally truncate a conversation that exceeds the default page size.
+      final fetchLimit =
+          minExpected > _defaultPageSize ? minExpected + 5 : _defaultPageSize;
       final messages = await repository.getMessages(
         state.chat!.id!,
         skip: 0,
-        limit: _defaultPageSize,
+        limit: fetchLimit,
       );
       final chatMessages =
           messages.map((m) => _messageToChatMessage(m)).toList();
@@ -290,7 +297,13 @@ class ChatController extends Notifier<ChatState> {
         (a, b) => (a.createdAt ?? 0).compareTo(b.createdAt ?? 0),
       );
 
-      state = state.copyWith(messages: uniqueMessages);
+      // Only update state if the backend returned at least as many messages
+      // as we currently have. A lower count means the backend hasn't finished
+      // persisting the just-streamed messages yet (race condition); in that
+      // case keep the locally-built state which is already correct.
+      if (uniqueMessages.length >= minExpected) {
+        state = state.copyWith(messages: uniqueMessages);
+      }
     } catch (e) {
       // Silently fail reload
     }
