@@ -199,14 +199,18 @@ class ChatController extends Notifier<ChatState> {
             _streamingMessageIndex = null;
           },
           onDone: () {
+            final savedBotIndex = _streamingMessageIndex; // save before clearing
             state = state.copyWith(isStreaming: false);
             _streamingMessageIndex = null;
             onMessageSent?.call();
-            // Delay the reload so the backend has time to persist the new
-            // messages before we fetch them (avoids a race condition where
-            // the reload runs before the backend commits the exchange and
-            // returns the pre-exchange message list, wiping local messages).
-            Future.delayed(const Duration(milliseconds: 1500), _reloadMessages);
+
+            // In-place update: only replace the bot message text, nothing else
+            if (savedBotIndex != null) {
+              final formatted = ref.read(chatRepositoryProvider).pendingFormattedContent;
+              if (formatted != null && formatted.isNotEmpty) {
+                _updateBotMessageText(savedBotIndex, formatted);
+              }
+            }
           },
         );
       } catch (e) {
@@ -234,6 +238,20 @@ class ChatController extends Notifier<ChatState> {
         );
       }
     }
+  }
+
+  void _updateBotMessageText(int index, String text) {
+    final msgs = List<types.Message>.from(state.messages);
+    if (index >= msgs.length) return;
+    final old = msgs[index];
+    if (old is! types.TextMessage) return;
+    msgs[index] = types.TextMessage(
+      id: old.id, // keep local ID — avoids sync mismatch
+      author: old.author,
+      createdAt: old.createdAt,
+      text: text,
+    );
+    state = state.copyWith(messages: msgs);
   }
 
   Future<void> _fallbackToSingleMessageSend(
@@ -268,6 +286,7 @@ class ChatController extends Notifier<ChatState> {
       _streamingMessageIndex = null;
     }
   }
+
 
   Future<void> _reloadMessages() async {
     if (state.chat?.id == null) return;

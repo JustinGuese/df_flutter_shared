@@ -12,6 +12,9 @@ class ChatRepository {
   final Dio _dio;
   final ChatConfig config;
 
+  String? _pendingFormattedContent;
+  String? get pendingFormattedContent => _pendingFormattedContent;
+
   /// Resolves [path] against [config.basePath], if provided, and replaces
   /// `{chatId}` placeholders with the numeric [chatId].
   String _resolvePath(String path, {int? chatId}) {
@@ -77,6 +80,7 @@ class ChatRepository {
   }
 
   Stream<String> streamMessage(int chatId, String content) async* {
+    _pendingFormattedContent = null;
     final streamEndpoint = config.streamEndpoint;
     if (streamEndpoint == null || streamEndpoint.isEmpty) {
       throw StateError(
@@ -108,43 +112,68 @@ class ChatRepository {
 
     await for (final line in lines) {
       if (line.isEmpty) {
-        if (currentEvent != null && currentData != null) {
-          try {
-            final jsonData = jsonDecode(currentData) as Map<String, dynamic>;
-            final jsonEventType = jsonData['type'];
-            final eventType =
-                jsonEventType is String ? jsonEventType : currentEvent;
+        // SSE message separator — process accumulated event+data
+        final hasEvent = currentEvent != null;
+        final hasData = currentData != null;
 
-            if (eventType == 'token') {
-              final tokenContent = jsonData['content'] as String?;
-              if (tokenContent != null && tokenContent.isNotEmpty) {
-                yield tokenContent;
+        if (hasData) {
+          // Resolve event type: prefer explicit event line, then fall back to
+          // the "type" field inside the JSON data (for backends that omit
+          // the SSE event line and embed the type in the payload).
+          String? resolvedEvent = currentEvent;
+          Map<String, dynamic>? jsonData;
+
+          try {
+            final decoded = jsonDecode(currentData!);
+            if (decoded is Map<String, dynamic>) {
+              jsonData = decoded;
+              final jsonType = jsonData!['type'];
+              if (jsonType is String) {
+                resolvedEvent = jsonType;
               }
-            } else if (eventType == 'error') {
-              final errorContent =
-                  jsonData['content'] as String? ?? currentData;
-              throw Exception(errorContent);
-            } else if (eventType == 'end') {
-              break;
             }
-          } catch (e) {
-            if (currentEvent == 'token' && currentData.isNotEmpty) {
-              yield currentData;
-            } else if (currentEvent == 'end') {
-              break;
-            } else if (currentEvent == 'error') {
-              throw Exception(currentData);
-            }
+            // If decoded is a List (e.g. sources event), leave jsonData null
+            // and keep resolvedEvent as-is so it falls through to the
+            // "unknown event" / silent-ignore path below.
+          } catch (_) {
+            // Not JSON or unexpected shape — resolvedEvent stays as currentEvent
           }
-          currentEvent = null;
-          currentData = null;
-        } else if (currentEvent == 'end') {
+
+          if (resolvedEvent == 'token') {
+            final tokenContent = jsonData?['content'] as String?;
+            if (tokenContent != null && tokenContent.isNotEmpty) {
+              yield tokenContent;
+            } else if (jsonData == null && currentData!.isNotEmpty) {
+              // Plain-text token (non-JSON data with event: token)
+              yield currentData!;
+            }
+          } else if (resolvedEvent == 'error') {
+            final errorContent =
+                jsonData?['content'] as String? ?? currentData;
+            throw Exception(errorContent);
+          } else if (resolvedEvent == 'message_saved') {
+            _pendingFormattedContent = jsonData?['content'] as String?;
+          } else if (resolvedEvent == 'end') {
+            break;
+          } else if (resolvedEvent == null && currentData!.isNotEmpty) {
+            // No event name and non-JSON plain text — best-effort: treat as token
+            yield currentData!;
+          }
+          // Unknown events (sources, etc.) — silently ignored
+        } else if (hasEvent && currentEvent == 'end') {
+          // event: end with no data line
           break;
         }
+
+        currentEvent = null;
+        currentData = null;
       } else if (line.startsWith('event: ')) {
         currentEvent = line.substring(7).trim();
       } else if (line.startsWith('data: ')) {
-        final dataLine = line.substring(6).trim();
+        // SSE spec: strip exactly one leading space after "data:" — already
+        // handled by substring(6). Do NOT trim further; leading spaces in the
+        // value are intentional word-separator characters from the backend.
+        final dataLine = line.substring(6);
         if (currentData == null) {
           currentData = dataLine;
         } else {
