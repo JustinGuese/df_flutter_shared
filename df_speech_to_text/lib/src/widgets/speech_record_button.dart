@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../speech_to_text_notifier.dart';
 import 'microphone_permission_dialog.dart';
@@ -111,6 +112,33 @@ class _SpeechRecordButtonState extends ConsumerState<SpeechRecordButton>
           ),
         );
       });
+    }
+
+    if (speechState.isMicPermanentlyDenied) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(Icons.mic_off, color: theme.colorScheme.error),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Microphone access is required for voice input. Please enable it in Settings.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              TextButton(
+                onPressed: () => openAppSettings(),
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     if (!speechState.isAvailable) {

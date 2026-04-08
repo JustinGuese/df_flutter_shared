@@ -19,6 +19,7 @@ class SpeechToTextState {
     this.recognizedWords = '',
     this.error,
     this.isInitialized = false,
+    this.isMicPermanentlyDenied = false,
   });
 
   final bool isAvailable;
@@ -27,12 +28,18 @@ class SpeechToTextState {
   final String? error;
   final bool isInitialized;
 
+  /// True when the user has permanently denied microphone access.
+  /// The UI should show an inline message with a user-tapped "Open Settings"
+  /// button rather than automatically redirecting.
+  final bool isMicPermanentlyDenied;
+
   SpeechToTextState copyWith({
     bool? isAvailable,
     bool? isListening,
     String? recognizedWords,
     Object? error = _sentinel,
     bool? isInitialized,
+    bool? isMicPermanentlyDenied,
   }) {
     return SpeechToTextState(
       isAvailable: isAvailable ?? this.isAvailable,
@@ -40,6 +47,8 @@ class SpeechToTextState {
       recognizedWords: recognizedWords ?? this.recognizedWords,
       error: identical(error, _sentinel) ? this.error : error as String?,
       isInitialized: isInitialized ?? this.isInitialized,
+      isMicPermanentlyDenied:
+          isMicPermanentlyDenied ?? this.isMicPermanentlyDenied,
     );
   }
 }
@@ -302,12 +311,13 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
 
       if (micStatus.isPermanentlyDenied) {
         debugPrint(
-          '🎤 requestMicrophonePermission (iOS): permanently denied, opening settings...',
+          '🎤 requestMicrophonePermission (iOS): permanently denied, setting flag...',
         );
-        await openAppSettings();
+        state = state.copyWith(isMicPermanentlyDenied: true);
         return false;
       }
 
+      state = state.copyWith(isMicPermanentlyDenied: false);
       return micStatus.isGranted;
     }
 
@@ -317,11 +327,13 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
 
     if (micStatus.isPermanentlyDenied) {
       debugPrint(
-        '🎤 requestMicrophonePermission (Android): mic permanently denied, opening settings...',
+        '🎤 requestMicrophonePermission (Android): mic permanently denied, setting flag...',
       );
-      await openAppSettings();
+      state = state.copyWith(isMicPermanentlyDenied: true);
       return false;
     }
+
+    state = state.copyWith(isMicPermanentlyDenied: false);
 
     if (!micStatus.isGranted) {
       debugPrint(

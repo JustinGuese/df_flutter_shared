@@ -81,16 +81,32 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     } on Exception catch (error) {
       if (mounted) {
         final errorMessage = error.toString();
-        if (errorMessage.contains('cancelled')) return;
+        if (errorMessage.contains('cancelled') ||
+            errorMessage.contains('canceled')) return;
+        final friendlyMessage = _appleSignInFriendlyError(errorMessage);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage.replaceAll('Exception: ', '')),
-          ),
+          SnackBar(content: Text(friendlyMessage)),
         );
       }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  String _appleSignInFriendlyError(String error) {
+    if (error.contains('operation-not-allowed') ||
+        error.contains('identity provider configuration')) {
+      return 'Apple Sign-In is temporarily unavailable. Please try again or use another sign-in method.';
+    }
+    if (error.contains('network') ||
+        error.contains('timeout') ||
+        error.contains('connection')) {
+      return 'Please check your connection and try again.';
+    }
+    if (error.contains('account-exists-with-different-credential')) {
+      return 'An account already exists with a different sign-in method. Please sign in with that method instead.';
+    }
+    return 'Sign-in failed. Please try again.';
   }
 
   @override
