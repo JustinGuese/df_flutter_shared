@@ -8,7 +8,7 @@ Reusable Dart/Flutter utilities: date formatting, keyword and summary parsing, a
 
 | Module | Exports | Description |
 |--------|---------|-------------|
-| **date_utils** | `dateOnly`, `formatEntryDate` | Strip time from `DateTime`; format as “EEEE, MMMM d, y” (intl). |
+| **date_utils** | `dateOnly`, `formatEntryDate`, `formatGermanDate`, `formatGermanDateTime`, `formatGermanEntryDate` | Strip time from `DateTime`; English diary format; German short date (`dd.MM.yyyy`), datetime (`dd.MM.yyyy HH:mm`), and long weekday (`Dienstag, 15. April 2025`). |
 | **keyword_utils** | `parseKeywords`, `keywordsFromController` | Comma-separated keyword string → list; extract keywords from a `TextEditingController`. |
 | **summary_utils** | `parseSummaryPoints` | Multi-line summary string → list of bullet points (handles •, -, *, numbered lines). |
 | **animation_constants** | `AnimationDurations` | Static durations: `fast`, `normal`, `medium`, `slow`, `pulse`, `emphasis`. |

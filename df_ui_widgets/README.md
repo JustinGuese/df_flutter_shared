@@ -12,6 +12,10 @@ Reusable Flutter UI widgets with optional theme/color parameters so the package 
 | **SummaryBulletList** | Bullet list with optional `title`, `icon`, `maxVisible` (“+X more”), `emptyStateText`, `isLoading`. Optional `titleIconGradient`, `titleColor`, `bulletColor` for branding. |
 | **KeywordChipList** | Title + list of keyword chips; optional `icon`, colors, `emptyStateText`. When `isLoading`, shows an “Analyzing with AI…” pulse indicator. |
 | **LoadingAppBarAction** | Small circular progress indicator for AppBar actions (e.g. saving). |
+| **CharacterCounter** | Live character count display for a `TextEditingController`. Shows `current/max`; turns error color when over limit. Optional `style` override. |
+| **BrandedAppBar** | Gradient `AppBar` using `colorScheme.primary → secondary`. Optional `logoAsset` path; when null, shows title only. Gradient and icon colors are theme-based. |
+| **NumberedStepList** | Vertical list of numbered steps (circle badge + title + description). Optional `numberColor`; defaults to `theme.colorScheme.primary`. |
+| **SuccessBanner** | Confirmation banner: icon, title, body, optional warning note. Pass `color` for branding (e.g. green); defaults to `Colors.green`. |
 
 ---
 
