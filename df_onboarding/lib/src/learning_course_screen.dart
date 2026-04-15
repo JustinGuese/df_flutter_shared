@@ -13,17 +13,25 @@ import 'learning_step_model.dart';
 ///
 /// [onProgressChanged] is called after every checkbox toggle so the consuming
 /// app can sync to the backend.
+///
+/// [stepGateBuilder] is an optional callback that receives the index of the
+/// step the user is trying to navigate to. Return a non-null widget to block
+/// navigation and display that widget in place of the step content (e.g. a
+/// paywall). Return null to allow navigation as normal.
 class LearningCourseScreen extends ConsumerStatefulWidget {
   const LearningCourseScreen({
     super.key,
     required this.course,
     this.onProgressChanged,
     this.onFirstOpen,
+    this.stepGateBuilder,
   });
 
   final LearningCourseModel course;
   final void Function(Set<String> completedItemIds)? onProgressChanged;
   final VoidCallback? onFirstOpen;
+  /// Return a widget to block navigation to [stepIndex], or null to allow it.
+  final Widget? Function(int stepIndex)? stepGateBuilder;
 
   @override
   ConsumerState<LearningCourseScreen> createState() =>
@@ -36,6 +44,9 @@ class _LearningCourseScreenState extends ConsumerState<LearningCourseScreen> {
 
   // Warnsignale quick-check state (ephemeral, not persisted)
   List<bool> _warnsignaleChecked = [];
+
+  // When non-null, the gate widget is shown instead of the current step content.
+  Widget? _gateWidget;
 
   @override
   void initState() {
@@ -84,12 +95,25 @@ class _LearningCourseScreenState extends ConsumerState<LearningCourseScreen> {
   }
 
   void _goTo(int page) {
-    setState(() => _currentPage = page);
+    // Check if a gate blocks this step.
+    final gate = widget.stepGateBuilder?.call(page);
+    if (gate != null) {
+      setState(() => _gateWidget = gate);
+      return;
+    }
+    setState(() {
+      _gateWidget = null;
+      _currentPage = page;
+    });
     _pageController.animateToPage(
       page,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
+  }
+
+  void _clearGate() {
+    setState(() => _gateWidget = null);
   }
 
   @override
@@ -105,21 +129,23 @@ class _LearningCourseScreenState extends ConsumerState<LearningCourseScreen> {
       body: Column(
         children: [
           _buildHeader(context, ratio, completed.length),
-          _buildStepIndicator(totalPages),
+          _buildStepIndicator(totalPages, gateActive: _gateWidget != null),
           Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: totalPages,
-              onPageChanged: (i) => setState(() => _currentPage = i),
-              itemBuilder: (context, i) {
-                final step = pages[i];
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: _buildStep(context, step, completed),
-                );
-              },
-            ),
+            child: _gateWidget != null
+                ? SingleChildScrollView(child: _gateWidget!)
+                : PageView.builder(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: totalPages,
+                    onPageChanged: (i) => setState(() => _currentPage = i),
+                    itemBuilder: (context, i) {
+                      final step = pages[i];
+                      return SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: _buildStep(context, step, completed),
+                      );
+                    },
+                  ),
           ),
           _buildBottomNav(context, totalPages, completed),
         ],
@@ -237,17 +263,24 @@ class _LearningCourseScreenState extends ConsumerState<LearningCourseScreen> {
 
   // ─── Step dots ─────────────────────────────────────────────────────────────
 
-  Widget _buildStepIndicator(int totalPages) {
+  Widget _buildStepIndicator(int totalPages, {bool gateActive = false}) {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(totalPages, (i) {
-          final active = i == _currentPage;
+          final active = !gateActive && i == _currentPage;
           final past = i < _currentPage;
           return GestureDetector(
-            onTap: () => _goTo(i),
+            // Tapping a previous dot always works; tapping ahead may gate.
+            onTap: () {
+              if (gateActive && i <= _currentPage) {
+                _clearGate();
+              } else {
+                _goTo(i);
+              }
+            },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),
               margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -551,6 +584,29 @@ class _LearningCourseScreenState extends ConsumerState<LearningCourseScreen> {
 
   Widget _buildBottomNav(
       BuildContext context, int totalPages, Set<String> completed) {
+    // When a gate is active, only show a "Zurück" button to dismiss it.
+    if (_gateWidget != null) {
+      return Container(
+        padding: EdgeInsets.fromLTRB(
+            16, 12, 16, 12 + MediaQuery.of(context).padding.bottom),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+        ),
+        child: OutlinedButton.icon(
+          onPressed: _clearGate,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 14),
+          label: const Text('Zurück'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFF0E6B82),
+            side: const BorderSide(color: Color(0xFF0E6B82)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            padding: const EdgeInsets.symmetric(vertical: 13),
+          ),
+        ),
+      );
+    }
+
     final isFirst = _currentPage == 0;
     final isLast = _currentPage == totalPages - 1;
     final pages = _pages;

@@ -1,0 +1,11 @@
+name: df_paywall
+description: Generic paywall and premium upsell UI components. App-agnostic — bring your own config and callbacks.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
