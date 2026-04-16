@@ -124,10 +124,10 @@ class ChatRepository {
           Map<String, dynamic>? jsonData;
 
           try {
-            final decoded = jsonDecode(currentData!);
+            final decoded = jsonDecode(currentData);
             if (decoded is Map<String, dynamic>) {
               jsonData = decoded;
-              final jsonType = jsonData!['type'];
+              final jsonType = jsonData['type'];
               if (jsonType is String) {
                 resolvedEvent = jsonType;
               }
@@ -143,9 +143,9 @@ class ChatRepository {
             final tokenContent = jsonData?['content'] as String?;
             if (tokenContent != null && tokenContent.isNotEmpty) {
               yield tokenContent;
-            } else if (jsonData == null && currentData!.isNotEmpty) {
+            } else if (jsonData == null && currentData.isNotEmpty) {
               // Plain-text token (non-JSON data with event: token)
-              yield currentData!;
+              yield currentData;
             }
           } else if (resolvedEvent == 'error') {
             final errorContent =
@@ -155,9 +155,9 @@ class ChatRepository {
             _pendingFormattedContent = jsonData?['content'] as String?;
           } else if (resolvedEvent == 'end') {
             break;
-          } else if (resolvedEvent == null && currentData!.isNotEmpty) {
+          } else if (resolvedEvent == null && currentData.isNotEmpty) {
             // No event name and non-JSON plain text — best-effort: treat as token
-            yield currentData!;
+            yield currentData;
           }
           // Unknown events (sources, etc.) — silently ignored
         } else if (hasEvent && currentEvent == 'end') {
