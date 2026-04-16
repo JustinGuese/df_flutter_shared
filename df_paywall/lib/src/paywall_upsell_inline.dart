@@ -74,95 +74,82 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
     final cfg = widget.config;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Step preview
+          // Lock icon
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(16),
+              color: cfg.accentColor.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.lock_rounded, size: 32, color: cfg.accentColor),
+          ),
+          const SizedBox(height: 16),
+          // Title
+          Text(
+            '${cfg.productName} erforderlich',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF0C445A),
+            ),
+          ),
+          const SizedBox(height: 6),
+          // Step name
+          Text(
+            '„${widget.stepTitle}" freischalten',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF64748B),
+            ),
+          ),
+          const SizedBox(height: 6),
+          // Price info
+          Text(
+            '${cfg.trialHeadline}  ·  ${cfg.priceLabel}  ·  ${cfg.cancellationNote}',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+          ),
+          const SizedBox(height: 24),
+          // Features card
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
             child: Column(
               children: [
-                Text(widget.stepEmoji, style: const TextStyle(fontSize: 40)),
-                const SizedBox(height: 10),
-                Text(
-                  widget.stepTitle,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF0C445A),
+                for (int i = 0; i < cfg.features.take(3).length; i++) ...[
+                  if (i > 0) const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(Icons.check_circle_rounded,
+                          size: 16, color: cfg.accentColor),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          cfg.features.elementAt(i),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF334155),
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 8),
-                // Placeholder bars suggesting locked content
-                ...List.generate(
-                  3,
-                  (i) => Container(
-                    margin: const EdgeInsets.symmetric(vertical: 3),
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    width: double.infinity,
-                  ),
-                ),
+                ],
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          // Lock label
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: cfg.accentColor.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.lock_rounded, size: 20, color: cfg.accentColor),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                '${cfg.productName} erforderlich',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF0C445A),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${cfg.trialHeadline} · ${cfg.priceLabel} · ${cfg.cancellationNote}',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-          ),
-          const SizedBox(height: 20),
-          // Compact feature rows
-          ...cfg.features.take(3).map(
-                (f) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3),
-                  child: Row(
-                    children: [
-                      Icon(Icons.check_circle_rounded,
-                          size: 15, color: cfg.accentColor),
-                      const SizedBox(width: 8),
-                      Text(f,
-                          style: const TextStyle(
-                              fontSize: 13, color: Color(0xFF475569))),
-                    ],
-                  ),
-                ),
-              ),
           const SizedBox(height: 24),
           // CTA
           SizedBox(
