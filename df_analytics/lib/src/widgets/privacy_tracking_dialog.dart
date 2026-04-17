@@ -11,7 +11,8 @@ class PrivacyTrackingDialogConfig {
     ],
     this.infoText =
         'We share anonymous usage data with Meta (Facebook) for ad attribution and analytics. '
-        'This helps us measure ad effectiveness. Your personal diary entries are never shared.',
+        'This helps us measure ad effectiveness. Your personal diary entries are never shared. '
+        'Tapping Continue opens the iOS tracking prompt where you can allow or deny tracking.',
   });
 
   final List<String> bulletPoints;
@@ -113,10 +114,6 @@ class PrivacyTrackingDialog extends StatelessWidget {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Not Now'),
-        ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),
           child: const Text('Continue'),

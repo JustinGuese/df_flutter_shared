@@ -65,6 +65,9 @@ class InstallationTrackingService {
       if (isFirstInstall && !consentGiven) {
         if (!context.mounted) return false;
         final showDialog = showConsentDialog ?? PrivacyTrackingDialog.show;
+        // The default PrivacyTrackingDialog only offers a Continue action
+        // (Apple 5.1.1(iv) — the pre-ATT message must always lead to the
+        // system prompt). A custom showConsentDialog may still return false.
         final userConsented = await showDialog(context);
 
         if (!userConsented) {
