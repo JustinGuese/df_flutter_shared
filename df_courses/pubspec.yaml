@@ -1,0 +1,18 @@
+name: df_courses
+description: Multi-chapter learning courses with reading, checklist, red-flag and quiz steps.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.0.3
+  flutter_markdown: ^0.7.4
+  df_onboarding:
+    # path: ../df_onboarding
+    git:
+      url: https://github.com/JustinGuese/df_flutter_shared
+      path: df_onboarding
