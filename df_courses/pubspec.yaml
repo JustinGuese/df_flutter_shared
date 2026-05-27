@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.0.3
-  flutter_markdown: ^0.7.4
+  flutter_markdown_plus: ^1.0.3
   df_onboarding:
     # path: ../df_onboarding
     git:
