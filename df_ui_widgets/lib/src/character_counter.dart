@@ -22,10 +22,11 @@ class CharacterCounter extends StatelessWidget {
         final currentLength = value.text.length;
         final isOverLimit = currentLength > maxLength;
         final theme = Theme.of(context);
-        
+
         return Text(
           '$currentLength/$maxLength',
-          style: style ??
+          style:
+              style ??
               theme.textTheme.bodySmall?.copyWith(
                 color: isOverLimit
                     ? theme.colorScheme.error

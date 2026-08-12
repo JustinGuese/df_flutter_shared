@@ -10,7 +10,8 @@ repository: https://github.com/JustinGuese/df_flutter_shared
 issue_tracker: https://github.com/JustinGuese/df_flutter_shared/issues
 
 environment:
-  sdk: ^3.7.2
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.29.0'
 
 dependencies:
   flutter:
@@ -20,3 +21,8 @@ dependencies:
   record: ^6.2.0
   path_provider: ^2.1.0
   web: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

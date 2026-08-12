@@ -60,7 +60,8 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-                'Fehler beim Öffnen der Zahlungsseite. Bitte versuchen Sie es erneut.'),
+              'Fehler beim Öffnen der Zahlungsseite. Bitte versuchen Sie es erneut.',
+            ),
           ),
         );
       }
@@ -131,8 +132,11 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
                   if (i > 0) const SizedBox(height: 10),
                   Row(
                     children: [
-                      Icon(Icons.check_circle_rounded,
-                          size: 16, color: cfg.accentColor),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        size: 16,
+                        color: cfg.accentColor,
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -170,12 +174,16 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
                       width: 22,
                       height: 22,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2.5, color: Colors.white),
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
                     )
                   : Text(
                       '${cfg.productName} — ${cfg.ctaText}',
                       style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w700),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
             ),
           ),

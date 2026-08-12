@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 import '../course_models.dart';
 
 class RedFlagsChapterView extends StatelessWidget {
-  const RedFlagsChapterView({
-    super.key,
-    required this.chapter,
-    this.onCta,
-  });
+  const RedFlagsChapterView({super.key, required this.chapter, this.onCta});
 
   final RedFlagsChapter chapter;
   final VoidCallback? onCta;
@@ -52,33 +48,35 @@ class RedFlagsChapterView extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 12),
-          ...chapter.signals.map((s) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 2, right: 8),
-                      child: Icon(
-                        Icons.warning_amber_rounded,
-                        size: 18,
-                        color: Color(0xFFDC2626),
+          ...chapter.signals.map(
+            (s) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2, right: 8),
+                    child: Icon(
+                      Icons.warning_amber_rounded,
+                      size: 18,
+                      color: Color(0xFFDC2626),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      s,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        height: 1.4,
+                        color: Color(0xFF7F1D1D),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Expanded(
-                      child: Text(
-                        s,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          height: 1.4,
-                          color: Color(0xFF7F1D1D),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )),
+                  ),
+                ],
+              ),
+            ),
+          ),
           if (chapter.ctaLabel != null) ...[
             const SizedBox(height: 8),
             SizedBox(

@@ -1,4 +1,4 @@
-library df_chat;
+library;
 
 export 'src/chat_config.dart';
 export 'src/chat_repository.dart';

@@ -30,15 +30,16 @@ class _FirebaseRestUserImpl implements FirebaseRestUser {
     required String refreshToken,
     required DateTime tokenExpiry,
     required String apiKey,
-  })  : _idToken = idToken,
-        _refreshToken = refreshToken,
-        _tokenExpiry = tokenExpiry,
-        _apiKey = apiKey;
+  }) : _idToken = idToken,
+       _refreshToken = refreshToken,
+       _tokenExpiry = tokenExpiry,
+       _apiKey = apiKey;
 
   @override
   Future<String?> getIdToken({bool forceRefresh = false}) async {
-    final expiresSoon =
-        DateTime.now().isAfter(_tokenExpiry.subtract(const Duration(minutes: 5)));
+    final expiresSoon = DateTime.now().isAfter(
+      _tokenExpiry.subtract(const Duration(minutes: 5)),
+    );
     if (forceRefresh || expiresSoon) {
       await _refresh();
     }
@@ -49,14 +50,17 @@ class _FirebaseRestUserImpl implements FirebaseRestUser {
     final resp = await http.post(
       Uri.parse('$_secureTokenBase?key=$_apiKey'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(
-          {'grant_type': 'refresh_token', 'refresh_token': _refreshToken}),
+      body: jsonEncode({
+        'grant_type': 'refresh_token',
+        'refresh_token': _refreshToken,
+      }),
     );
     if (resp.statusCode == 200) {
       final data = jsonDecode(resp.body) as Map<String, dynamic>;
       _idToken = data['id_token'] as String;
       _tokenExpiry = DateTime.now().add(
-          Duration(seconds: int.parse(data['expires_in'] as String)));
+        Duration(seconds: int.parse(data['expires_in'] as String)),
+      );
     }
   }
 }
@@ -76,8 +80,8 @@ class FirebaseRestAuth {
   static const _kExpiry = 'firebase_rest_expiry';
 
   FirebaseRestAuth({required String apiKey})
-      : _apiKey = apiKey,
-        _storage = const FlutterSecureStorage() {
+    : _apiKey = apiKey,
+      _storage = const FlutterSecureStorage() {
     _restoreSession();
   }
 
@@ -108,29 +112,37 @@ class FirebaseRestAuth {
   Stream<FirebaseRestUser?> get authStateChanges => _controller.stream;
 
   Future<FirebaseRestUser> signInWithEmailAndPassword(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     final resp = await http.post(
       Uri.parse('$_identityToolkitBase:signInWithPassword?key=$_apiKey'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(
-          {'email': email, 'password': password, 'returnSecureToken': true}),
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        'returnSecureToken': true,
+      }),
     );
     _checkError(resp);
-    return _storeAndEmit(
-        jsonDecode(resp.body) as Map<String, dynamic>, email);
+    return _storeAndEmit(jsonDecode(resp.body) as Map<String, dynamic>, email);
   }
 
   Future<FirebaseRestUser> createUserWithEmailAndPassword(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     final resp = await http.post(
       Uri.parse('$_identityToolkitBase:signUp?key=$_apiKey'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(
-          {'email': email, 'password': password, 'returnSecureToken': true}),
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        'returnSecureToken': true,
+      }),
     );
     _checkError(resp);
-    return _storeAndEmit(
-        jsonDecode(resp.body) as Map<String, dynamic>, email);
+    return _storeAndEmit(jsonDecode(resp.body) as Map<String, dynamic>, email);
   }
 
   void _checkError(http.Response resp) {
@@ -138,7 +150,7 @@ class FirebaseRestAuth {
       final body = jsonDecode(resp.body) as Map<String, dynamic>;
       final message =
           (body['error'] as Map<String, dynamic>?)?['message'] as String? ??
-              'UNKNOWN_ERROR';
+          'UNKNOWN_ERROR';
       // Strip detail suffix e.g. "WEAK_PASSWORD : ..."
       final code = message.split(' :').first.trim();
       throw FirebaseRestAuthException(code);
@@ -146,7 +158,9 @@ class FirebaseRestAuth {
   }
 
   Future<FirebaseRestUser> _storeAndEmit(
-      Map<String, dynamic> data, String email) async {
+    Map<String, dynamic> data,
+    String email,
+  ) async {
     final uid = data['localId'] as String;
     final idToken = data['idToken'] as String;
     final refreshToken = data['refreshToken'] as String;

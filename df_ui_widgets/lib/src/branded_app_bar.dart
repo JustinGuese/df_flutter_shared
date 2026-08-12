@@ -41,11 +41,7 @@ class BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (logoAsset != null)
-              Image.asset(
-                logoAsset!,
-                height: 40,
-                fit: BoxFit.contain,
-              ),
+              Image.asset(logoAsset!, height: 40, fit: BoxFit.contain),
             if (title != null) ...[
               if (logoAsset != null) const SizedBox(width: 12),
               Text(

@@ -1,4 +1,4 @@
-library df_firebase_auth;
+library;
 
 export 'src/api_client.dart';
 export 'src/auth_config.dart';

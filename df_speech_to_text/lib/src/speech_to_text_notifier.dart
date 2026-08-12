@@ -86,7 +86,6 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
   /// a final result from the engine.
   Timer? _finalizeTimer;
 
-
   @override
   SpeechToTextState build() {
     // Don't initialize eagerly - wait until user actually wants to use it
@@ -290,7 +289,9 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
     }
 
     final micStatus = await Permission.microphone.status;
-    debugPrint('🎤 checkMicrophonePermission (Android): mic status = $micStatus');
+    debugPrint(
+      '🎤 checkMicrophonePermission (Android): mic status = $micStatus',
+    );
     if (!micStatus.isGranted) {
       return false;
     }
@@ -305,7 +306,9 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
     }
 
     if (Platform.isIOS) {
-      debugPrint('🎤 requestMicrophonePermission (iOS): requesting microphone...');
+      debugPrint(
+        '🎤 requestMicrophonePermission (iOS): requesting microphone...',
+      );
       final micStatus = await Permission.microphone.request();
       debugPrint('🎤 requestMicrophonePermission (iOS): mic=$micStatus');
 
@@ -321,9 +324,13 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
       return micStatus.isGranted;
     }
 
-    debugPrint('🎤 requestMicrophonePermission (Android): requesting microphone...');
+    debugPrint(
+      '🎤 requestMicrophonePermission (Android): requesting microphone...',
+    );
     final micStatus = await Permission.microphone.request();
-    debugPrint('🎤 requestMicrophonePermission (Android): mic result = $micStatus');
+    debugPrint(
+      '🎤 requestMicrophonePermission (Android): mic result = $micStatus',
+    );
 
     if (micStatus.isPermanentlyDenied) {
       debugPrint(
@@ -393,15 +400,15 @@ class SpeechToTextNotifier extends Notifier<SpeechToTextState> {
     final config = ref.read(speechToTextConfigProvider);
     await _speech!.listen(
       onResult: _engineResultHandler!,
-      listenFor: config.listenDuration,
-      pauseFor: config.pauseDuration,
-      localeId: config.localeId,
       listenOptions: stt.SpeechListenOptions(
         listenMode: stt.ListenMode.dictation,
         partialResults: true,
         cancelOnError: false,
         autoPunctuation: true,
         enableHapticFeedback: false,
+        listenFor: config.listenDuration,
+        pauseFor: config.pauseDuration,
+        localeId: config.localeId,
       ),
     );
   }

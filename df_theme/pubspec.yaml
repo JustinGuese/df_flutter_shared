@@ -1,0 +1,22 @@
+name: df_theme
+description: The DataFortress design system — color roles, typography, spacing, shape and motion tokens, plus light/dark ThemeData builders driven by a per-app DfBrand.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.29.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+# Deliberately NO google_fonts dependency. Consumers span google_fonts ^6.2.1
+# (tiledom) to ^8.1.0 (the rest); depending on it here would force a resolution
+# conflict. DfTypography names font FAMILIES instead, and each app decides
+# whether to bundle the .ttf or build a TextTheme with google_fonts itself.
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

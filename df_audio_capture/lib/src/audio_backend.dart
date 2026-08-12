@@ -17,4 +17,3 @@ abstract class AudioCaptureBackend {
 
   Stream<double>? get audioLevelStream;
 }
-

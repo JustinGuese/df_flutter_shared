@@ -96,16 +96,18 @@ class ApiClient {
             }
 
             final isMissingHeader =
-                errorDetail.toLowerCase().contains('authorization header missing') ||
-                    errorDetail.toLowerCase().contains('authorization header') ||
-                    errorDetail.toLowerCase().contains('missing authorization');
+                errorDetail.toLowerCase().contains(
+                  'authorization header missing',
+                ) ||
+                errorDetail.toLowerCase().contains('authorization header') ||
+                errorDetail.toLowerCase().contains('missing authorization');
 
             final isBackendNetworkIssue =
                 errorDetail.contains('Failed to resolve') ||
-                    errorDetail.contains('NameResolutionError') ||
-                    errorDetail.contains('HTTPSConnectionPool') ||
-                    errorDetail.contains('Max retries exceeded') ||
-                    errorDetail.contains('www.googleapis.com');
+                errorDetail.contains('NameResolutionError') ||
+                errorDetail.contains('HTTPSConnectionPool') ||
+                errorDetail.contains('Max retries exceeded') ||
+                errorDetail.contains('www.googleapis.com');
 
             if (isMissingHeader && _auth.currentUser != null) {
               try {
@@ -118,9 +120,15 @@ class ApiClient {
                     final response = await _dio.fetch(error.requestOptions);
                     handler.resolve(response);
                     return;
-                  } catch (retryError) {}
+                  } catch (retryError) {
+                    // Best-effort: a failed retry falls through to
+                    // handler.next(error) below, surfacing the original error.
+                  }
                 }
-              } catch (e) {}
+              } catch (e) {
+                // Best-effort: a failed token refresh falls through to
+                // handler.next(error) below, surfacing the original error.
+              }
             }
 
             if (isBackendNetworkIssue) {

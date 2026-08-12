@@ -37,21 +37,21 @@ class SummaryBulletList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final visiblePoints =
-        maxVisible != null ? points.take(maxVisible!).toList() : points;
-    final effectiveBulletColor = bulletColor ??
+    final visiblePoints = maxVisible != null
+        ? points.take(maxVisible!).toList()
+        : points;
+    final effectiveBulletColor =
+        bulletColor ??
         (compact ? theme.colorScheme.outline : theme.colorScheme.primary);
     final bulletSize = compact ? 6.0 : 8.0;
     final spacing = compact ? 6.0 : 10.0;
 
-    final effectiveTitleIconGradient = titleIconGradient ??
+    final effectiveTitleIconGradient =
+        titleIconGradient ??
         LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            theme.colorScheme.primary,
-            theme.colorScheme.primary,
-          ],
+          colors: [theme.colorScheme.primary, theme.colorScheme.primary],
         );
 
     return Column(
@@ -77,8 +77,9 @@ class SummaryBulletList extends StatelessWidget {
               Text(
                 title!,
                 style: (() {
-                  final base = theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700);
+                  final base = theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  );
                   if (titleColor == null) return base;
                   return base?.copyWith(color: titleColor);
                 })(),
@@ -96,10 +97,7 @@ class SummaryBulletList extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
               const SizedBox(width: 8),
-              Text(
-                'Generating summary...',
-                style: theme.textTheme.bodySmall,
-              ),
+              Text('Generating summary...', style: theme.textTheme.bodySmall),
             ],
           ),
         ] else if (visiblePoints.isEmpty) ...[

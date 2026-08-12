@@ -27,14 +27,8 @@ class AnalyticsService {
   }
 
   /// Log a custom event with optional parameters.
-  void logEvent({
-    required String name,
-    Map<String, Object>? parameters,
-  }) {
-    _analytics?.logEvent(
-      name: name,
-      parameters: parameters,
-    );
+  void logEvent({required String name, Map<String, Object>? parameters}) {
+    _analytics?.logEvent(name: name, parameters: parameters);
   }
 
   /// Log an event and optionally invoke a Meta tracking callback.
@@ -51,10 +45,7 @@ class AnalyticsService {
     }
   }
 
-  void setUserProperty({
-    required String name,
-    required String? value,
-  }) {
+  void setUserProperty({required String name, required String? value}) {
     _analytics?.setUserProperty(name: name, value: value);
   }
 

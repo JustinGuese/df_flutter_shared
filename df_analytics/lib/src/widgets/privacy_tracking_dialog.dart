@@ -21,10 +21,7 @@ class PrivacyTrackingDialogConfig {
 
 /// A dialog that explains why tracking permission is requested.
 class PrivacyTrackingDialog extends StatelessWidget {
-  const PrivacyTrackingDialog({
-    super.key,
-    this.config,
-  });
+  const PrivacyTrackingDialog({super.key, this.config});
 
   final PrivacyTrackingDialogConfig? config;
 
@@ -49,14 +46,9 @@ class PrivacyTrackingDialog extends StatelessWidget {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(
-            Icons.privacy_tip_outlined,
-            color: theme.colorScheme.primary,
-          ),
+          Icon(Icons.privacy_tip_outlined, color: theme.colorScheme.primary),
           const SizedBox(width: 12),
-          const Expanded(
-            child: Text('Privacy & Analytics'),
-          ),
+          const Expanded(child: Text('Privacy & Analytics')),
         ],
       ),
       content: SingleChildScrollView(
@@ -94,10 +86,7 @@ class PrivacyTrackingDialog extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      cfg.infoText,
-                      style: theme.textTheme.bodySmall,
-                    ),
+                    child: Text(cfg.infoText, style: theme.textTheme.bodySmall),
                   ),
                 ],
               ),
@@ -134,12 +123,7 @@ class PrivacyTrackingDialog extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Expanded(
-            child: Text(
-              text,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
+          Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
         ],
       ),
     );

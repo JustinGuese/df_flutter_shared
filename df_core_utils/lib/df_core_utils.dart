@@ -1,4 +1,4 @@
-library df_core_utils;
+library;
 
 export 'src/date_utils.dart';
 export 'src/keyword_utils.dart';

@@ -9,4 +9,3 @@ final feedbackPromptConfigProvider = Provider<FeedbackPromptConfig>((ref) {
     'feedbackPromptConfigProvider must be overridden in ProviderScope.overrides',
   );
 });
-

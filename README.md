@@ -1,6 +1,63 @@
-﻿# Local Flutter packages
+# df_flutter_shared
 
-Reusable Flutter packages used by PsychDiary and other apps from [DataFortress.cloud](https://datafortress.cloud/). Add them to your app via path dependencies (e.g. `path: ../packages/df_speech_to_text`).
+Shared Flutter packages behind the [DataFortress.cloud](https://datafortress.cloud/) apps —
+NaviCare Now, PsychDiary, DocumentChat, TileDom and SocialAnxify.
+
+The split is deliberate: **apps implement their own domain, these packages carry
+everything else** — the look, the auth, the plumbing. A new DF app should be able
+to pick a brand and start with a working, recognisable shell.
+
+---
+
+## Start here: `df_theme`
+
+`df_theme` is the identity layer. An app defines one `DfBrand` and gets a
+complete `ThemeData` for light and dark:
+
+```dart
+final brand = DfBrandPresets.dataFortress(
+  typography: DfBrandPresets.dataFortressFonts,
+  logoAsset: 'assets/images/logo.png',
+);
+
+MaterialApp(
+  theme: DfTheme.light(brand),
+  darkTheme: DfTheme.dark(brand),
+  themeMode: ThemeMode.system,
+);
+```
+
+Widgets then read tokens through `context.df` instead of naming colours:
+
+```dart
+Container(
+  padding: EdgeInsets.all(context.df.spacing.md),
+  decoration: BoxDecoration(
+    color: context.df.colors.surface,
+    borderRadius: context.df.shape.radiusMd,
+    boxShadow: context.df.cardShadow,
+  ),
+)
+```
+
+That indirection is the whole point — one shared widget serves NaviCare's light
+navy and TileDom's dark gold without branching on the app.
+
+**See it:** `cd df_theme/example && flutter run -d chrome`. The gallery renders
+every themed component under all six brands in both modes, and is how theme
+changes get reviewed.
+
+### The house style
+
+`DfBrandPresets.dataFortress` is the default for new apps: warm ink on paper with
+a brass fitting, deliberately not the cool Tailwind slate that most product UI
+falls into. Fraunces for display, Public Sans for body, JetBrains Mono for
+figures. Presets also exist for each shipping app so they can migrate onto
+`DfTheme` without changing how they look.
+
+`df_theme` does **not** depend on `google_fonts` — consumers span two
+incompatible major versions of it. Fonts are named, not loaded; each app bundles
+its own or builds a `TextTheme` with `google_fonts` and passes it in.
 
 ---
 
@@ -8,46 +65,82 @@ Reusable Flutter packages used by PsychDiary and other apps from [DataFortress.c
 
 | Package | Description |
 |---------|-------------|
-| **[df_ai_consent](df_ai_consent/)** | GDPR-compliant AI data consent dialog and service: configurable `AiDataConsentDialog` (names Google Gemini and DataFortress Cloud, links to privacy policy), `AiDataConsentService` (SharedPreferences-backed consent state), and `AiConsentConfig` / `AiConsentDataItem` for app-specific copy and data items. Each app creates its own service instance with a unique prefs key and wraps the dialog with app-specific content. |
-| **[df_speech_to_text](df_speech_to_text/)** | Speech-to-text with Riverpod: notifier for listening state and recognized text, permission flow, configurable microphone dialog, and a record button widget. Use `SpeechTextController` to insert text into a `TextEditingController` at the cursor. Optional analytics callback when listening starts. |
-| **[df_analytics](df_analytics/)** | Analytics and installation tracking: Firebase Analytics wrapper, App Tracking Transparency (iOS), Meta (Facebook App Events + Meta Pixel), and a consent-first installation flow. Provides `AnalyticsService`, `InstallationTrackingService`, and `PrivacyTrackingDialog`; app defines event names via extensions. |
-| **[df_firebase_auth](df_firebase_auth/)** | Firebase Auth and API client: `AuthRepository` (email, Google, Apple), Dio-based `ApiClient` with Bearer token injection, Riverpod auth providers, and ready-made login/register screens. App overrides `authConfigProvider` with API URL, server client ID, logo, app name, and routes. |
-| **[df_firebase_rest](df_firebase_rest/)** | Generic REST implementation of Firebase Auth: `FirebaseRestAuth` and `FirebaseRestUser` for platforms not supported by the official SDK (Windows/Linux). Supports sign-in, sign-up, secure token storage, and automatic refresh. |
-| **[df_audio_capture](df_audio_capture/)** | Generic cross-platform audio recording: Supports microphone and system/loopback audio capture across Windows, Linux, macOS, Android, iOS, and Web. Handles decibel levels and multiple output formats. |
-| **[df_device_id](df_device_id/)** | Persistent device identification: Generates a unique UUID and stores it securely using `flutter_secure_storage` to identify unique installations. |
-| **[df_onboarding](df_onboarding/)** | Two independent features: (1) **Onboarding carousel** — configurable pages (emoji, title, subtitle, gradient, features list), completion flag in SharedPreferences, app overrides `onboardingConfigProvider`; (2) **Learning course viewer** — full-screen stepped course player with 4 section types (`sofortUmsetzbar`, `beiRisiko`, `warnsignale`, `notfall`), SharedPreferences progress tracking, optional step-level gating via `stepGateBuilder` (pass any widget to replace locked step content, e.g. a paywall inline widget), and `LearningProgressNotifier` for backend sync. |
-| **[df_paywall](df_paywall/)** | Generic subscription paywall UI: `PaywallConfig` (all copy and colors injected — no app-specific code in the package), `showPaywallUpsellSheet` (modal bottom sheet with hero gradient, feature list, loading CTA, neutral dismiss), `PaywallUpsellInline` (in-place locked-content widget with step preview and blurred placeholder bars — use as `stepGateBuilder` return value), `PaywallPremiumScreen` (full-page with upsell layout for free users and membership confirmation + trial countdown + portal button for premium users), `PaywallSubscriptionInfo` (status model with `isTrialing`, `trialDaysRemaining`). Pure UI — no Stripe SDK, no Riverpod; app layer injects checkout callbacks. |
-| **[df_chat](df_chat/)** | AI chat backend: `ChatRepository` with configurable endpoints and SSE streaming, Riverpod `ChatController` / `ChatState`, and `flutter_chat_types`-compatible models. App overrides `chatRepositoryProvider` with a `ChatRepository(Dio)` instance; wire `onMessageSent` on the controller for analytics. UI (screens, quick actions) stays in the app. |
-| **[df_api_repository](df_api_repository/)** | Base repository for Dio-based APIs: `BaseApiRepository` holds `Dio` and optional `ApiRepositoryConfig` (default page size, timeouts). Helpers `getList<T>` and `getOne<T>` for paginated lists and single resources. Extend in your app (e.g. `DiaryRepository extends BaseApiRepository`) and implement endpoint-specific methods. |
-| **[df_ui_widgets](df_ui_widgets/)** | Reusable UI: `QuickActionChip` (optional gradient/colors), `SummaryBulletList` (bullets, "+X more", optional title/icon), `KeywordChipList` (tags + AI pulse indicator), `LoadingAppBarAction`, `CharacterCounter` (live char count), `BrandedAppBar` (gradient AppBar, optional logo asset), `NumberedStepList` (step-by-step instruction list), `SuccessBanner` (confirmation banner with optional warning pill). Theme-based defaults; pass app colors/gradients for branding. |
-| **[df_core_utils](df_core_utils/)** | Pure and Flutter utilities: date formatting (`dateOnly`, `formatEntryDate`, `formatGermanDate`, `formatGermanDateTime`, `formatGermanEntryDate`), keyword/summary parsing (`parseKeywords`, `keywordsFromController`, `parseSummaryPoints`), animation durations (`AnimationDurations`: fast, normal, medium, slow, pulse, emphasis), cross-platform download helper. No app-specific types. |
+| **[df_theme](df_theme/)** | The design system. `DfBrand` (palette + typography + spacing + shape + motion), `DfTokens` `ThemeExtension` with `context.df`, and `DfTheme.light/dark` builders that emit a full `ThemeData` including component sub-themes. Presets for the house style and for every existing app. |
+| **[df_ui_widgets](df_ui_widgets/)** | Reusable UI: `QuickActionChip`, `SummaryBulletList`, `KeywordChipList`, `LoadingAppBarAction`, `CharacterCounter`, `BrandedAppBar`, `NumberedStepList`, `SuccessBanner`, `AudioLevelBar`, `RecordingTimer`. |
+| **[df_core_utils](df_core_utils/)** | Pure and Flutter utilities: date formatting, keyword/summary parsing, animation durations, cross-platform download helper. |
+| **[df_firebase_auth](df_firebase_auth/)** | Firebase Auth and API client: `AuthRepository` (email, Google, Apple), Dio `ApiClient` with bearer-token injection and 401 retry, Riverpod providers, `GoRouterRefreshStream`, and ready-made login/register screens. Override `authConfigProvider`. |
+| **[df_firebase_rest](df_firebase_rest/)** | REST implementation of Firebase Auth for platforms the official SDK does not cover (Windows/Linux). Secure token storage and automatic refresh. |
+| **[df_api_repository](df_api_repository/)** | `BaseApiRepository` over Dio, with `getList<T>` / `getOne<T>` helpers. Extend it per resource. |
+| **[df_chat](df_chat/)** | AI chat backend: `ChatRepository` with configurable endpoints and SSE streaming, Riverpod `ChatController` / `ChatState`, `flutter_chat_types`-compatible models. UI stays in the app. |
+| **[df_analytics](df_analytics/)** | Firebase Analytics wrapper, App Tracking Transparency (iOS), Meta (App Events + Pixel), and a consent-first installation flow. `AnalyticsService`, `InstallationTrackingService`, `PrivacyTrackingDialog`. |
+| **[df_ai_consent](df_ai_consent/)** | GDPR AI-data consent dialog and SharedPreferences-backed `AiDataConsentService`. App supplies the copy and data items. |
+| **[df_onboarding](df_onboarding/)** | Onboarding carousel — configurable pages, completion flag in SharedPreferences, override `onboardingConfigProvider`. Also still exports the legacy learning-course screens; new work should use `df_courses`. |
+| **[df_courses](df_courses/)** | Stepped course player with pluggable chapter types (reading, checklist, red flags, quiz), progress tracking and optional per-step gating via `stepGateBuilder`. |
+| **[df_paywall](df_paywall/)** | Subscription paywall UI: `PaywallConfig`, `showPaywallUpsellSheet`, `PaywallUpsellInline` (use as a `stepGateBuilder` result), `PaywallPremiumScreen`, `PaywallSubscriptionInfo`. Pure UI — the app injects checkout callbacks. |
+| **[df_feedback_prompt](df_feedback_prompt/)** | One-time feedback dialog on first launch, with configurable copy and callbacks. |
+| **[df_speech_to_text](df_speech_to_text/)** | On-device speech-to-text with Riverpod: listening state, permission flow, microphone dialog, record button, cursor-aware `SpeechTextController`. |
+| **[df_whisper_speech](df_whisper_speech/)** | Backend Whisper transcription: record, upload, transcribe. Use this instead of `df_speech_to_text` when accuracy matters more than latency and a backend is available. |
+| **[df_audio_capture](df_audio_capture/)** | Cross-platform audio recording including system/loopback capture on desktop. Decibel levels, multiple output formats. |
+| **[df_device_id](df_device_id/)** | Persistent per-install UUID in `flutter_secure_storage`. |
 
 ---
 
 ## Using a package
 
-1. Add a path dependency in your appâ€™s `pubspec.yaml`:
+Apps depend on these over git, tracking `main`:
 
-   ```yaml
-   dependencies:
-     df_speech_to_text:
-       path: ../packages/df_speech_to_text
-   ```
+```yaml
+dependencies:
+  df_theme:
+    git:
+      url: https://github.com/JustinGuese/df_flutter_shared.git
+      path: df_theme
+      ref: main
+```
 
-2. Run `flutter pub get` in the app.
-3. Override any required providers in `ProviderScope` (see each packageâ€™s README).
-4. Import and use the package: `import 'package:df_speech_to_text/df_speech_to_text.dart';`
+Then override any required providers in `ProviderScope` and import
+`package:df_theme/df_theme.dart`. Each package has its own README.
 
-Each package has its own **README.md** with installation, configuration, usage, and API details.
+### Working on a package locally
+
+Do **not** edit the `git:` block to a `path:`. Create a `pubspec_overrides.yaml`
+next to the app's `pubspec.yaml` — it is gitignored, so it cannot be committed by
+accident:
+
+```yaml
+dependency_overrides:
+  df_theme:
+    path: ../df_flutter_shared/df_theme
+```
+
+Delete the file (or run `flutter pub get` after removing it) to go back to the
+published `main`.
 
 ---
 
-## Developing packages
+## Developing
 
-From the repo root (or the app that uses them):
+```bash
+./tool/analyze_all.sh            # pub get + analyze every package
+./tool/analyze_all.sh df_theme   # just one
+```
 
-- Run `flutter pub get` in each package directory after changing `pubspec.yaml`.
-- Run `flutter analyze` in each package and in the app after code changes.
-- Packages do not depend on each other; the app wires them (e.g. onboarding calls analytics for consent).
+CI runs the same thing plus `dart format --set-exit-if-changed` and any tests,
+and then builds the consuming apps against the branch.
 
+**Every app tracks `main` directly and nothing is version-tagged**, so a merge
+here reaches five production apps on their next `pub upgrade`. CI is the only
+thing between a bad push and five broken builds — keep it green, and prefer an
+additive change over a breaking one.
 
+Conventions:
+
+- Packages should not depend on each other, with one exception: anything visual
+  may depend on `df_theme`. The app wires everything else together.
+- No hardcoded colours, radii or spacing in a shared widget — read `context.df`.
+  A literal hex in this repo is a bug; it bakes one app's brand into all of them.
+- No hardcoded user-facing copy in a language. Strings belong in a config object
+  with English defaults.
+- Every package has its own `analysis_options.yaml`; they are generated copies,
+  so change them together.
+- Library packages do not commit `pubspec.lock`.

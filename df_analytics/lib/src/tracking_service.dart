@@ -22,7 +22,8 @@ class TrackingService {
     }
 
     try {
-      final status = await AppTrackingTransparency.requestTrackingAuthorization();
+      final status =
+          await AppTrackingTransparency.requestTrackingAuthorization();
       if (kDebugMode) {
         debugPrint('ATT status: $status');
       }

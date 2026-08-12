@@ -1,4 +1,4 @@
-library df_ui_widgets;
+library;
 
 export 'src/quick_action_chip.dart';
 export 'src/summary_bullet_list.dart';

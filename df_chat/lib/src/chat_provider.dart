@@ -48,7 +48,8 @@ final chatConfigProvider = Provider<ChatConfig>((ref) {
 
 final chatRepositoryProvider = Provider<ChatRepository>((ref) {
   throw UnimplementedError(
-      'Must be overridden - provide your Dio client and ChatRepository');
+    'Must be overridden - provide your Dio client and ChatRepository',
+  );
 });
 
 final chatProvider = NotifierProvider<ChatController, ChatState>(
@@ -65,15 +66,10 @@ class ChatController extends Notifier<ChatState> {
 
   @override
   ChatState build() {
-    return ChatState(
-      messages: [],
-      isLoading: false,
-      isStreaming: false,
-    );
+    return ChatState(messages: [], isLoading: false, isStreaming: false);
   }
 
-  int get _defaultPageSize =>
-      ref.read(chatConfigProvider).defaultPageSize;
+  int get _defaultPageSize => ref.read(chatConfigProvider).defaultPageSize;
 
   String get _streamingPlaceholderText =>
       ref.read(chatConfigProvider).streamingPlaceholderText;
@@ -84,14 +80,14 @@ class ChatController extends Notifier<ChatState> {
   }
 
   types.User get currentUser => types.User(
-        id: currentUserId,
-        firstName: ref.read(chatConfigProvider).currentUserName,
-      );
+    id: currentUserId,
+    firstName: ref.read(chatConfigProvider).currentUserName,
+  );
 
   types.User get botUser => types.User(
-        id: botUserId,
-        firstName: ref.read(chatConfigProvider).botUserName,
-      );
+    id: botUserId,
+    firstName: ref.read(chatConfigProvider).botUserName,
+  );
 
   static const String currentUserId = '1';
   static const String botUserId = '2';
@@ -108,8 +104,9 @@ class ChatController extends Notifier<ChatState> {
         limit: _defaultPageSize,
       );
 
-      final chatMessages =
-          messages.map((m) => _messageToChatMessage(m)).toList();
+      final chatMessages = messages
+          .map((m) => _messageToChatMessage(m))
+          .toList();
 
       chatMessages.sort(
         (a, b) => (a.createdAt ?? 0).compareTo(b.createdAt ?? 0),
@@ -121,10 +118,7 @@ class ChatController extends Notifier<ChatState> {
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -147,9 +141,7 @@ class ChatController extends Notifier<ChatState> {
       createdAt: baseTimestamp,
       text: content,
     );
-    state = state.copyWith(
-      messages: [...state.messages, userMessage],
-    );
+    state = state.copyWith(messages: [...state.messages, userMessage]);
 
     if (_hasStreamingEndpoint) {
       try {
@@ -164,55 +156,62 @@ class ChatController extends Notifier<ChatState> {
           text: _streamingPlaceholderText,
         );
         final botMessageIndex = state.messages.length;
-        state = state.copyWith(
-          messages: [...state.messages, botMessage],
-        );
+        state = state.copyWith(messages: [...state.messages, botMessage]);
         _streamingMessageIndex = botMessageIndex;
 
-        _streamSubscription?.cancel();
-        _streamSubscription = repository.streamMessage(chatId, content).listen(
-          (token) {
-            final currentMessages = List<types.Message>.from(state.messages);
-            if (_streamingMessageIndex != null &&
-                _streamingMessageIndex! < currentMessages.length) {
-              final existingMessage = currentMessages[_streamingMessageIndex!];
-              if (existingMessage is types.TextMessage) {
-                final existingText =
-                    existingMessage.text == _streamingPlaceholderText
+        await _streamSubscription?.cancel();
+        _streamSubscription = repository
+            .streamMessage(chatId, content)
+            .listen(
+              (token) {
+                final currentMessages = List<types.Message>.from(
+                  state.messages,
+                );
+                if (_streamingMessageIndex != null &&
+                    _streamingMessageIndex! < currentMessages.length) {
+                  final existingMessage =
+                      currentMessages[_streamingMessageIndex!];
+                  if (existingMessage is types.TextMessage) {
+                    final existingText =
+                        existingMessage.text == _streamingPlaceholderText
                         ? ''
                         : existingMessage.text;
-                currentMessages[_streamingMessageIndex!] = types.TextMessage(
-                  id: existingMessage.id,
-                  author: existingMessage.author,
-                  createdAt: existingMessage.createdAt,
-                  text: existingText + token,
+                    currentMessages[_streamingMessageIndex!] =
+                        types.TextMessage(
+                          id: existingMessage.id,
+                          author: existingMessage.author,
+                          createdAt: existingMessage.createdAt,
+                          text: existingText + token,
+                        );
+                    state = state.copyWith(messages: currentMessages);
+                  }
+                }
+              },
+              onError: (error) {
+                state = state.copyWith(
+                  isStreaming: false,
+                  error: error.toString(),
                 );
-                state = state.copyWith(messages: currentMessages);
-              }
-            }
-          },
-          onError: (error) {
-            state = state.copyWith(
-              isStreaming: false,
-              error: error.toString(),
-            );
-            _streamingMessageIndex = null;
-          },
-          onDone: () {
-            final savedBotIndex = _streamingMessageIndex; // save before clearing
-            state = state.copyWith(isStreaming: false);
-            _streamingMessageIndex = null;
-            onMessageSent?.call();
+                _streamingMessageIndex = null;
+              },
+              onDone: () {
+                final savedBotIndex =
+                    _streamingMessageIndex; // save before clearing
+                state = state.copyWith(isStreaming: false);
+                _streamingMessageIndex = null;
+                onMessageSent?.call();
 
-            // In-place update: only replace the bot message text, nothing else
-            if (savedBotIndex != null) {
-              final formatted = ref.read(chatRepositoryProvider).pendingFormattedContent;
-              if (formatted != null && formatted.isNotEmpty) {
-                _updateBotMessageText(savedBotIndex, formatted);
-              }
-            }
-          },
-        );
+                // In-place update: only replace the bot message text, nothing else
+                if (savedBotIndex != null) {
+                  final formatted = ref
+                      .read(chatRepositoryProvider)
+                      .pendingFormattedContent;
+                  if (formatted != null && formatted.isNotEmpty) {
+                    _updateBotMessageText(savedBotIndex, formatted);
+                  }
+                }
+              },
+            );
       } catch (e) {
         // If streaming fails unexpectedly, fall back to single-message send.
         await _fallbackToSingleMessageSend(repository, chatId, content);
@@ -232,10 +231,7 @@ class ChatController extends Notifier<ChatState> {
           error: null,
         );
       } catch (e) {
-        state = state.copyWith(
-          isStreaming: false,
-          error: e.toString(),
-        );
+        state = state.copyWith(isStreaming: false, error: e.toString());
       }
     }
   }
@@ -287,38 +283,6 @@ class ChatController extends Notifier<ChatState> {
     }
   }
 
-
-  Future<void> _reloadMessages() async {
-    if (state.chat?.id == null) return;
-    try {
-      final repository = ref.read(chatRepositoryProvider);
-      final messages = await repository.getMessages(
-        state.chat!.id!,
-        skip: 0,
-        limit: _defaultPageSize,
-      );
-      final chatMessages =
-          messages.map((m) => _messageToChatMessage(m)).toList();
-
-      final seenIds = <String>{};
-      final uniqueMessages = <types.Message>[];
-      for (final message in chatMessages) {
-        if (!seenIds.contains(message.id)) {
-          seenIds.add(message.id);
-          uniqueMessages.add(message);
-        }
-      }
-
-      uniqueMessages.sort(
-        (a, b) => (a.createdAt ?? 0).compareTo(b.createdAt ?? 0),
-      );
-
-      state = state.copyWith(messages: uniqueMessages);
-    } catch (e) {
-      // Silently fail reload
-    }
-  }
-
   Future<void> resetChat() async {
     if (state.chat?.id == null) {
       await initializeChat();
@@ -338,15 +302,9 @@ class ChatController extends Notifier<ChatState> {
     try {
       state = state.copyWith(isLoading: true, error: null, messages: []);
       await repository.resetChat(chatId);
-      state = state.copyWith(
-        isLoading: false,
-        messages: [],
-      );
+      state = state.copyWith(isLoading: false, messages: []);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -355,8 +313,9 @@ class ChatController extends Notifier<ChatState> {
     // citation models if desired.
     final metadata = <String, Object?>{
       if (message.sourceDocuments.isNotEmpty)
-        'sourceDocuments':
-            message.sourceDocuments.map((s) => s.toJson()).toList(),
+        'sourceDocuments': message.sourceDocuments
+            .map((s) => s.toJson())
+            .toList(),
     };
 
     return types.TextMessage(

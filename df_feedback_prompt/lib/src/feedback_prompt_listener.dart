@@ -13,10 +13,7 @@ extension _ColorOpacityCompat on Color {
 /// Listens for the first time the user reaches the wrapped subtree and shows
 /// a friendly feedback dialog once, then remembers that it was shown.
 class FeedbackPromptListener extends ConsumerStatefulWidget {
-  const FeedbackPromptListener({
-    super.key,
-    required this.child,
-  });
+  const FeedbackPromptListener({super.key, required this.child});
 
   /// The subtree where the prompt should be evaluated.
   ///
@@ -70,10 +67,7 @@ class _FeedbackPromptListenerState
           title: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.emoji_emotions_outlined,
-                color: colorScheme.primary,
-              ),
+              Icon(Icons.emoji_emotions_outlined, color: colorScheme.primary),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -91,9 +85,7 @@ class _FeedbackPromptListenerState
               children: [
                 Text(
                   config.body,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    height: 1.5,
-                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
                 ),
                 const SizedBox(height: 16),
                 Container(
@@ -136,6 +128,9 @@ class _FeedbackPromptListenerState
                   if (config.onSecondaryAction != null) {
                     await config.onSecondaryAction!();
                   }
+                  // The app's callback may navigate or tear down the dialog,
+                  // so re-check before touching dialogContext.
+                  if (!dialogContext.mounted) return;
                   if (Navigator.of(dialogContext).canPop()) {
                     Navigator.of(dialogContext).pop();
                   }
@@ -147,6 +142,9 @@ class _FeedbackPromptListenerState
                 if (config.onPrimaryAction != null) {
                   await config.onPrimaryAction!();
                 }
+                // The primary action commonly opens a store review sheet or a
+                // URL, either of which can dismiss this dialog first.
+                if (!dialogContext.mounted) return;
                 if (Navigator.of(dialogContext).canPop()) {
                   Navigator.of(dialogContext).pop();
                 }
@@ -164,4 +162,3 @@ class _FeedbackPromptListenerState
     return widget.child;
   }
 }
-

@@ -1,28 +1,25 @@
-// ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
-import 'dart:js' as js;
+/// Calls the Meta Pixel `fbq(method, event)` global, if the pixel snippet is
+/// present on the page.
+///
+/// Analytics must never break the app: a missing pixel, a blocked script, or a
+/// throwing `fbq` are all treated as "not tracked" rather than propagated.
+void _fbq(String method, String event) {
+  try {
+    if (!globalContext.has('fbq')) return;
+    globalContext.callMethod('fbq'.toJS, method.toJS, event.toJS);
+  } catch (_) {
+    // Deliberately swallowed — see above.
+  }
+}
 
 void trackMetaPixelInstall() {
-  try {
-    if (js.context.hasProperty('fbq')) {
-      js.context.callMethod('fbq', ['track', 'Lead']);
-      js.context.callMethod('fbq', ['trackCustom', 'AppInstall']);
-    }
-  } catch (e) {}
+  _fbq('track', 'Lead');
+  _fbq('trackCustom', 'AppInstall');
 }
 
-void trackMetaPixelContact() {
-  try {
-    if (js.context.hasProperty('fbq')) {
-      js.context.callMethod('fbq', ['track', 'Contact']);
-    }
-  } catch (e) {}
-}
+void trackMetaPixelContact() => _fbq('track', 'Contact');
 
-void trackMetaPixelLead() {
-  try {
-    if (js.context.hasProperty('fbq')) {
-      js.context.callMethod('fbq', ['track', 'Lead']);
-    }
-  } catch (e) {}
-}
+void trackMetaPixelLead() => _fbq('track', 'Lead');

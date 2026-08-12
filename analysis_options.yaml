@@ -1,0 +1,11 @@
+# Repo-root analyzer settings.
+#
+# This file only applies to files that sit OUTSIDE a package (scripts, snippets).
+# Each df_* package has its own analysis_options.yaml that pulls in flutter_lints
+# — a `package:` include cannot be resolved from here, because the repo root is
+# not itself a Dart package.
+analyzer:
+  exclude:
+    - "**/.dart_tool/**"
+    - "**/build/**"
+    - "**/*.g.dart"

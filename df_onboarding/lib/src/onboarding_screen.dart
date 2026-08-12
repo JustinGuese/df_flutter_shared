@@ -85,8 +85,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.close, color: Colors.white),
                       style: IconButton.styleFrom(
-                        backgroundColor:
-                            Colors.white.withOpacityCompat(0.2),
+                        backgroundColor: Colors.white.withOpacityCompat(0.2),
                       ),
                     ),
                   ),
@@ -100,8 +99,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       onPressed: _completeOnboarding,
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor:
-                            Colors.white.withOpacityCompat(0.2),
+                        backgroundColor: Colors.white.withOpacityCompat(0.2),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 10,
@@ -198,8 +196,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             vertical: 16,
                           ),
                           elevation: 8,
-                          shadowColor:
-                              Colors.black.withOpacityCompat(0.3),
+                          shadowColor: Colors.black.withOpacityCompat(0.3),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -208,8 +205,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               _currentPage < pages.length - 1
                                   ? 'Next'
                                   : widget.isHelpMode
-                                      ? 'Done'
-                                      : 'Get Started',
+                                  ? 'Done'
+                                  : 'Get Started',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -258,17 +255,21 @@ class _OnboardingPageWidgetState extends State<_OnboardingPageWidget>
   @override
   void initState() {
     super.initState();
-    _checkedItems.addAll(List.generate(widget.page.features.length, (_) => false));
+    _checkedItems.addAll(
+      List.generate(widget.page.features.length, (_) => false),
+    );
     _controller = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
-    _slideAnimation = Tween<double>(begin: 50.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+    _slideAnimation = Tween<double>(
+      begin: 50.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
 
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -438,8 +439,7 @@ class _ChecklistItem extends StatelessWidget {
                   text,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight:
-                        isChecked ? FontWeight.w600 : FontWeight.w500,
+                    fontWeight: isChecked ? FontWeight.w600 : FontWeight.w500,
                     color: isChecked ? Colors.white : Colors.white70,
                     height: 1.4,
                   ),
@@ -466,9 +466,7 @@ class _PageIndicator extends StatelessWidget {
       width: isActive ? 24 : 8,
       height: 8,
       decoration: BoxDecoration(
-        color: isActive
-            ? Colors.white
-            : Colors.white.withOpacityCompat(0.4),
+        color: isActive ? Colors.white : Colors.white.withOpacityCompat(0.4),
         borderRadius: BorderRadius.circular(4),
         boxShadow: isActive
             ? [

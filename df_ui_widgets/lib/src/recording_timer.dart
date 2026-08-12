@@ -10,16 +10,17 @@ class RecordingTimer extends StatelessWidget {
     final hours = elapsed.inHours;
     final minutes = elapsed.inMinutes % 60;
     final seconds = elapsed.inSeconds % 60;
-    final time = '${hours.toString().padLeft(2, '0')}:'
+    final time =
+        '${hours.toString().padLeft(2, '0')}:'
         '${minutes.toString().padLeft(2, '0')}:'
         '${seconds.toString().padLeft(2, '0')}';
 
     return Text(
       time,
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontFamily: 'monospace',
-            color: Theme.of(context).colorScheme.error,
-          ),
+        fontFamily: 'monospace',
+        color: Theme.of(context).colorScheme.error,
+      ),
     );
   }
 }

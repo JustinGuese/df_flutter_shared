@@ -50,7 +50,8 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Fehler beim Öffnen der Zahlungsseite.')),
+            content: Text('Fehler beim Öffnen der Zahlungsseite.'),
+          ),
         );
       }
     } finally {
@@ -65,7 +66,9 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fehler beim Öffnen des Kundenportals.')),
+          const SnackBar(
+            content: Text('Fehler beim Öffnen des Kundenportals.'),
+          ),
         );
       }
     } finally {
@@ -105,7 +108,8 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
                 backgroundColor: cfg.accentColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 elevation: 0,
               ),
               child: _loadingUpgrade
@@ -113,12 +117,16 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
                       width: 22,
                       height: 22,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2.5, color: Colors.white),
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
                     )
                   : Text(
                       cfg.ctaText,
                       style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w700),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
             ),
           ),
@@ -164,7 +172,9 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 5),
+                      horizontal: 12,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFB800).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(10),
@@ -193,15 +203,20 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.calendar_today_outlined,
-                      size: 18, color: cfg.accentColor),
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: 18,
+                    color: cfg.accentColor,
+                  ),
                   const SizedBox(width: 10),
                   Text(
                     sub.isTrialing && sub.trialEnd != null
                         ? 'Testphase endet am ${_fmtDate(sub.trialEnd!)}'
                         : 'Nächste Abrechnung: ${_fmtDate(sub.currentPeriodEnd!)}',
                     style: const TextStyle(
-                        fontSize: 14, color: Color(0xFF334155)),
+                      fontSize: 14,
+                      color: Color(0xFF334155),
+                    ),
                   ),
                 ],
               ),
@@ -218,7 +233,9 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Icon(Icons.open_in_new, size: 18),
                 label: const Text('Abo & Zahlung verwalten'),
@@ -226,7 +243,8 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
                   backgroundColor: cfg.accentColor,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   elevation: 0,
                 ),
               ),
@@ -274,8 +292,10 @@ class _HeroCard extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Text(config.heroEmoji,
-                  style: const TextStyle(fontSize: 30)),
+              child: Text(
+                config.heroEmoji,
+                style: const TextStyle(fontSize: 30),
+              ),
             ),
           ),
           const SizedBox(height: 14),
@@ -340,8 +360,7 @@ class _PriceCard extends StatelessWidget {
             ),
           ),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: config.accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
@@ -398,16 +417,20 @@ class _FeatureCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.check_circle_rounded,
-                      size: 18, color: config.accentColor),
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 18,
+                    color: config.accentColor,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       f,
                       style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF334155),
-                          height: 1.4),
+                        fontSize: 14,
+                        color: Color(0xFF334155),
+                        height: 1.4,
+                      ),
                     ),
                   ),
                 ],
@@ -418,7 +441,10 @@ class _FeatureCard extends StatelessWidget {
           Text(
             config.credibilityText,
             style: TextStyle(
-                fontSize: 11, color: Colors.grey[400], height: 1.4),
+              fontSize: 11,
+              color: Colors.grey[400],
+              height: 1.4,
+            ),
           ),
         ],
       ),

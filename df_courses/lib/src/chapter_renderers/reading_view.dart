@@ -77,31 +77,37 @@ class ReadingChapterView extends StatelessWidget {
               ),
             ),
           ),
-          if (chapter.bulletItems != null && chapter.bulletItems!.isNotEmpty) ...[
+          if (chapter.bulletItems != null &&
+              chapter.bulletItems!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            ...chapter.bulletItems!.map((b) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 7, right: 8),
-                        child: Icon(Icons.circle,
-                            size: 5, color: Color(0xFF94A3B8)),
+            ...chapter.bulletItems!.map(
+              (b) => Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 7, right: 8),
+                      child: Icon(
+                        Icons.circle,
+                        size: 5,
+                        color: Color(0xFF94A3B8),
                       ),
-                      Expanded(
-                        child: Text(
-                          b,
-                          style: const TextStyle(
-                            fontSize: 13.5,
-                            height: 1.45,
-                            color: Color(0xFF334155),
-                          ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        b,
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          height: 1.45,
+                          color: Color(0xFF334155),
                         ),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ],
       ),

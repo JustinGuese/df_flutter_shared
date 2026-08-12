@@ -1,4 +1,4 @@
-library df_speech_to_text;
+library;
 
 export 'src/speech_text_controller.dart';
 export 'src/speech_to_text_config.dart';

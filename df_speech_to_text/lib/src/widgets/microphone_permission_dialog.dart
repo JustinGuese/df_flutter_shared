@@ -25,10 +25,7 @@ extension _ColorOpacityCompat on Color {
 /// A dialog that explains why microphone permission is needed
 /// before requesting speech-to-text functionality.
 class MicrophonePermissionDialog extends StatelessWidget {
-  const MicrophonePermissionDialog({
-    super.key,
-    this.config,
-  });
+  const MicrophonePermissionDialog({super.key, this.config});
 
   final MicrophonePermissionDialogConfig? config;
 
@@ -48,7 +45,8 @@ class MicrophonePermissionDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bullets = config?.bulletPoints ??
+    final bullets =
+        config?.bulletPoints ??
         const [
           'Convert your voice into text for diary entries',
           'Enable voice input in chat conversations',
@@ -57,14 +55,9 @@ class MicrophonePermissionDialog extends StatelessWidget {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(
-            Icons.mic_outlined,
-            color: theme.colorScheme.primary,
-          ),
+          Icon(Icons.mic_outlined, color: theme.colorScheme.primary),
           const SizedBox(width: 12),
-          const Expanded(
-            child: Text('Microphone Access'),
-          ),
+          const Expanded(child: Text('Microphone Access')),
         ],
       ),
       content: SingleChildScrollView(
@@ -116,7 +109,9 @@ class MicrophonePermissionDialog extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withOpacityCompat(0.3),
+                  color: theme.colorScheme.primaryContainer.withOpacityCompat(
+                    0.3,
+                  ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -170,12 +165,7 @@ class MicrophonePermissionDialog extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Expanded(
-            child: Text(
-              text,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
+          Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
         ],
       ),
     );

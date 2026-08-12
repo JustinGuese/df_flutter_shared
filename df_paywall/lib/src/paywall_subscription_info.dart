@@ -21,10 +21,10 @@ class PaywallSubscriptionInfo {
   });
 
   const PaywallSubscriptionInfo.free()
-      : status = 'free',
-        isPremium = false,
-        currentPeriodEnd = null,
-        trialEnd = null;
+    : status = 'free',
+      isPremium = false,
+      currentPeriodEnd = null,
+      trialEnd = null;
 
   bool get isTrialing => status == 'trialing';
 

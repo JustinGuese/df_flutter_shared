@@ -34,14 +34,12 @@ class QuickActionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme ?? Theme.of(context);
-    final effectiveGradient = gradient ??
+    final effectiveGradient =
+        gradient ??
         LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            t.colorScheme.primary,
-            t.colorScheme.primary,
-          ],
+          colors: [t.colorScheme.primary, t.colorScheme.primary],
         );
     final effectiveIconColor = iconColor ?? t.colorScheme.onPrimary;
     final effectiveLabelColor = labelColor ?? t.colorScheme.onPrimary;
@@ -72,11 +70,7 @@ class QuickActionChip extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  icon,
-                  size: iconSize,
-                  color: effectiveIconColor,
-                ),
+                Icon(icon, size: iconSize, color: effectiveIconColor),
                 SizedBox(width: iconGap),
                 Flexible(
                   child: Text(

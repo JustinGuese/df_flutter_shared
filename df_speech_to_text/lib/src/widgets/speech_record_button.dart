@@ -166,8 +166,9 @@ class _SpeechRecordButtonState extends ConsumerState<SpeechRecordButton>
     final previewText = speechState.recognizedWords.trim();
     final showPreview =
         widget.showPreview && isRecording && previewText.isNotEmpty;
-    final wordCount =
-        previewText.isEmpty ? 0 : previewText.split(RegExp(r'\s+')).length;
+    final wordCount = previewText.isEmpty
+        ? 0
+        : previewText.split(RegExp(r'\s+')).length;
 
     return Card(
       child: Padding(
@@ -187,10 +188,9 @@ class _SpeechRecordButtonState extends ConsumerState<SpeechRecordButton>
                         height: 56,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color:
-                              isRecording
-                                  ? Colors.red.shade600
-                                  : theme.colorScheme.primaryContainer,
+                          color: isRecording
+                              ? Colors.red.shade600
+                              : theme.colorScheme.primaryContainer,
                         ),
                         child: Stack(
                           alignment: Alignment.center,
@@ -224,10 +224,9 @@ class _SpeechRecordButtonState extends ConsumerState<SpeechRecordButton>
                               // Show a clear "stop" icon whenever recording is
                               // active so users can immediately see how to stop.
                               isRecording ? Icons.stop : Icons.mic,
-                              color:
-                                  isRecording
-                                      ? Colors.white
-                                      : theme.colorScheme.onPrimaryContainer,
+                              color: isRecording
+                                  ? Colors.white
+                                  : theme.colorScheme.onPrimaryContainer,
                               size: 28,
                             ),
                           ],

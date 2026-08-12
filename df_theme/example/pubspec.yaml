@@ -1,0 +1,26 @@
+name: df_theme_example
+description: Gallery app for df_theme — renders every themed component under each brand, in light and dark.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.29.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  df_theme:
+    path: ../
+  # The gallery uses google_fonts so the house faces (Fraunces / Public Sans /
+  # JetBrains Mono) actually render. df_theme itself deliberately does NOT
+  # depend on google_fonts — see its pubspec for why.
+  google_fonts: ^8.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

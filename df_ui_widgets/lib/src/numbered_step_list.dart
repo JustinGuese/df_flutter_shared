@@ -4,10 +4,7 @@ class NumberedStepItem {
   final String title;
   final String description;
 
-  const NumberedStepItem({
-    required this.title,
-    required this.description,
-  });
+  const NumberedStepItem({required this.title, required this.description});
 }
 
 class NumberedStepList extends StatelessWidget {
@@ -29,9 +26,11 @@ class NumberedStepList extends StatelessWidget {
       children: List.generate(steps.length, (index) {
         final step = steps[index];
         final number = (index + 1).toString();
-        
+
         return Padding(
-          padding: EdgeInsets.only(bottom: index == steps.length - 1 ? 0 : spacing),
+          padding: EdgeInsets.only(
+            bottom: index == steps.length - 1 ? 0 : spacing,
+          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -67,9 +66,9 @@ class NumberedStepList extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       step.description,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        height: 1.4,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(height: 1.4),
                     ),
                   ],
                 ),

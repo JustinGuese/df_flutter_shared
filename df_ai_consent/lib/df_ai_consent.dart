@@ -1,4 +1,4 @@
-library df_ai_consent;
+library;
 
 export 'src/ai_consent_config.dart';
 export 'src/ai_data_consent_dialog.dart';

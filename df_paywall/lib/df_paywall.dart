@@ -1,4 +1,4 @@
-library df_paywall;
+library;
 
 export 'src/paywall_config.dart';
 export 'src/paywall_upsell_sheet.dart';

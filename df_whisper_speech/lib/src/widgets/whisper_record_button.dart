@@ -66,9 +66,7 @@ class WhisperRecordButton extends ConsumerWidget {
             const SizedBox(width: 8),
             Text(
               timeLabel,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: Colors.white),
             ),
           ],
         );

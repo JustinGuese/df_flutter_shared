@@ -10,8 +10,11 @@ import 'analytics_service.dart';
 import 'tracking_service.dart';
 import 'widgets/privacy_tracking_dialog.dart';
 
+// Guarded on dart.library.js_interop rather than dart.library.html so the web
+// implementation is also selected under Wasm.
 import 'meta/meta_pixel_stub.dart'
-    if (dart.library.html) 'meta/meta_pixel_web.dart' as meta_pixel;
+    if (dart.library.js_interop) 'meta/meta_pixel_web.dart'
+    as meta_pixel;
 
 /// Unified installation tracking service (consent + Firebase + Meta).
 class InstallationTrackingService {
@@ -31,7 +34,8 @@ class InstallationTrackingService {
           await FacebookAppEvents().activateApp();
           if (kDebugMode) {
             debugPrint(
-                'Facebook App Events: App activated (attribution enabled)');
+              'Facebook App Events: App activated (attribution enabled)',
+            );
           }
         } catch (e) {
           if (kDebugMode) {
@@ -80,13 +84,14 @@ class InstallationTrackingService {
 
         bool trackingEnabled = false;
         if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
-          final attStatus =
-              await TrackingService.instance.requestTrackingAuthorization();
+          final attStatus = await TrackingService.instance
+              .requestTrackingAuthorization();
           trackingEnabled = attStatus == TrackingStatus.authorized;
 
           if (kDebugMode) {
             debugPrint(
-                'ATT status: $attStatus, tracking enabled: $trackingEnabled');
+              'ATT status: $attStatus, tracking enabled: $trackingEnabled',
+            );
           }
         } else {
           trackingEnabled = true;
@@ -94,11 +99,13 @@ class InstallationTrackingService {
 
         if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
           try {
-            await FacebookAppEvents()
-                .setAdvertiserTracking(enabled: trackingEnabled);
+            await FacebookAppEvents().setAdvertiserTracking(
+              enabled: trackingEnabled,
+            );
             if (kDebugMode) {
               debugPrint(
-                  'Facebook App Events: Advertiser tracking set to $trackingEnabled');
+                'Facebook App Events: Advertiser tracking set to $trackingEnabled',
+              );
             }
           } catch (e) {
             if (kDebugMode) {

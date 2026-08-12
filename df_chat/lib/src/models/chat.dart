@@ -113,10 +113,7 @@ class Message {
 /// Represents a non-streaming user/bot message pair returned from the API.
 @JsonSerializable()
 class MessagePair {
-  MessagePair({
-    required this.userMessage,
-    required this.botMessage,
-  });
+  MessagePair({required this.userMessage, required this.botMessage});
 
   factory MessagePair.fromJson(Map<String, dynamic> json) =>
       _$MessagePairFromJson(json);

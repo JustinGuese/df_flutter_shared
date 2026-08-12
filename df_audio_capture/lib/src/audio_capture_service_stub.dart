@@ -6,10 +6,10 @@ import 'package:cross_file/cross_file.dart';
 import 'audio_backend.dart';
 
 class StubAudioCaptureBackend implements AudioCaptureBackend {
-  StubAudioCaptureBackend({required Directory recordingsDir})
-      : _recordingsDir = recordingsDir;
-
-  final Directory _recordingsDir;
+  /// [recordingsDir] is accepted purely so this stub matches the constructor
+  /// shape of the real backends. Nothing is ever written: every recording entry
+  /// point on an unsupported platform either throws or returns empty.
+  StubAudioCaptureBackend({required Directory recordingsDir});
 
   @override
   RecordingState get state => RecordingState.idle;
@@ -32,4 +32,3 @@ class StubAudioCaptureBackend implements AudioCaptureBackend {
     return <XFile>[];
   }
 }
-

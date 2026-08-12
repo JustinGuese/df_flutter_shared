@@ -1,8 +1,9 @@
 import 'dart:async';
+import 'dart:js_interop';
 import 'dart:typed_data';
 
-import 'dart:html' as html;
 import 'package:cross_file/cross_file.dart';
+import 'package:web/web.dart' as web;
 import 'package:record/record.dart';
 
 import 'audio_backend.dart';
@@ -60,28 +61,22 @@ class WebAudioCaptureBackend implements AudioCaptureBackend {
     final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
     final name = 'meeting-$timestamp-web-mic.webm';
 
-    return <XFile>[
-      XFile.fromData(
-        bytes,
-        name: name,
-        mimeType: 'audio/webm',
-      ),
-    ];
+    return <XFile>[XFile.fromData(bytes, name: name, mimeType: 'audio/webm')];
   }
 
+  /// Reads back the `blob:` URL that the recorder hands us on stop.
+  ///
+  /// `fetch` works for blob URLs and, unlike XMLHttpRequest, is available under
+  /// both dart2js and Wasm.
   Future<Uint8List> _downloadBlobUrl(String url) async {
-    final req = await html.HttpRequest.request(
-      url,
-      responseType: 'arraybuffer',
-    );
-    final response = req.response;
-    if (response is ByteBuffer) {
-      return Uint8List.view(response);
+    final response = await web.window.fetch(url.toJS).toDart;
+    if (!response.ok) {
+      throw StateError(
+        'Failed to read recording blob ($url): HTTP ${response.status}.',
+      );
     }
-    if (response is Uint8List) {
-      return response;
-    }
-    throw StateError('Unexpected blob download response type: ${response.runtimeType}');
+    final buffer = await response.arrayBuffer().toDart;
+    return buffer.toDart.asUint8List();
   }
 }
 
@@ -129,12 +124,9 @@ class _UnsupportedBackend implements AudioCaptureBackend {
 
   @override
   Future<void> startRecording() async {
-    throw UnsupportedError(
-      'Audio recording is not supported in tests on web.',
-    );
+    throw UnsupportedError('Audio recording is not supported in tests on web.');
   }
 
   @override
   Future<List<XFile>> stopAndSave() async => <XFile>[];
 }
-

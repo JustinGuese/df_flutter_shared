@@ -53,10 +53,7 @@ class ChatRepository {
   }) async {
     final response = await _dio.get<List<dynamic>>(
       _resolvePath(config.messagesEndpoint, chatId: chatId),
-      queryParameters: {
-        'skip': skip,
-        'limit': limit ?? config.defaultPageSize,
-      },
+      queryParameters: {'skip': skip, 'limit': limit ?? config.defaultPageSize},
     );
     final data = response.data ?? [];
     return data
@@ -74,9 +71,7 @@ class ChatRepository {
   }
 
   Future<void> resetChat(int chatId) async {
-    await _dio.delete<void>(
-      _resolvePath(config.resetEndpoint, chatId: chatId),
-    );
+    await _dio.delete<void>(_resolvePath(config.resetEndpoint, chatId: chatId));
   }
 
   Stream<String> streamMessage(int chatId, String content) async* {
@@ -148,8 +143,7 @@ class ChatRepository {
               yield currentData;
             }
           } else if (resolvedEvent == 'error') {
-            final errorContent =
-                jsonData?['content'] as String? ?? currentData;
+            final errorContent = jsonData?['content'] as String? ?? currentData;
             throw Exception(errorContent);
           } else if (resolvedEvent == 'message_saved') {
             _pendingFormattedContent = jsonData?['content'] as String?;

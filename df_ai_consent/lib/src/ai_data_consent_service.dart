@@ -4,8 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///
 /// Each app should create its own singleton instance with a unique [consentKey].
 class AiDataConsentService {
-  AiDataConsentService({required String consentKey})
-      : _consentKey = consentKey;
+  AiDataConsentService({required String consentKey}) : _consentKey = consentKey;
 
   final String _consentKey;
   bool? _cachedConsent;

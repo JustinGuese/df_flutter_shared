@@ -11,7 +11,7 @@ class DeviceIdService {
   final FlutterSecureStorage _storage;
 
   DeviceIdService({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   String? _cached;
 
@@ -30,11 +30,7 @@ class DeviceIdService {
     }
 
     final newId = const Uuid().v4();
-    await _storage.write(
-      key: _storageKey,
-      value: newId,
-      iOptions: _iosOptions,
-    );
+    await _storage.write(key: _storageKey, value: newId, iOptions: _iosOptions);
     _cached = newId;
     return newId;
   }

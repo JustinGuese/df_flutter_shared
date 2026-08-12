@@ -31,6 +31,15 @@ migrate_working_dir/
 .pub/
 **/build/
 
+# Library packages must not ship a lockfile — the consuming app resolves
+# versions. Only the example app (an application) keeps its lock.
+pubspec.lock
+!df_theme/example/pubspec.lock
+
+# Local development: point a package at a sibling checkout without editing
+# pubspec.yaml. Never committed.
+pubspec_overrides.yaml
+
 # Symbolication / obfuscation
 app.*.symbols
 app.*.map.json

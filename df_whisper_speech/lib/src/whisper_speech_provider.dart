@@ -130,9 +130,7 @@ class WhisperSpeechNotifier extends Notifier<WhisperSpeechState> {
       _currentRecordingPath = path;
       return path ?? _currentRecordingPath;
     } catch (e) {
-      state = state.copyWith(
-        error: 'Failed to stop recording: $e',
-      );
+      state = state.copyWith(error: 'Failed to stop recording: $e');
       return null;
     }
   }
@@ -167,8 +165,9 @@ class WhisperSpeechNotifier extends Notifier<WhisperSpeechState> {
     try {
       final bytes = await readRecordingBytes(recordingPath);
       final filename = kIsWeb ? 'recording.webm' : 'recording.m4a';
-      final contentType =
-          kIsWeb ? DioMediaType('audio', 'webm') : DioMediaType('audio', 'mp4');
+      final contentType = kIsWeb
+          ? DioMediaType('audio', 'webm')
+          : DioMediaType('audio', 'mp4');
       final formData = FormData.fromMap({
         'audio': MultipartFile.fromBytes(
           bytes,
@@ -183,9 +182,7 @@ class WhisperSpeechNotifier extends Notifier<WhisperSpeechState> {
         options: Options(
           responseType: ResponseType.stream,
           receiveTimeout: config.transcriptionReceiveTimeout,
-          headers: {
-            'Accept': 'text/event-stream',
-          },
+          headers: {'Accept': 'text/event-stream'},
         ),
         cancelToken: cancelToken,
       );
@@ -333,5 +330,5 @@ class WhisperSpeechNotifier extends Notifier<WhisperSpeechState> {
 
 final whisperSpeechProvider =
     NotifierProvider<WhisperSpeechNotifier, WhisperSpeechState>(
-  WhisperSpeechNotifier.new,
-);
+      WhisperSpeechNotifier.new,
+    );

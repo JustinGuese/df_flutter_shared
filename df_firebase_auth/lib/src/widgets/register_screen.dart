@@ -35,16 +35,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() => _loading = true);
     final config = ref.read(authConfigProvider);
     try {
-      await ref.read(authRepositoryProvider).signUp(
+      await ref
+          .read(authRepositoryProvider)
+          .signUp(
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
           );
       if (mounted) context.go(config.homeRoute);
     } on Exception catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.toString())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.toString())));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -62,9 +64,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         final errorMessage = error.toString();
         if (errorMessage.contains('cancelled')) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage.replaceAll('Exception: ', '')),
-          ),
+          SnackBar(content: Text(errorMessage.replaceAll('Exception: ', ''))),
         );
       }
     } finally {
@@ -82,11 +82,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (mounted) {
         final errorMessage = error.toString();
         if (errorMessage.contains('cancelled') ||
-            errorMessage.contains('canceled')) return;
+            errorMessage.contains('canceled')) {
+          return;
+        }
         final friendlyMessage = _appleSignInFriendlyError(errorMessage);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(friendlyMessage)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(friendlyMessage)));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -225,8 +227,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           foregroundColor: Colors.black87,
                           side: const BorderSide(color: Color(0xFFDADADA)),
                           shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20)),
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
                         ),
                         child: const Row(
@@ -248,15 +249,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         const SizedBox(height: 16),
                         SignInWithAppleButton(
                           onPressed: _loading ? () {} : _signInWithApple,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(20)),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(20),
+                          ),
                         ),
                       ],
                       const SizedBox(height: 16),
                       TextButton(
                         onPressed: () => context.go(config.loginRoute),
-                        child: const Text(
-                            'Already have an account? Sign in'),
+                        child: const Text('Already have an account? Sign in'),
                       ),
                     ],
                   ),

@@ -34,8 +34,9 @@ class SpeechTextController {
     }
 
     // Fallback if base selection is not valid.
-    final insertionOffset =
-        _baseSelection.isValid ? _baseSelection.baseOffset : _baseText.length;
+    final insertionOffset = _baseSelection.isValid
+        ? _baseSelection.baseOffset
+        : _baseText.length;
 
     final safeOffset = insertionOffset.clamp(0, _baseText.length);
     final before = _baseText.substring(0, safeOffset);

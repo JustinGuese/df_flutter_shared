@@ -25,11 +25,14 @@ class SpeechTextController {
     final baseText = _baseText!;
     final selection = _baseSelection!;
 
-    final insertOffset =
-        selection.isValid ? selection.baseOffset : baseText.length;
+    final insertOffset = selection.isValid
+        ? selection.baseOffset
+        : baseText.length;
 
     final newText =
-        baseText.substring(0, insertOffset) + words + baseText.substring(insertOffset);
+        baseText.substring(0, insertOffset) +
+        words +
+        baseText.substring(insertOffset);
 
     _textController.value = _textController.value.copyWith(
       text: newText,

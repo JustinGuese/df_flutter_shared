@@ -29,7 +29,10 @@ class SuccessBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: themeColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: themeColor.withValues(alpha: 0.2), width: 1.5),
+        border: Border.all(
+          color: themeColor.withValues(alpha: 0.2),
+          width: 1.5,
+        ),
       ),
       child: Column(
         children: [
@@ -40,7 +43,8 @@ class SuccessBanner extends StatelessWidget {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w900,
-              color: themeColor, // Re-using themeColor to fake a 'successDark' fallback 
+              color:
+                  themeColor, // Re-using themeColor to fake a 'successDark' fallback
             ),
           ),
           const SizedBox(height: 12),

@@ -1,0 +1,156 @@
+name: CI
+
+# Every consuming app tracks this repo's `main` branch directly (git deps with
+# `ref: main`), so a merge here reaches five production apps on their next
+# `pub upgrade`. There are no version tags to fall back on — this workflow is
+# the only thing standing between a bad push and five broken builds.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: 3.44.6
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Every package must resolve, format and analyse cleanly on its own.
+  # ---------------------------------------------------------------------------
+  packages:
+    name: analyze ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - df_ai_consent
+          - df_analytics
+          - df_api_repository
+          - df_audio_capture
+          - df_chat
+          - df_core_utils
+          - df_courses
+          - df_device_id
+          - df_feedback_prompt
+          - df_firebase_auth
+          - df_firebase_rest
+          - df_onboarding
+          - df_paywall
+          - df_speech_to_text
+          - df_theme
+          - df_ui_widgets
+          - df_whisper_speech
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: pub get
+        working-directory: ${{ matrix.package }}
+        run: flutter pub get
+
+      - name: format
+        working-directory: ${{ matrix.package }}
+        run: dart format --set-exit-if-changed .
+
+      - name: analyze
+        working-directory: ${{ matrix.package }}
+        run: flutter analyze --fatal-infos
+
+      - name: test
+        working-directory: ${{ matrix.package }}
+        # Packages without a test/ dir are skipped rather than failed.
+        run: |
+          if [ -d test ]; then
+            flutter test
+          else
+            echo "no test/ directory — skipping"
+          fi
+
+  # ---------------------------------------------------------------------------
+  # The packages can each be green while still breaking a consumer, so build the
+  # apps against THIS commit. Each app is checked out and its df_* git deps are
+  # redirected at the checked-out source via pubspec_overrides.yaml.
+  # ---------------------------------------------------------------------------
+  consumers:
+    name: consumer ${{ matrix.app.name }}
+    runs-on: ubuntu-latest
+    needs: packages
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - name: psychdiary
+            repo: JustinGuese/frontend_flutter_psychdiary
+            path: .
+          - name: docuchat
+            repo: JustinGuese/flutterDocuchatSelfmade25
+            path: .
+          - name: navicare
+            repo: JustinGuese/navicarenow_enduserapp_frontend_flutter
+            path: .
+    steps:
+      - name: Check out shared packages
+        uses: actions/checkout@v4
+        with:
+          path: df_flutter_shared
+
+      - name: Check out ${{ matrix.app.name }}
+        uses: actions/checkout@v4
+        continue-on-error: true
+        id: app_checkout
+        with:
+          repository: ${{ matrix.app.repo }}
+          token: ${{ secrets.CONSUMER_REPO_TOKEN || github.token }}
+          path: app
+
+      - uses: subosito/flutter-action@v2
+        if: steps.app_checkout.outcome == 'success'
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Point the app's df_* deps at this commit
+        if: steps.app_checkout.outcome == 'success'
+        working-directory: app
+        run: |
+          set -euo pipefail
+          # Every df_* package the app declares gets overridden to the local
+          # checkout, so the app compiles against the PR rather than main.
+          {
+            echo "dependency_overrides:"
+            grep -oE '^  (df_[a-z_]+):' pubspec.yaml | tr -d ' :' | while read -r pkg; do
+              echo "  $pkg:"
+              echo "    path: ${{ github.workspace }}/df_flutter_shared/$pkg"
+            done
+          } > pubspec_overrides.yaml
+          cat pubspec_overrides.yaml
+
+      - name: pub get
+        if: steps.app_checkout.outcome == 'success'
+        working-directory: app
+        run: flutter pub get
+
+      - name: analyze
+        if: steps.app_checkout.outcome == 'success'
+        working-directory: app
+        # Apps are not held to --fatal-infos; a shared-package change must not
+        # fail on pre-existing app-side lint debt. Errors still fail the build.
+        run: flutter analyze
+
+      - name: Report skipped
+        if: steps.app_checkout.outcome != 'success'
+        run: |
+          echo "::warning::Could not check out ${{ matrix.app.repo }}." \
+               "Set the CONSUMER_REPO_TOKEN secret to enable this check."

@@ -5,9 +5,11 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
-// Conditional import for web
+// Conditional import for web. Guarded on dart.library.js_interop rather than
+// dart.library.html so the web implementation is also picked up under Wasm.
 import 'download_helper_stub.dart'
-    if (dart.library.html) 'download_helper_web.dart' as web_helper;
+    if (dart.library.js_interop) 'download_helper_web.dart'
+    as web_helper;
 
 /// Cross-platform file download helper.
 ///
@@ -23,4 +25,3 @@ Future<void> downloadFile(Uint8List bytes, String fileName) async {
     await OpenFilex.open(file.path);
   }
 }
-

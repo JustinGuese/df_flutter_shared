@@ -5,4 +5,3 @@ import 'dart:typed_data';
 Future<void> downloadFileWeb(Uint8List bytes, String fileName) async {
   throw UnsupportedError('Web downloads not supported on this platform');
 }
-

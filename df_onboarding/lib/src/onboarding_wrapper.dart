@@ -5,10 +5,7 @@ import 'onboarding_provider.dart';
 import 'onboarding_screen.dart';
 
 class OnboardingWrapper extends ConsumerStatefulWidget {
-  const OnboardingWrapper({
-    super.key,
-    required this.onAlreadyCompleted,
-  });
+  const OnboardingWrapper({super.key, required this.onAlreadyCompleted});
 
   final VoidCallback onAlreadyCompleted;
 
@@ -38,9 +35,8 @@ class _OnboardingWrapperState extends ConsumerState<OnboardingWrapper> {
         }
         return const OnboardingScreen();
       },
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, stack) => Scaffold(
         body: Center(
           child: Column(

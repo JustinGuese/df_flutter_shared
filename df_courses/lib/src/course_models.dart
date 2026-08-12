@@ -2,13 +2,24 @@ import 'package:flutter/material.dart';
 
 enum CourseRiskTier { low, medium, high }
 
-enum CourseChapterVisibility { any, lowPlus, mediumPlus, highOnly }
+/// Which risk tiers a chapter is shown for.
+///
+/// [lowPlus] means "low and above", which is every tier — it is kept only so
+/// existing course JSON keeps parsing, and behaves exactly like [any].
+enum CourseChapterVisibility {
+  any,
+  @Deprecated('Identical to CourseChapterVisibility.any; use that instead.')
+  lowPlus,
+  mediumPlus,
+  highOnly,
+}
 
 extension CourseChapterVisibilityX on CourseChapterVisibility {
   bool matches(CourseRiskTier tier) {
     switch (this) {
       case CourseChapterVisibility.any:
         return true;
+      // ignore: deprecated_member_use_from_same_package
       case CourseChapterVisibility.lowPlus:
         return true;
       case CourseChapterVisibility.mediumPlus:
@@ -107,10 +118,10 @@ class ChecklistItem {
   final String? why;
 
   factory ChecklistItem.fromJson(Map<String, dynamic> json) => ChecklistItem(
-        id: json['id'] as String,
-        label: json['label'] as String,
-        why: json['why'] as String?,
-      );
+    id: json['id'] as String,
+    label: json['label'] as String,
+    why: json['why'] as String?,
+  );
 }
 
 class ChecklistChapter extends CourseChapter {
@@ -185,12 +196,16 @@ class QuizOption {
   final String? explain;
 
   factory QuizOption.fromJson(Map<String, dynamic> json) => QuizOption(
-        text: json['text'] as String,
-        correct: json['correct'] as bool? ?? false,
-        explain: json['explain'] as String?,
-      );
+    text: json['text'] as String,
+    correct: json['correct'] as bool? ?? false,
+    explain: json['explain'] as String?,
+  );
 
-  factory QuizOption.fromAny(dynamic raw, {required bool correct, String? explain}) {
+  factory QuizOption.fromAny(
+    dynamic raw, {
+    required bool correct,
+    String? explain,
+  }) {
     if (raw is String) {
       return QuizOption(text: raw, correct: correct, explain: explain);
     }
@@ -221,11 +236,13 @@ class QuizQuestion {
     final rawOptions = json['options'] as List;
     final options = <QuizOption>[];
     for (var i = 0; i < rawOptions.length; i++) {
-      options.add(QuizOption.fromAny(
-        rawOptions[i],
-        correct: correctIndex != null && correctIndex == i,
-        explain: explanation,
-      ));
+      options.add(
+        QuizOption.fromAny(
+          rawOptions[i],
+          correct: correctIndex != null && correctIndex == i,
+          explain: explanation,
+        ),
+      );
     }
     return QuizQuestion(
       id: json['id'] as String,
@@ -282,8 +299,8 @@ class CourseModel {
     required this.chapters,
   });
 
-  final String id;            // "m01"
-  final String moduleKey;     // "sturzrisiko"
+  final String id; // "m01"
+  final String moduleKey; // "sturzrisiko"
   final String title;
   final String subtitle;
   final String emoji;

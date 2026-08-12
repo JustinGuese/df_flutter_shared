@@ -23,5 +23,6 @@ class SpeechToTextConfig {
   final String? localeId;
 }
 
-final speechToTextConfigProvider =
-    Provider<SpeechToTextConfig>((ref) => const SpeechToTextConfig());
+final speechToTextConfigProvider = Provider<SpeechToTextConfig>(
+  (ref) => const SpeechToTextConfig(),
+);

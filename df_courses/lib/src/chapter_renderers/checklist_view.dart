@@ -47,11 +47,13 @@ class ChecklistChapterView extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 12),
-        ...chapter.items.map((item) => _ChecklistTile(
-              item: item,
-              checked: isChecked(item),
-              onChanged: (v) => onToggle(item, v),
-            )),
+        ...chapter.items.map(
+          (item) => _ChecklistTile(
+            item: item,
+            checked: isChecked(item),
+            onChanged: (v) => onToggle(item, v),
+          ),
+        ),
       ],
     );
   }

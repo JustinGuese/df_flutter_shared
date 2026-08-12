@@ -88,7 +88,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: resetLoading ? null : () => Navigator.of(context).pop(),
+              onPressed: resetLoading
+                  ? null
+                  : () => Navigator.of(context).pop(),
               child: const Text('Cancel'),
             ),
             FilledButton(
@@ -131,7 +133,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   'Too many requests. Please try again later.';
                               break;
                             default:
-                              errorMessage = e.message ??
+                              errorMessage =
+                                  e.message ??
                                   'An error occurred. Please try again.';
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -178,16 +181,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _loading = true);
     final config = ref.read(authConfigProvider);
     try {
-      await ref.read(authRepositoryProvider).signIn(
+      await ref
+          .read(authRepositoryProvider)
+          .signIn(
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
           );
       if (mounted) context.go(config.homeRoute);
     } on Exception catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.toString())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.toString())));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -205,9 +210,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         final errorMessage = error.toString();
         if (errorMessage.contains('cancelled')) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage.replaceAll('Exception: ', '')),
-          ),
+          SnackBar(content: Text(errorMessage.replaceAll('Exception: ', ''))),
         );
       }
     } finally {
@@ -225,19 +228,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) {
         final errorMessage = error.toString();
         if (errorMessage.contains('cancelled') ||
-            errorMessage.contains('canceled')) return;
+            errorMessage.contains('canceled')) {
+          return;
+        }
         final friendlyMessage = _appleSignInFriendlyError(errorMessage);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(friendlyMessage)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(friendlyMessage)));
       }
     } catch (error, stackTrace) {
       debugPrint('Apple Sign-In unexpected error: $error $stackTrace');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sign-in failed. Please try again.'),
-          ),
+          const SnackBar(content: Text('Sign-in failed. Please try again.')),
         );
       }
     } finally {
@@ -355,8 +358,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor:
-                                        AlwaysStoppedAnimation(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation(
+                                      Colors.white,
+                                    ),
                                   ),
                                 )
                               : const Text('Sign In'),
@@ -387,8 +391,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           foregroundColor: Colors.black87,
                           side: const BorderSide(color: Color(0xFFDADADA)),
                           shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20)),
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
                         ),
                         child: const Row(
@@ -410,21 +413,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         const SizedBox(height: 16),
                         SignInWithAppleButton(
                           onPressed: _loading ? () {} : _signInWithApple,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(20)),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(20),
+                          ),
                         ),
                       ],
                       const SizedBox(height: 16),
                       TextButton(
-                        onPressed:
-                            _loading ? null : _showForgotPasswordDialog,
+                        onPressed: _loading ? null : _showForgotPasswordDialog,
                         child: const Text('Forgot Password?'),
                       ),
                       const SizedBox(height: 8),
                       TextButton(
                         onPressed: () => context.go(config.registerRoute),
-                        child: const Text(
-                            "Don't have an account? Sign up"),
+                        child: const Text("Don't have an account? Sign up"),
                       ),
                     ],
                   ),

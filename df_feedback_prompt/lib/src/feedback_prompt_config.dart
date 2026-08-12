@@ -45,4 +45,3 @@ class FeedbackPromptConfig {
   /// Optional callback when the secondary button is tapped.
   final Future<void> Function()? onSecondaryAction;
 }
-

@@ -1,4 +1,4 @@
-library df_analytics;
+library;
 
 export 'src/analytics_config.dart';
 export 'src/analytics_service.dart';

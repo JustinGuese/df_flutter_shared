@@ -10,8 +10,10 @@ List<String> parseSummaryPoints(String? summary) {
       .map((line) => line.trim())
       .where((line) => line.isNotEmpty)
       .map((line) {
-        final cleaned =
-            line.replaceFirst(RegExp(r'^([\-\*\u2022]+|\d+[\).]?)\s*'), '');
+        final cleaned = line.replaceFirst(
+          RegExp(r'^([\-\*\u2022]+|\d+[\).]?)\s*'),
+          '',
+        );
         return cleaned.trim();
       })
       .where((line) => line.isNotEmpty)

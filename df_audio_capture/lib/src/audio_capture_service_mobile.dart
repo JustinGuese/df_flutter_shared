@@ -9,7 +9,7 @@ import 'audio_backend.dart';
 
 class MobileAudioCaptureBackend implements AudioCaptureBackend {
   MobileAudioCaptureBackend({required Directory recordingsDir})
-      : _recordingsDir = recordingsDir;
+    : _recordingsDir = recordingsDir;
 
   final Directory _recordingsDir;
   final AudioRecorder _recorder = AudioRecorder();
@@ -39,8 +39,10 @@ class MobileAudioCaptureBackend implements AudioCaptureBackend {
     }
 
     final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-    final path =
-        p.join(_recordingsDir.path, 'meeting-$timestamp-mobile-mic.m4a');
+    final path = p.join(
+      _recordingsDir.path,
+      'meeting-$timestamp-mobile-mic.m4a',
+    );
 
     await _recorder.start(
       const RecordConfig(
@@ -68,4 +70,3 @@ class MobileAudioCaptureBackend implements AudioCaptureBackend {
     return <XFile>[XFile(path)];
   }
 }
-

@@ -23,9 +23,7 @@ class AudioCaptureService {
           );
     const isFlutterTest = bool.fromEnvironment('FLUTTER_TEST');
     if (isFlutterTest) {
-      return AudioCaptureService._(
-        StubAudioCaptureBackend(recordingsDir: dir),
-      );
+      return AudioCaptureService._(StubAudioCaptureBackend(recordingsDir: dir));
     }
     if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
       return AudioCaptureService._(
@@ -37,9 +35,7 @@ class AudioCaptureService {
         MobileAudioCaptureBackend(recordingsDir: dir),
       );
     }
-    return AudioCaptureService._(
-      StubAudioCaptureBackend(recordingsDir: dir),
-    );
+    return AudioCaptureService._(StubAudioCaptureBackend(recordingsDir: dir));
   }
 
   RecordingState get state => _backend.state;
@@ -57,4 +53,3 @@ class AudioCaptureService {
 
   Stream<double>? get audioLevelStream => _backend.audioLevelStream;
 }
-

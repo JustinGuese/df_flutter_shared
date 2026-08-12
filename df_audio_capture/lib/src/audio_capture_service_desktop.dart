@@ -13,7 +13,7 @@ import 'audio_backend.dart';
 
 class DesktopAudioCaptureBackend implements AudioCaptureBackend {
   DesktopAudioCaptureBackend({required Directory recordingsDir})
-      : _recordingsDir = recordingsDir;
+    : _recordingsDir = recordingsDir;
 
   final Directory _recordingsDir;
 
@@ -66,10 +66,7 @@ class DesktopAudioCaptureBackend implements AudioCaptureBackend {
     SystemAudioCapture? systemCapture;
     try {
       systemCapture = SystemAudioCapture(
-        config: SystemAudioConfig(
-          sampleRate: 44100,
-          channels: 2,
-        ),
+        config: SystemAudioConfig(sampleRate: 44100, channels: 2),
       );
       await systemCapture.startCapture();
     } catch (_) {
@@ -145,10 +142,7 @@ class DesktopAudioCaptureBackend implements AudioCaptureBackend {
     final micPcm = _micBuffer.takeBytes();
     final sysPcm = _systemBuffer.takeBytes();
 
-    final mixedPcm = _mixToPcm16Mono(
-      micPcm: micPcm,
-      sysPcm: sysPcm,
-    );
+    final mixedPcm = _mixToPcm16Mono(micPcm: micPcm, sysPcm: sysPcm);
 
     final file = await _createRecordingFile(suffix: 'mixed');
     final wavBytes = _encodeWav(
@@ -255,8 +249,11 @@ class DesktopAudioCaptureBackend implements AudioCaptureBackend {
     for (int i = 0; i < outputCount; i++) {
       int micSample = 0;
       if (i < micSampleCount) {
-        micSample = ByteData.sublistView(micPcm, i * 2, i * 2 + 2)
-            .getInt16(0, Endian.little);
+        micSample = ByteData.sublistView(
+          micPcm,
+          i * 2,
+          i * 2 + 2,
+        ).getInt16(0, Endian.little);
       }
 
       // Downsample system audio from 44100Hz stereo to 16000Hz mono
@@ -266,18 +263,26 @@ class DesktopAudioCaptureBackend implements AudioCaptureBackend {
         if (sysFrameIndex < sysSampleCount) {
           final offset = sysFrameIndex * 4;
           if (offset + 4 <= sysPcm.length) {
-            final sysL = ByteData.sublistView(sysPcm, offset, offset + 2)
-                .getInt16(0, Endian.little);
-            final sysR = ByteData.sublistView(sysPcm, offset + 2, offset + 4)
-                .getInt16(0, Endian.little);
+            final sysL = ByteData.sublistView(
+              sysPcm,
+              offset,
+              offset + 2,
+            ).getInt16(0, Endian.little);
+            final sysR = ByteData.sublistView(
+              sysPcm,
+              offset + 2,
+              offset + 4,
+            ).getInt16(0, Endian.little);
             sysSample = ((sysL + sysR) / 2).round();
           }
         }
       }
 
       // Keep mic at full volume; reduce system to 50% so voice isn't drowned out
-      final mixed =
-          (micSample + (sysSample * 0.5).round()).clamp(-32768, 32767);
+      final mixed = (micSample + (sysSample * 0.5).round()).clamp(
+        -32768,
+        32767,
+      );
       final b = ByteData(2)..setInt16(0, mixed, Endian.little);
       output.add(b.buffer.asUint8List());
     }
@@ -285,4 +290,3 @@ class DesktopAudioCaptureBackend implements AudioCaptureBackend {
     return output.toBytes();
   }
 }
-

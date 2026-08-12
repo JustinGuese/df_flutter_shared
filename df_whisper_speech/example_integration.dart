@@ -62,9 +62,9 @@ class _ChatScreenExampleState extends ConsumerState<ChatScreenExample> {
     // Show error snackbars
     ref.listen(whisperSpeechProvider, (prev, next) {
       if (next.error != null && prev?.error != next.error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.error!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.error!)));
       }
     });
 

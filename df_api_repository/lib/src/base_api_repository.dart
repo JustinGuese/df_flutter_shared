@@ -6,7 +6,7 @@ import 'api_repository_config.dart';
 /// Use [getList] for paginated GET list endpoints.
 abstract class BaseApiRepository {
   BaseApiRepository(this.dio, {ApiRepositoryConfig? config})
-      : config = config ?? const ApiRepositoryConfig();
+    : config = config ?? const ApiRepositoryConfig();
 
   final Dio dio;
   final ApiRepositoryConfig config;
@@ -31,9 +31,7 @@ abstract class BaseApiRepository {
       queryParameters: params,
     );
     final data = response.data ?? [];
-    return data
-        .map((json) => fromJson(json as Map<String, dynamic>))
-        .toList();
+    return data.map((json) => fromJson(json as Map<String, dynamic>)).toList();
   }
 
   /// GET a single JSON object from [path].

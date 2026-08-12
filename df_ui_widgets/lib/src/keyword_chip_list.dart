@@ -72,10 +72,7 @@ class KeywordChipList extends StatelessWidget {
         Row(
           children: [
             if (icon != null)
-              Icon(
-                icon,
-                color: iconColor ?? theme.colorScheme.primary,
-              ),
+              Icon(icon, color: iconColor ?? theme.colorScheme.primary),
             if (icon != null) const SizedBox(width: 8),
             Text(
               title,
@@ -135,10 +132,7 @@ class _AiPulseIndicatorState extends State<_AiPulseIndicator>
           CircleAvatar(
             radius: 16,
             backgroundColor: theme.colorScheme.primaryContainer,
-            child: Icon(
-              Icons.auto_awesome,
-              color: theme.colorScheme.primary,
-            ),
+            child: Icon(Icons.auto_awesome, color: theme.colorScheme.primary),
           ),
           const SizedBox(width: 12),
           Text(

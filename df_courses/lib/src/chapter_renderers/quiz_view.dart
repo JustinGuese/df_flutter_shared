@@ -38,11 +38,13 @@ class _QuizChapterViewState extends State<QuizChapterView> {
   void _shuffle() {
     _questions = [...widget.chapter.questions]..shuffle(_rng);
     _questions = _questions
-        .map((q) => QuizQuestion(
-              id: q.id,
-              text: q.text,
-              options: [...q.options]..shuffle(_rng),
-            ))
+        .map(
+          (q) => QuizQuestion(
+            id: q.id,
+            text: q.text,
+            options: [...q.options]..shuffle(_rng),
+          ),
+        )
         .toList(growable: false);
     _selected = List.filled(_questions.length, null);
   }
@@ -80,8 +82,7 @@ class _QuizChapterViewState extends State<QuizChapterView> {
 
   @override
   Widget build(BuildContext context) {
-    final passed =
-        _submitted && _scorePct >= widget.chapter.passingScore;
+    final passed = _submitted && _scorePct >= widget.chapter.passingScore;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -146,13 +147,19 @@ class _QuizChapterViewState extends State<QuizChapterView> {
                     if (opt.correct) {
                       bg = const Color(0xFFECFDF5);
                       border = const Color(0xFF10B981);
-                      trailing = const Icon(Icons.check_circle_rounded,
-                          color: Color(0xFF10B981), size: 18);
+                      trailing = const Icon(
+                        Icons.check_circle_rounded,
+                        color: Color(0xFF10B981),
+                        size: 18,
+                      );
                     } else if (isSelected) {
                       bg = const Color(0xFFFEF2F2);
                       border = const Color(0xFFEF4444);
-                      trailing = const Icon(Icons.cancel_rounded,
-                          color: Color(0xFFEF4444), size: 18);
+                      trailing = const Icon(
+                        Icons.cancel_rounded,
+                        color: Color(0xFFEF4444),
+                        size: 18,
+                      );
                     }
                   }
                   return Padding(
@@ -165,13 +172,15 @@ class _QuizChapterViewState extends State<QuizChapterView> {
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: bg ??
+                          color:
+                              bg ??
                               (isSelected
                                   ? const Color(0xFFEFF6FF)
                                   : const Color(0xFFF8FAFC)),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: border ??
+                            color:
+                                border ??
                                 (isSelected
                                     ? const Color(0xFF3B82F6)
                                     : const Color(0xFFE2E8F0)),
@@ -254,9 +263,7 @@ class _QuizChapterViewState extends State<QuizChapterView> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: passed
-                  ? const Color(0xFFECFDF5)
-                  : const Color(0xFFFEF2F2),
+              color: passed ? const Color(0xFFECFDF5) : const Color(0xFFFEF2F2),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: passed
@@ -267,9 +274,7 @@ class _QuizChapterViewState extends State<QuizChapterView> {
             child: Row(
               children: [
                 Icon(
-                  passed
-                      ? Icons.check_circle_rounded
-                      : Icons.replay_rounded,
+                  passed ? Icons.check_circle_rounded : Icons.replay_rounded,
                   color: passed
                       ? const Color(0xFF10B981)
                       : const Color(0xFFEF4444),
@@ -299,10 +304,7 @@ class _QuizChapterViewState extends State<QuizChapterView> {
                   ),
                 ),
                 if (!passed)
-                  TextButton(
-                    onPressed: _reset,
-                    child: const Text('Erneut'),
-                  ),
+                  TextButton(onPressed: _reset, child: const Text('Erneut')),
               ],
             ),
           ),

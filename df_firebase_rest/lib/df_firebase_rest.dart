@@ -1,4 +1,4 @@
-﻿library df_firebase_rest;
+﻿library;
 
 export 'src/exceptions.dart';
 export 'src/firebase_rest_auth.dart';

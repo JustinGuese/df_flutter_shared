@@ -1,4 +1,4 @@
-library df_whisper_speech;
+library;
 
 export 'src/whisper_speech_config.dart';
 export 'src/whisper_speech_provider.dart';

@@ -1,4 +1,3 @@
-import 'package:df_onboarding/df_onboarding.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,15 +6,15 @@ import 'chapter_renderers/quiz_view.dart';
 import 'chapter_renderers/reading_view.dart';
 import 'chapter_renderers/red_flags_view.dart';
 import 'course_models.dart';
+import 'course_progress_notifier.dart';
 
 /// Full-screen course viewer for a [CourseModel].
 ///
 /// One chapter per page, navigated via Back / Weiter with a progress bar.
 /// Chapters are filtered by [tier] before rendering.
 ///
-/// Progress (checklist toggles + quiz pass) is persisted via the shared
-/// `LearningProgressNotifier` from df_onboarding so we reuse the same
-/// SharedPreferences-backed storage as the legacy course screen.
+/// Progress (checklist toggles + quiz pass) is persisted by
+/// [CourseProgressNotifier].
 ///
 /// [stepGateBuilder] receives the chapter index the user is trying to reach.
 /// Return a widget (e.g. paywall) to block navigation, or null to allow.
@@ -76,23 +75,25 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
       '${widget.course.moduleKey}_${chapter.id}_$suffix';
 
   void _toggle(CourseChapter chapter, String suffix, bool checked) {
-    final notifier = ref.read(learningProgressNotifierProvider.notifier);
+    final notifier = ref.read(courseProgressNotifierProvider.notifier);
     final id = _itemId(chapter, suffix);
     if (checked) {
       notifier.markComplete(widget.course.moduleKey, id);
     } else {
       notifier.markIncomplete(widget.course.moduleKey, id);
     }
-    widget.onProgressChanged
-        ?.call(notifier.completedItemIds(widget.course.moduleKey));
+    widget.onProgressChanged?.call(
+      notifier.completedItemIds(widget.course.moduleKey),
+    );
   }
 
   void _markQuizPassed(CourseChapter chapter) {
-    final notifier = ref.read(learningProgressNotifierProvider.notifier);
+    final notifier = ref.read(courseProgressNotifierProvider.notifier);
     final id = _itemId(chapter, 'passed');
     notifier.markComplete(widget.course.moduleKey, id);
-    widget.onProgressChanged
-        ?.call(notifier.completedItemIds(widget.course.moduleKey));
+    widget.onProgressChanged?.call(
+      notifier.completedItemIds(widget.course.moduleKey),
+    );
   }
 
   void _goTo(int page) {
@@ -114,7 +115,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final progressState = ref.watch(learningProgressNotifierProvider);
+    final progressState = ref.watch(courseProgressNotifierProvider);
     final completed = progressState[widget.course.moduleKey] ?? <String>{};
     final totalPages = _pages.length;
     final ratio = totalPages == 0 ? 0.0 : (_currentPage + 1) / totalPages;
@@ -149,19 +150,24 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
             current: _currentPage,
             total: totalPages,
             onBack: _currentPage > 0 ? () => _goTo(_currentPage - 1) : null,
-            onNext: _currentPage < totalPages - 1 &&
+            onNext:
+                _currentPage < totalPages - 1 &&
                     !_isBlockingQuiz(_pages[_currentPage], completed)
                 ? () => _goTo(_currentPage + 1)
                 : null,
-            onFinish: _currentPage == totalPages - 1 &&
+            onFinish:
+                _currentPage == totalPages - 1 &&
                     !_isBlockingQuiz(_pages[_currentPage], completed)
                 ? () => Navigator.of(context).maybePop()
                 : null,
             primaryColor: widget.course.gradient.last,
             disabledHint:
-                _isBlockingQuiz(_pages.isEmpty ? null : _pages[_currentPage], completed)
-                    ? 'Bitte Quiz erfolgreich abschließen'
-                    : null,
+                _isBlockingQuiz(
+                  _pages.isEmpty ? null : _pages[_currentPage],
+                  completed,
+                )
+                ? 'Bitte Quiz erfolgreich abschließen'
+                : null,
           ),
         ],
       ),
@@ -237,19 +243,25 @@ class _Header extends StatelessWidget {
               Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: Colors.white, size: 20),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                     onPressed: () => Navigator.of(context).maybePop(),
                   ),
                   const Spacer(),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 3),
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: riskLevelColor.withValues(alpha: 0.25),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                          color: riskLevelColor.withValues(alpha: 0.7)),
+                        color: riskLevelColor.withValues(alpha: 0.7),
+                      ),
                     ),
                     child: Text(
                       riskLevelLabel,
@@ -308,7 +320,8 @@ class _Header extends StatelessWidget {
                           minHeight: 5,
                           backgroundColor: Colors.white.withValues(alpha: 0.25),
                           valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.white),
+                            Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -375,47 +388,47 @@ class _BottomNav extends StatelessWidget {
                 ),
               ),
             Row(
-          children: [
-            if (onBack != null)
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: onBack,
-                  icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                  label: const Text('Zurück'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF334155),
-                    side: const BorderSide(color: Color(0xFFCBD5E1)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              children: [
+                if (onBack != null)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onBack,
+                      icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                      label: const Text('Zurück'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF334155),
+                        side: const BorderSide(color: Color(0xFFCBD5E1)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (onBack != null) const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: onNext ?? onFinish,
+                    icon: Icon(
+                      onFinish != null
+                          ? Icons.check_rounded
+                          : Icons.arrow_forward_rounded,
+                      size: 18,
+                    ),
+                    label: Text(onFinish != null ? 'Fertig' : 'Weiter'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            if (onBack != null) const SizedBox(width: 10),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: onNext ?? onFinish,
-                icon: Icon(
-                  onFinish != null
-                      ? Icons.check_rounded
-                      : Icons.arrow_forward_rounded,
-                  size: 18,
-                ),
-                label: Text(onFinish != null ? 'Fertig' : 'Weiter'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
+              ],
             ),
           ],
-        ),
-        ],
         ),
       ),
     );

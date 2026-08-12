@@ -62,7 +62,9 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Fehler beim Öffnen der Zahlungsseite. Bitte versuchen Sie es erneut.'),
+            content: Text(
+              'Fehler beim Öffnen der Zahlungsseite. Bitte versuchen Sie es erneut.',
+            ),
           ),
         );
       }
@@ -116,7 +118,10 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
                       shape: BoxShape.circle,
                     ),
                     child: Center(
-                      child: Text(cfg.heroEmoji, style: const TextStyle(fontSize: 28)),
+                      child: Text(
+                        cfg.heroEmoji,
+                        style: const TextStyle(fontSize: 28),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -152,7 +157,10 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
                   ),
                   const SizedBox(width: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: cfg.accentColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -184,7 +192,11 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
               child: Text(
                 cfg.credibilityText,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Colors.grey[500], height: 1.4),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[500],
+                  height: 1.4,
+                ),
               ),
             ),
             // CTA button
@@ -208,12 +220,16 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2.5, color: Colors.white),
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ),
                         )
                       : Text(
                           cfg.ctaText,
                           style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w700),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                 ),
               ),
@@ -252,7 +268,10 @@ class _FeatureRow extends StatelessWidget {
             child: Text(
               text,
               style: const TextStyle(
-                  fontSize: 14, color: Color(0xFF334155), height: 1.4),
+                fontSize: 14,
+                color: Color(0xFF334155),
+                height: 1.4,
+              ),
             ),
           ),
         ],
