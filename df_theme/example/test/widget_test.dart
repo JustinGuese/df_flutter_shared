@@ -82,4 +82,41 @@ void main() {
     expect(wired, isTrue);
     expect(name, 'PsychDiary');
   });
+
+  group('brandFill contrast', () {
+    test('keeps an already-accessible brand colour', () {
+      // PsychDiary's violet clears 4.5:1 against white, so darkening it would
+      // mute the app's identity for no accessibility gain.
+      final p = DfBrandPresets.psychDiary().light;
+      expect(p.brandFill, p.brand.base);
+    });
+
+    test('darkens a brand colour that does not carry its foreground', () {
+      // The house brass sits around 4.0:1 against white — under the bar, so
+      // buttons must use the deeper weight.
+      final p = DfBrandPresets.dataFortressLight;
+      expect(p.brandFill, p.brand.deep);
+    });
+
+    test('every preset fills buttons at 4.5:1 or better', () {
+      for (final brand in GalleryBrand.values) {
+        final built = brand.build();
+        for (final p in <DfPalette>[built.light, built.dark]) {
+          final fill = p.brandFill;
+          final fg = p.textOnBrand;
+          final lf = fill.computeLuminance();
+          final lg = fg.computeLuminance();
+          final ratio =
+              ((lf > lg ? lf : lg) + 0.05) / ((lf > lg ? lg : lf) + 0.05);
+          expect(
+            ratio,
+            greaterThanOrEqualTo(4.5),
+            reason:
+                '${brand.label} ${p.brightness.name}: button label only '
+                'reaches ${ratio.toStringAsFixed(2)}:1',
+          );
+        }
+      }
+    });
+  });
 }

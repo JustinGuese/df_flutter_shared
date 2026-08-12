@@ -14,10 +14,20 @@ class DfShape {
     this.lg = 20,
     this.xl = 28,
     this.pill = 999,
-  });
+    double? button,
+    double? input,
+  }) : _button = button,
+       _input = input;
 
   /// Square-ish, for apps whose identity rejects rounding (pixel-art, terminal).
-  const DfShape.sharp() : sm = 0, md = 0, lg = 0, xl = 0, pill = 0;
+  const DfShape.sharp()
+    : sm = 0,
+      md = 0,
+      lg = 0,
+      xl = 0,
+      pill = 0,
+      _button = 0,
+      _input = 0;
 
   /// Chips, badges, small inputs.
   final double sm;
@@ -34,7 +44,22 @@ class DfShape {
   /// Fully rounded ends.
   final double pill;
 
+  final double? _button;
+  final double? _input;
+
+  /// Button corner radius. Falls back to [md].
+  ///
+  /// Separate from [md] because buttons carry more of a brand's personality
+  /// than cards do — PsychDiary's near-pill 24 against its 20 cards is a
+  /// deliberate Headspace-ish softness, and collapsing the two flattens it.
+  double get button => _button ?? md;
+
+  /// Text-field corner radius. Falls back to [md].
+  double get input => _input ?? md;
+
   BorderRadius get radiusSm => BorderRadius.circular(sm);
+  BorderRadius get radiusButton => BorderRadius.circular(button);
+  BorderRadius get radiusInput => BorderRadius.circular(input);
   BorderRadius get radiusMd => BorderRadius.circular(md);
   BorderRadius get radiusLg => BorderRadius.circular(lg);
   BorderRadius get radiusXl => BorderRadius.circular(xl);
@@ -50,12 +75,16 @@ class DfShape {
     double? lg,
     double? xl,
     double? pill,
+    double? button,
+    double? input,
   }) => DfShape(
     sm: sm ?? this.sm,
     md: md ?? this.md,
     lg: lg ?? this.lg,
     xl: xl ?? this.xl,
     pill: pill ?? this.pill,
+    button: button ?? _button,
+    input: input ?? _input,
   );
 
   static DfShape lerp(DfShape a, DfShape b, double t) => DfShape(
@@ -64,5 +93,7 @@ class DfShape {
     lg: a.lg + (b.lg - a.lg) * t,
     xl: a.xl + (b.xl - a.xl) * t,
     pill: a.pill + (b.pill - a.pill) * t,
+    button: a.button + (b.button - a.button) * t,
+    input: a.input + (b.input - a.input) * t,
   );
 }

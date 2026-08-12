@@ -210,9 +210,24 @@ class DfPalette {
 
   bool get isDark => brightness == Brightness.dark;
 
-  /// The fill for a primary button, which differs by mode: a mid-tone brand
-  /// colour needs darkening on light backgrounds and lightening on dark ones.
-  Color get brandFill => isDark ? brand.base : brand.deep;
+  /// The fill for a primary button, guaranteed to carry [textOnBrand] at 4.5:1.
+  ///
+  /// Prefers [DfBrandRoleTriad.base] so the button shows the actual brand
+  /// colour; falls back to [DfBrandRoleTriad.deep] in light mode, and nudges
+  /// lightness as a last resort. Darkening unconditionally — the first version
+  /// of this — was wrong in both directions: it muted brands whose base was
+  /// already accessible (PsychDiary's violet clears 5:1) while still leaving
+  /// genuinely low-contrast ones short.
+  ///
+  /// The floor is enforced here rather than trusted to every palette author,
+  /// including the hand-written ones inside each app.
+  Color get brandFill {
+    if (dfContrastRatio(brand.base, textOnBrand) >= 4.5) return brand.base;
+    if (!isDark && dfContrastRatio(brand.deep, textOnBrand) >= 4.5) {
+      return brand.deep;
+    }
+    return dfEnsureContrast(brand.base, textOnBrand);
+  }
 
   List<Color>? gradient(String name) => gradients[name];
 
@@ -279,6 +294,46 @@ class DfPalette {
     info: DfColorRole.lerp(a.info, b.info, t),
     gradients: t < 0.5 ? a.gradients : b.gradients,
   );
+}
+
+/// WCAG relative-contrast ratio between two opaque colours, 1.0–21.0.
+double dfContrastRatio(Color a, Color b) {
+  final la = a.computeLuminance();
+  final lb = b.computeLuminance();
+  final lighter = la > lb ? la : lb;
+  final darker = la > lb ? lb : la;
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/// Walks [color]'s lightness away from [on] until they reach [minRatio].
+///
+/// Hue and saturation are preserved, so the result still reads as the brand.
+/// Returns the closest it got if even black or white cannot reach the ratio —
+/// which only happens for a mid-grey foreground.
+Color dfEnsureContrast(Color color, Color on, {double minRatio = 4.5}) {
+  if (dfContrastRatio(color, on) >= minRatio) return color;
+
+  final hsl = HSLColor.fromColor(color);
+  // Move away from the foreground: darken against light text, lighten against
+  // dark text.
+  final step = on.computeLuminance() > 0.5 ? -0.02 : 0.02;
+
+  var best = color;
+  var bestRatio = dfContrastRatio(color, on);
+  var lightness = hsl.lightness;
+
+  for (var i = 0; i < 50; i++) {
+    lightness = (lightness + step).clamp(0.0, 1.0);
+    final candidate = hsl.withLightness(lightness).toColor();
+    final ratio = dfContrastRatio(candidate, on);
+    if (ratio > bestRatio) {
+      best = candidate;
+      bestRatio = ratio;
+    }
+    if (ratio >= minRatio) return candidate;
+    if (lightness == 0.0 || lightness == 1.0) break;
+  }
+  return best;
 }
 
 /// A brand or accent colour with its container weights.
