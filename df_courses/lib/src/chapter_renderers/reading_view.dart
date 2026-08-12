@@ -1,3 +1,4 @@
+import 'package:df_theme/df_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
@@ -10,18 +11,13 @@ class ReadingChapterView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final df = context.df;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: df.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        boxShadow: df.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,10 +29,10 @@ class ReadingChapterView extends StatelessWidget {
               Expanded(
                 child: Text(
                   chapter.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF0C445A),
+                    color: df.colors.brand.deep,
                   ),
                 ),
               ),
@@ -46,34 +42,34 @@ class ReadingChapterView extends StatelessWidget {
           MarkdownBody(
             data: chapter.markdown,
             styleSheet: MarkdownStyleSheet(
-              p: const TextStyle(
+              p: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: Color(0xFF334155),
+                color: df.colors.textSecondary,
               ),
-              h1: const TextStyle(
+              h1: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF0C445A),
+                color: df.colors.brand.deep,
               ),
-              h2: const TextStyle(
+              h2: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF0C445A),
+                color: df.colors.brand.deep,
               ),
-              h3: const TextStyle(
+              h3: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF0C445A),
+                color: df.colors.brand.deep,
               ),
-              listBullet: const TextStyle(
+              listBullet: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: Color(0xFF334155),
+                color: df.colors.textSecondary,
               ),
-              strong: const TextStyle(
+              strong: TextStyle(
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF0C445A),
+                color: df.colors.brand.deep,
               ),
             ),
           ),
@@ -86,21 +82,21 @@ class ReadingChapterView extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 7, right: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 7, right: 8),
                       child: Icon(
                         Icons.circle,
                         size: 5,
-                        color: Color(0xFF94A3B8),
+                        color: df.colors.textDisabled,
                       ),
                     ),
                     Expanded(
                       child: Text(
                         b,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13.5,
                           height: 1.45,
-                          color: Color(0xFF334155),
+                          color: df.colors.textSecondary,
                         ),
                       ),
                     ),

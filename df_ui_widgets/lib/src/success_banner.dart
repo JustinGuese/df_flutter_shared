@@ -1,5 +1,13 @@
+import 'package:df_theme/df_theme.dart';
 import 'package:flutter/material.dart';
 
+/// A confirmation panel with an optional caveat pill underneath.
+///
+/// [color] overrides the tint; by default it uses the theme's success role,
+/// which is also where the darker title colour comes from. An earlier version
+/// tinted the title with the same mid-tone as the fill because there was no
+/// token for "success, but darker" — the four-weight roles in df_theme fix
+/// that.
 class SuccessBanner extends StatelessWidget {
   final String title;
   final String body;
@@ -22,48 +30,49 @@ class SuccessBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = color ?? Colors.green;
+    final df = context.df;
+    final text = Theme.of(context).textTheme;
+    final role = df.colors.success;
+    final themeColor = color ?? role.base;
+    // When the caller supplies its own tint there is no matching dark weight,
+    // so fall back to that tint for the title.
+    final titleColor = color == null ? role.deep : color!;
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(df.spacing.lg),
       decoration: BoxDecoration(
-        color: themeColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        color: color == null ? role.bg : themeColor.withValues(alpha: 0.1),
+        borderRadius: df.shape.radiusLg,
         border: Border.all(
-          color: themeColor.withValues(alpha: 0.2),
+          color: color == null ? role.soft : themeColor.withValues(alpha: 0.2),
           width: 1.5,
         ),
       ),
       child: Column(
         children: [
           Icon(icon, color: themeColor, size: 56),
-          const SizedBox(height: 16),
+          SizedBox(height: df.spacing.md),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color:
-                  themeColor, // Re-using themeColor to fake a 'successDark' fallback
-            ),
+            textAlign: TextAlign.center,
+            style: text.headlineSmall?.copyWith(color: titleColor),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: df.spacing.sm),
           Text(
             body,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              height: 1.4,
-            ),
+            style: text.bodyMedium?.copyWith(color: df.colors.textSecondary),
           ),
           if (warningNote != null) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: df.spacing.md),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: EdgeInsets.symmetric(
+                horizontal: df.spacing.md,
+                vertical: df.spacing.xs + 2,
+              ),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(12),
+                color: df.colors.surface.withValues(alpha: 0.6),
+                borderRadius: df.shape.radiusSm,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

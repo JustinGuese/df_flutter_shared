@@ -10,12 +10,21 @@ class PrivacyTrackingDialogConfig {
       'Measure which ads bring users to our app',
     ],
     this.infoText =
-        'We share anonymous usage data with Meta (Facebook) for ad attribution and analytics. '
-        'This helps us measure ad effectiveness. Your personal diary entries are never shared. '
-        'Tapping Continue opens the iOS tracking prompt where you can allow or deny tracking.',
+        'We share anonymous usage data with Meta (Facebook) for ad attribution '
+        'and analytics. This helps us measure ad effectiveness. Your personal '
+        'content is never shared. Tapping Continue opens the iOS tracking '
+        'prompt where you can allow or deny tracking.',
   });
 
   final List<String> bulletPoints;
+
+  /// Explains what is shared and what happens next.
+  ///
+  /// The default deliberately says "your personal content" rather than naming
+  /// a content type — it used to say "diary entries", which was PsychDiary's
+  /// domain leaking into a package five apps share. Override it with wording
+  /// that names what your app actually stores; concrete is more reassuring
+  /// than generic, and this dialog exists to reassure.
   final String infoText;
 }
 

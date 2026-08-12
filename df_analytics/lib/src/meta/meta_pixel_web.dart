@@ -15,11 +15,18 @@ void _fbq(String method, String event) {
   }
 }
 
+/// Fires one of Meta's standard events.
+void trackMetaPixelEvent(String eventName) => _fbq('track', eventName);
+
+/// Fires an app-defined event that is not in Meta's standard set.
+void trackMetaPixelCustomEvent(String eventName) =>
+    _fbq('trackCustom', eventName);
+
 void trackMetaPixelInstall() {
-  _fbq('track', 'Lead');
-  _fbq('trackCustom', 'AppInstall');
+  trackMetaPixelEvent('Lead');
+  trackMetaPixelCustomEvent('AppInstall');
 }
 
-void trackMetaPixelContact() => _fbq('track', 'Contact');
+void trackMetaPixelContact() => trackMetaPixelEvent('Contact');
 
-void trackMetaPixelLead() => _fbq('track', 'Lead');
+void trackMetaPixelLead() => trackMetaPixelEvent('Lead');

@@ -35,6 +35,21 @@ class DfTokens extends ThemeExtension<DfTokens> {
     this.logoAsset,
   });
 
+  /// Tokens inferred from a plain [ThemeData], for apps that have not adopted
+  /// [DfBrand] yet. See [DfThemeContext.df].
+  factory DfTokens.derivedFrom(ThemeData theme) => DfTokens(
+    brandName: '',
+    colors: DfPalette.fromColorScheme(theme.colorScheme),
+    typography: DfTypography(
+      body: theme.textTheme.bodyMedium?.fontFamily,
+      display: theme.textTheme.headlineMedium?.fontFamily,
+      baseTextTheme: theme.textTheme,
+    ),
+    spacing: const DfSpacing(),
+    shape: const DfShape(),
+    motion: const DfMotion(),
+  );
+
   final String brandName;
   final DfPalette colors;
   final DfTypography typography;
@@ -147,27 +162,25 @@ class DfTokens extends ThemeExtension<DfTokens> {
 extension DfThemeContext on BuildContext {
   /// The DF tokens for this subtree.
   ///
-  /// Throws a [FlutterError] with a fix-it message if the app forgot to build
-  /// its theme with `DfTheme.light` / `DfTheme.dark`, which is far easier to
-  /// act on than a null dereference deep inside a shared widget.
+  /// When the app has not adopted `df_theme` yet, this derives a palette from
+  /// the ambient [ColorScheme] instead of throwing. Shared widgets are used by
+  /// apps at different stages of migration, so requiring the full design system
+  /// up front would mean every app had to convert in one commit.
+  ///
+  /// The derived palette is a fallback, not a destination — it has no distinct
+  /// canvas tone and guesses the semantic ramps. Build the theme with
+  /// `DfTheme.light(brand)` / `DfTheme.dark(brand)` to get the real thing.
   DfTokens get df {
-    final tokens = Theme.of(this).extension<DfTokens>();
-    if (tokens == null) {
-      throw FlutterError.fromParts(<DiagnosticsNode>[
-        ErrorSummary('No DfTokens found in the current Theme.'),
-        ErrorDescription(
-          'A df_* widget tried to read design tokens, but the enclosing '
-          'ThemeData has no DfTokens extension.',
-        ),
-        ErrorHint(
-          'Build the app theme with DfTheme.light(brand) / DfTheme.dark(brand) '
-          'from package:df_theme, or add DfTokens to ThemeData.extensions '
-          'yourself.',
-        ),
-      ]);
-    }
-    return tokens;
+    final theme = Theme.of(this);
+    final tokens = theme.extension<DfTokens>();
+    if (tokens != null) return tokens;
+    return DfTokens.derivedFrom(theme);
   }
+
+  /// True when this subtree has real tokens rather than derived ones.
+  ///
+  /// Useful in tests and migration checks; widgets should not branch on it.
+  bool get hasDfTokens => Theme.of(this).extension<DfTokens>() != null;
 
   /// Motion for this subtree, already collapsed to zero when the platform asks
   /// for reduced motion.

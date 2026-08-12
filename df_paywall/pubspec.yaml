@@ -10,6 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Intra-repo dependency by path, not git: a git dependency on this same repo
+  # would resolve against published `main` instead of the checkout being built.
+  # Git consumers clone the whole repo, so `../df_theme` resolves for them too.
+  df_theme:
+    path: ../df_theme
 
 dev_dependencies:
   flutter_test:

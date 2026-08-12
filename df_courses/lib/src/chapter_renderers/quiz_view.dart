@@ -1,8 +1,10 @@
 import 'dart:math';
 
+import 'package:df_theme/df_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../course_models.dart';
+import '../course_strings.dart';
 
 class QuizChapterView extends StatefulWidget {
   const QuizChapterView({
@@ -10,11 +12,15 @@ class QuizChapterView extends StatefulWidget {
     required this.chapter,
     required this.initiallyPassed,
     required this.onPassed,
+    this.strings = const CourseStrings(),
   });
 
   final QuizChapter chapter;
   final bool initiallyPassed;
   final VoidCallback onPassed;
+
+  /// User-facing copy. Defaults to English; pass a localized instance.
+  final CourseStrings strings;
 
   @override
   State<QuizChapterView> createState() => _QuizChapterViewState();
@@ -82,6 +88,7 @@ class _QuizChapterViewState extends State<QuizChapterView> {
 
   @override
   Widget build(BuildContext context) {
+    final df = context.df;
     final passed = _submitted && _scorePct >= widget.chapter.passingScore;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,10 +100,10 @@ class _QuizChapterViewState extends State<QuizChapterView> {
             Expanded(
               child: Text(
                 widget.chapter.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF0C445A),
+                  color: df.colors.brand.deep,
                 ),
               ),
             ),
@@ -104,8 +111,8 @@ class _QuizChapterViewState extends State<QuizChapterView> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Bestehensgrenze: ${widget.chapter.passingScore}%',
-          style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+          '${widget.strings.passingScoreLabel}: ${widget.chapter.passingScore}%',
+          style: TextStyle(fontSize: 12, color: df.colors.textTertiary),
         ),
         const SizedBox(height: 12),
         ...List.generate(_questions.length, (qIdx) {
@@ -114,25 +121,19 @@ class _QuizChapterViewState extends State<QuizChapterView> {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: df.colors.surface,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              boxShadow: df.cardShadow,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Frage ${qIdx + 1}: ${q.text}',
-                  style: const TextStyle(
+                  '${widget.strings.questionLabel} ${qIdx + 1}: ${q.text}',
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
+                    color: df.colors.textPrimary,
                     height: 1.4,
                   ),
                 ),
@@ -145,19 +146,19 @@ class _QuizChapterViewState extends State<QuizChapterView> {
                   Widget? trailing;
                   if (_submitted) {
                     if (opt.correct) {
-                      bg = const Color(0xFFECFDF5);
-                      border = const Color(0xFF10B981);
-                      trailing = const Icon(
+                      bg = df.colors.success.bg;
+                      border = df.colors.success.base;
+                      trailing = Icon(
                         Icons.check_circle_rounded,
-                        color: Color(0xFF10B981),
+                        color: df.colors.success.base,
                         size: 18,
                       );
                     } else if (isSelected) {
-                      bg = const Color(0xFFFEF2F2);
-                      border = const Color(0xFFEF4444);
-                      trailing = const Icon(
+                      bg = df.colors.error.bg;
+                      border = df.colors.error.base;
+                      trailing = Icon(
                         Icons.cancel_rounded,
-                        color: Color(0xFFEF4444),
+                        color: df.colors.error.base,
                         size: 18,
                       );
                     }
@@ -175,15 +176,15 @@ class _QuizChapterViewState extends State<QuizChapterView> {
                           color:
                               bg ??
                               (isSelected
-                                  ? const Color(0xFFEFF6FF)
-                                  : const Color(0xFFF8FAFC)),
+                                  ? df.colors.info.bg
+                                  : df.colors.canvas),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                             color:
                                 border ??
                                 (isSelected
-                                    ? const Color(0xFF3B82F6)
-                                    : const Color(0xFFE2E8F0)),
+                                    ? df.colors.info.base
+                                    : df.colors.hairline),
                           ),
                         ),
                         child: Row(
@@ -195,17 +196,17 @@ class _QuizChapterViewState extends State<QuizChapterView> {
                                   : Icons.radio_button_unchecked_rounded,
                               size: 18,
                               color: isSelected
-                                  ? const Color(0xFF3B82F6)
-                                  : const Color(0xFF94A3B8),
+                                  ? df.colors.info.base
+                                  : df.colors.textDisabled,
                             ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
                                 opt.text,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13.5,
                                   height: 1.4,
-                                  color: Color(0xFF334155),
+                                  color: df.colors.textSecondary,
                                 ),
                               ),
                             ),
@@ -226,14 +227,14 @@ class _QuizChapterViewState extends State<QuizChapterView> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
+                      color: df.colors.surfaceSunken,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       q.options[_selected[qIdx]!].explain!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12.5,
-                        color: Color(0xFF334155),
+                        color: df.colors.textSecondary,
                         height: 1.4,
                       ),
                     ),
@@ -249,35 +250,31 @@ class _QuizChapterViewState extends State<QuizChapterView> {
             child: ElevatedButton(
               onPressed: _allAnswered ? _submit : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0E6B82),
-                foregroundColor: Colors.white,
+                backgroundColor: df.colors.brand.base,
+                foregroundColor: df.colors.textOnBrand,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Antworten prüfen'),
+              child: Text(widget.strings.checkAnswersLabel),
             ),
           )
         else
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: passed ? const Color(0xFFECFDF5) : const Color(0xFFFEF2F2),
+              color: passed ? df.colors.success.bg : df.colors.error.bg,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: passed
-                    ? const Color(0xFF10B981)
-                    : const Color(0xFFEF4444),
+                color: passed ? df.colors.success.base : df.colors.error.base,
               ),
             ),
             child: Row(
               children: [
                 Icon(
                   passed ? Icons.check_circle_rounded : Icons.replay_rounded,
-                  color: passed
-                      ? const Color(0xFF10B981)
-                      : const Color(0xFFEF4444),
+                  color: passed ? df.colors.success.base : df.colors.error.base,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -285,26 +282,36 @@ class _QuizChapterViewState extends State<QuizChapterView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        passed ? 'Bestanden!' : 'Noch nicht bestanden',
+                        passed
+                            ? widget.strings.quizPassedLabel
+                            : widget.strings.quizFailedLabel,
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
                           color: passed
-                              ? const Color(0xFF065F46)
-                              : const Color(0xFF7F1D1D),
+                              ? df.colors.success.deep
+                              : df.colors.error.deep,
                         ),
                       ),
                       Text(
-                        '$_correctCount von ${_questions.length} richtig · $_scorePct%',
-                        style: const TextStyle(
+                        widget.strings.score(
+                          widget.strings.quizScoreLabel,
+                          correct: _correctCount,
+                          total: _questions.length,
+                          percent: _scorePct,
+                        ),
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF475569),
+                          color: df.colors.textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
                 if (!passed)
-                  TextButton(onPressed: _reset, child: const Text('Erneut')),
+                  TextButton(
+                    onPressed: _reset,
+                    child: Text(widget.strings.retryLabel),
+                  ),
               ],
             ),
           ),

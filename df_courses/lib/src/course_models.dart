@@ -54,6 +54,8 @@ abstract class CourseChapter {
       case 'reading':
         return ReadingChapter.fromJson(json);
       case 'checklist':
+      // NaviCare's authored content predates the generic type name. Accepted so
+      // existing course JSON keeps parsing; new content should use 'checklist'.
       case 'maßnahmenChecklist':
       case 'massnahmenChecklist':
         return ChecklistChapter.fromJson(json);
@@ -282,6 +284,18 @@ class QuizChapter extends CourseChapter {
   }
 }
 
+/// Top-level JSON keys [CourseModel] models directly. Everything else lands in
+/// [CourseModel.meta].
+const _knownKeys = <String>{
+  'id',
+  'moduleKey',
+  'title',
+  'subtitle',
+  'emoji',
+  'version',
+  'chapters',
+};
+
 @immutable
 class CourseModel {
   const CourseModel({
@@ -291,26 +305,34 @@ class CourseModel {
     required this.subtitle,
     required this.emoji,
     required this.gradient,
-    required this.steckbrief,
-    required this.gefaehrdetePersonengruppen,
-    required this.screeningInstrument,
-    required this.expertStandard,
     required this.version,
     required this.chapters,
+    this.meta = const <String, dynamic>{},
   });
 
-  final String id; // "m01"
-  final String moduleKey; // "sturzrisiko"
+  final String id;
+
+  /// Stable key for this course; also the progress bucket.
+  final String moduleKey;
   final String title;
   final String subtitle;
   final String emoji;
   final List<Color> gradient;
-  final String steckbrief;
-  final List<String> gefaehrdetePersonengruppen;
-  final String screeningInstrument;
-  final String expertStandard;
   final String version;
   final List<CourseChapter> chapters;
+
+  /// Everything the app knows about a course that this package does not.
+  ///
+  /// [CourseModel.fromJson] keeps any unrecognised top-level keys here, so an
+  /// app can carry domain fields through the shared model without the package
+  /// growing a vocabulary for them. This replaces four hardcoded German
+  /// nursing fields (`steckbrief`, `gefaehrdetePersonengruppen`,
+  /// `screeningInstrument`, `expertStandard`) that no renderer ever read.
+  ///
+  /// ```dart
+  /// final standard = course.meta['expertStandard'] as String? ?? '';
+  /// ```
+  final Map<String, dynamic> meta;
 
   /// Filter chapters for the given risk tier.
   List<CourseChapter> chaptersForTier(CourseRiskTier tier) =>
@@ -327,16 +349,16 @@ class CourseModel {
       subtitle: json['subtitle'] as String? ?? '',
       emoji: json['emoji'] as String? ?? '📚',
       gradient: gradient,
-      steckbrief: json['steckbrief'] as String? ?? '',
-      gefaehrdetePersonengruppen:
-          (json['gefaehrdetePersonengruppen'] as List? ?? const [])
-              .cast<String>(),
-      screeningInstrument: json['screeningInstrument'] as String? ?? '',
-      expertStandard: json['expertStandard'] as String? ?? '',
       version: json['version'] as String? ?? '1.0',
       chapters: (json['chapters'] as List)
           .map((e) => CourseChapter.fromJson(e as Map<String, dynamic>))
           .toList(growable: false),
+      // Anything this package does not model is preserved rather than dropped,
+      // so apps can round-trip their own fields.
+      meta: <String, dynamic>{
+        for (final entry in json.entries)
+          if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
+      },
     );
   }
 }

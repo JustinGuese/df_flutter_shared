@@ -118,8 +118,22 @@ class CourseProgressNotifier extends Notifier<Map<String, Set<String>>> {
 /// One place, so the renderer and any backend sync cannot drift apart — which
 /// is exactly how the two old course screens ended up incompatible.
 abstract final class CourseProgressIds {
-  static String chapter(String courseKey, String chapterId) =>
-      '${courseKey}_$chapterId';
+  /// A trackable item inside a chapter. [suffix] distinguishes the several
+  /// items one chapter can produce — `'passed'` for a quiz, `'item_<id>'` for
+  /// each checklist row.
+  static String item(String courseKey, String chapterId, String suffix) =>
+      '${courseKey}_${chapterId}_$suffix';
+
+  /// The ID a quiz chapter records once it has been passed.
+  static String quizPassed(String courseKey, String chapterId) =>
+      item(courseKey, chapterId, 'passed');
+
+  /// The ID a single checklist row records when ticked.
+  static String checklistItem(
+    String courseKey,
+    String chapterId,
+    String rowId,
+  ) => item(courseKey, chapterId, 'item_$rowId');
 }
 
 final courseProgressNotifierProvider =

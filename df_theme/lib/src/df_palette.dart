@@ -100,6 +100,70 @@ class DfPalette {
     this.gradients = const <String, List<Color>>{},
   });
 
+  /// Derives a full palette from a plain Material [ColorScheme].
+  ///
+  /// The bridge for apps that have not adopted [DfBrand] yet: a df_* widget
+  /// asking for tokens inside an un-migrated app gets something derived from
+  /// that app's own theme rather than a crash or another app's brand. Migration
+  /// across five apps has to be incremental, so shared widgets must not require
+  /// the whole design system to be wired up first.
+  ///
+  /// Hand-authored palettes are still better — this one has no separate canvas
+  /// tone and guesses the semantic ramps.
+  factory DfPalette.fromColorScheme(ColorScheme scheme) {
+    final isDark = scheme.brightness == Brightness.dark;
+    Color mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
+
+    return DfPalette(
+      brightness: scheme.brightness,
+      canvas: scheme.surface,
+      surface: scheme.surfaceContainerLow,
+      surfaceElevated: scheme.surfaceContainerHigh,
+      surfaceSunken: scheme.surfaceContainerLowest,
+      hairline: scheme.outlineVariant,
+      border: scheme.outline,
+      textPrimary: scheme.onSurface,
+      textSecondary: scheme.onSurfaceVariant,
+      textTertiary: mix(scheme.onSurfaceVariant, scheme.surface, 0.30),
+      textDisabled: mix(scheme.onSurfaceVariant, scheme.surface, 0.55),
+      textOnBrand: scheme.onPrimary,
+      brand: DfBrandRoleTriad(
+        base: scheme.primary,
+        deep: mix(scheme.primary, Colors.black, isDark ? 0.0 : 0.18),
+        soft: mix(scheme.primary, scheme.surface, 0.55),
+        container: scheme.primaryContainer,
+        onContainer: scheme.onPrimaryContainer,
+      ),
+      accent: DfBrandRoleTriad(
+        base: scheme.secondary,
+        deep: mix(scheme.secondary, Colors.black, isDark ? 0.0 : 0.18),
+        soft: mix(scheme.secondary, scheme.surface, 0.55),
+        container: scheme.secondaryContainer,
+        onContainer: scheme.onSecondaryContainer,
+      ),
+      success: DfColorRole.from(
+        const Color(0xFF3F7D4E),
+        brightness: scheme.brightness,
+      ),
+      warning: DfColorRole.from(
+        const Color(0xFFBE6A0A),
+        brightness: scheme.brightness,
+      ),
+      // The one semantic role Material actually defines, so use it rather than
+      // guessing.
+      error: DfColorRole(
+        base: scheme.error,
+        deep: mix(scheme.error, Colors.black, isDark ? 0.0 : 0.22),
+        soft: mix(scheme.error, scheme.surface, 0.55),
+        bg: scheme.errorContainer,
+      ),
+      info: DfColorRole.from(
+        const Color(0xFF2F6F6B),
+        brightness: scheme.brightness,
+      ),
+    );
+  }
+
   final Brightness brightness;
 
   /// The page background. Distinct from [surface] on purpose: DF layouts read

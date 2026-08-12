@@ -17,6 +17,14 @@ dependencies:
   crypto: ^3.0.5
   dio: ^5.7.0
   go_router: ^17.0.0
+  url_launcher: ^6.3.1
+  # Intra-repo dependencies by path, not git: a git dependency on this same
+  # repo would resolve against published `main` rather than the checkout being
+  # built. Git consumers clone the whole repo, so these resolve for them too.
+  df_theme:
+    path: ../df_theme
+  df_ui_widgets:
+    path: ../df_ui_widgets
 
 dev_dependencies:
   flutter_test:

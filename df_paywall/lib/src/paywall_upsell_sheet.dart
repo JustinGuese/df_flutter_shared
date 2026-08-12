@@ -1,3 +1,4 @@
+import 'package:df_theme/df_theme.dart';
 import 'package:flutter/material.dart';
 import 'paywall_config.dart';
 
@@ -61,11 +62,7 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Fehler beim Öffnen der Zahlungsseite. Bitte versuchen Sie es erneut.',
-            ),
-          ),
+          SnackBar(content: Text(widget.config.checkoutErrorText)),
         );
       }
     } finally {
@@ -76,11 +73,15 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
   @override
   Widget build(BuildContext context) {
     final cfg = widget.config;
+    final df = context.df;
+    final accent = cfg.accentColor ?? df.colors.brand.base;
+    final gradientColors = cfg.gradient ?? df.gradientStops('hero');
+    final onGradient = df.onGradient('hero');
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: df.colors.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -92,7 +93,7 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: df.colors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -104,7 +105,7 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: cfg.gradient,
+                  colors: gradientColors,
                 ),
                 borderRadius: BorderRadius.circular(20),
               ),
@@ -114,7 +115,7 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: onGradient.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -127,8 +128,8 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
                   const SizedBox(height: 12),
                   Text(
                     cfg.productName,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: onGradient,
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
                     ),
@@ -136,7 +137,10 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
                   const SizedBox(height: 6),
                   Text(
                     cfg.trialHeadline,
-                    style: const TextStyle(color: Colors.white70, fontSize: 15),
+                    style: TextStyle(
+                      color: onGradient.withValues(alpha: 0.7),
+                      fontSize: 15,
+                    ),
                   ),
                 ],
               ),
@@ -149,10 +153,10 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
                 children: [
                   Text(
                     cfg.priceLabel,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF0C445A),
+                      color: df.colors.brand.deep,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -162,14 +166,14 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: cfg.accentColor.withValues(alpha: 0.1),
+                      color: accent.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       cfg.cancellationNote,
                       style: TextStyle(
                         fontSize: 11,
-                        color: cfg.accentColor,
+                        color: accent,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -182,7 +186,7 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Column(
                 children: cfg.features
-                    .map((f) => _FeatureRow(text: f, color: cfg.accentColor))
+                    .map((f) => _FeatureRow(text: f, color: accent))
                     .toList(),
               ),
             ),
@@ -194,7 +198,7 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[500],
+                  color: df.colors.textTertiary,
                   height: 1.4,
                 ),
               ),
@@ -208,20 +212,20 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
                 child: ElevatedButton(
                   onPressed: _loading ? null : _handleCta,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: cfg.accentColor,
-                    foregroundColor: Colors.white,
+                    backgroundColor: accent,
+                    foregroundColor: df.colors.textOnBrand,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                     elevation: 0,
                   ),
                   child: _loading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            color: Colors.white,
+                            color: df.colors.textOnBrand,
                           ),
                         )
                       : Text(
@@ -239,7 +243,7 @@ class _PaywallUpsellSheetState extends State<_PaywallUpsellSheet> {
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
                 cfg.dismissText,
-                style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                style: TextStyle(color: df.colors.textTertiary, fontSize: 13),
               ),
             ),
             const SizedBox(height: 8),
@@ -257,6 +261,7 @@ class _FeatureRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final df = context.df;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
@@ -267,9 +272,9 @@ class _FeatureRow extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF334155),
+                color: df.colors.textSecondary,
                 height: 1.4,
               ),
             ),

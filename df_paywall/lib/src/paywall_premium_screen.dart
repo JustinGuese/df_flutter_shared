@@ -1,3 +1,4 @@
+import 'package:df_theme/df_theme.dart';
 import 'package:flutter/material.dart';
 import 'paywall_config.dart';
 import 'paywall_subscription_info.dart';
@@ -49,9 +50,7 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Fehler beim Öffnen der Zahlungsseite.'),
-          ),
+          SnackBar(content: Text(widget.config.checkoutErrorText)),
         );
       }
     } finally {
@@ -65,11 +64,9 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
       await widget.onManageSubscription?.call();
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Fehler beim Öffnen des Kundenportals.'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(widget.config.portalErrorText)));
       }
     } finally {
       if (mounted) setState(() => _loadingPortal = false);
@@ -84,6 +81,8 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
 
   Widget _buildUpsellView() {
     final cfg = widget.config;
+    final df = context.df;
+    final accent = cfg.accentColor ?? df.colors.brand.base;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -105,20 +104,20 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
             child: ElevatedButton(
               onPressed: _loadingUpgrade ? null : _handleUpgrade,
               style: ElevatedButton.styleFrom(
-                backgroundColor: cfg.accentColor,
-                foregroundColor: Colors.white,
+                backgroundColor: accent,
+                foregroundColor: df.colors.textOnBrand,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
                 elevation: 0,
               ),
               child: _loadingUpgrade
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 22,
                       height: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        color: Colors.white,
+                        color: df.colors.textOnBrand,
                       ),
                     )
                   : Text(
@@ -137,6 +136,10 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
 
   Widget _buildPremiumView(PaywallSubscriptionInfo sub) {
     final cfg = widget.config;
+    final df = context.df;
+    final accent = cfg.accentColor ?? df.colors.brand.base;
+    final gradientColors = cfg.gradient ?? df.gradientStops('hero');
+    final onGradient = df.onGradient('hero');
     final daysLeft = sub.trialDaysRemaining;
 
     return SingleChildScrollView(
@@ -151,7 +154,7 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: cfg.gradient,
+                colors: gradientColors,
               ),
               borderRadius: BorderRadius.circular(20),
             ),
@@ -160,10 +163,10 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
                 const Text('✅', style: TextStyle(fontSize: 40)),
                 const SizedBox(height: 12),
                 Text(
-                  'Sie sind ${cfg.productName} Mitglied',
+                  cfg.fill(cfg.memberHeadline),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: onGradient,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                   ),
@@ -176,13 +179,13 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFB800).withValues(alpha: 0.2),
+                      color: df.colors.warning.base.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      'Noch $daysLeft Tage kostenlos',
-                      style: const TextStyle(
-                        color: Color(0xFFFFB800),
+                      cfg.fill(cfg.trialDaysRemainingLabel, days: daysLeft),
+                      style: TextStyle(
+                        color: df.colors.warning.base,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -198,24 +201,20 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: df.colors.surface,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    size: 18,
-                    color: cfg.accentColor,
-                  ),
+                  Icon(Icons.calendar_today_outlined, size: 18, color: accent),
                   const SizedBox(width: 10),
                   Text(
                     sub.isTrialing && sub.trialEnd != null
-                        ? 'Testphase endet am ${_fmtDate(sub.trialEnd!)}'
-                        : 'Nächste Abrechnung: ${_fmtDate(sub.currentPeriodEnd!)}',
-                    style: const TextStyle(
+                        ? '${cfg.trialEndsLabel}: ${_fmtDate(sub.trialEnd!)}'
+                        : '${cfg.nextBillingLabel}: ${_fmtDate(sub.currentPeriodEnd!)}',
+                    style: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF334155),
+                      color: df.colors.textSecondary,
                     ),
                   ),
                 ],
@@ -229,19 +228,19 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
               child: ElevatedButton.icon(
                 onPressed: _loadingPortal ? null : _handlePortal,
                 icon: _loadingPortal
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: df.colors.textOnBrand,
                         ),
                       )
                     : const Icon(Icons.open_in_new, size: 18),
-                label: const Text('Abo & Zahlung verwalten'),
+                label: Text(cfg.manageSubscriptionLabel),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: cfg.accentColor,
-                  foregroundColor: Colors.white,
+                  backgroundColor: accent,
+                  foregroundColor: df.colors.textOnBrand,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -251,9 +250,9 @@ class _PaywallPremiumScreenState extends State<PaywallPremiumScreen> {
             ),
           const SizedBox(height: 8),
           Text(
-            'Kündigung, Zahlungsmethode und Rechnungen im Kundenportal',
+            cfg.portalHintText,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11, color: Colors.grey[400]),
+            style: TextStyle(fontSize: 11, color: df.colors.textTertiary),
           ),
         ],
       ),
@@ -272,13 +271,15 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final df = context.df;
+    final onGradient = df.onGradient('hero');
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: config.gradient,
+          colors: config.gradient ?? df.gradientStops('hero'),
         ),
         borderRadius: BorderRadius.circular(20),
       ),
@@ -288,7 +289,7 @@ class _HeroCard extends StatelessWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: onGradient.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -301,8 +302,8 @@ class _HeroCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             config.productName,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: onGradient,
               fontSize: 24,
               fontWeight: FontWeight.w800,
             ),
@@ -310,7 +311,10 @@ class _HeroCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             config.trialHeadline,
-            style: const TextStyle(color: Colors.white70, fontSize: 15),
+            style: TextStyle(
+              color: onGradient.withValues(alpha: 0.7),
+              fontSize: 15,
+            ),
           ),
         ],
       ),
@@ -324,18 +328,14 @@ class _PriceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final df = context.df;
+    final accent = config.accentColor ?? df.colors.brand.base;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: df.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: df.cardShadow,
       ),
       child: Row(
         children: [
@@ -345,16 +345,16 @@ class _PriceCard extends StatelessWidget {
               children: [
                 Text(
                   config.priceLabel,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF0C445A),
+                    color: df.colors.brand.deep,
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
-                  'Nach der kostenlosen Testphase',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                Text(
+                  config.afterTrialLabel,
+                  style: TextStyle(fontSize: 12, color: df.colors.textTertiary),
                 ),
               ],
             ),
@@ -362,14 +362,14 @@ class _PriceCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: config.accentColor.withValues(alpha: 0.1),
+              color: accent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               config.cancellationNote,
               style: TextStyle(
                 fontSize: 11,
-                color: config.accentColor,
+                color: accent,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -386,28 +386,24 @@ class _FeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final df = context.df;
+    final accent = config.accentColor ?? df.colors.brand.base;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: df.colors.surface,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: df.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Enthalten in ${config.productName}',
-            style: const TextStyle(
+            config.fill(config.featuresHeadline),
+            style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 14,
-              color: Color(0xFF0C445A),
+              color: df.colors.brand.deep,
             ),
           ),
           const SizedBox(height: 12),
@@ -417,18 +413,14 @@ class _FeatureCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.check_circle_rounded,
-                    size: 18,
-                    color: config.accentColor,
-                  ),
+                  Icon(Icons.check_circle_rounded, size: 18, color: accent),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       f,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF334155),
+                        color: df.colors.textSecondary,
                         height: 1.4,
                       ),
                     ),
@@ -442,7 +434,7 @@ class _FeatureCard extends StatelessWidget {
             config.credibilityText,
             style: TextStyle(
               fontSize: 11,
-              color: Colors.grey[400],
+              color: df.colors.textTertiary,
               height: 1.4,
             ),
           ),

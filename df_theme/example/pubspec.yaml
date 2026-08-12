@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   df_theme:
     path: ../
+  df_ui_widgets:
+    path: ../../df_ui_widgets
   # The gallery uses google_fonts so the house faces (Fraunces / Public Sans /
   # JetBrains Mono) actually render. df_theme itself deliberately does NOT
   # depend on google_fonts — see its pubspec for why.

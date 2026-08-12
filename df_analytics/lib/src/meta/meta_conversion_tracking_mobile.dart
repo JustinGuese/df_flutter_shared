@@ -1,14 +1,13 @@
 import 'package:facebook_app_events/facebook_app_events.dart';
 
-void trackChatMessageSent() {
+void trackMetaConversion(String eventName, String? contentType) {
   FacebookAppEvents()
-      .logEvent(name: 'Contact', parameters: {'content_type': 'chat_message'})
-      // ignore_errors: catches async PlatformException if Facebook SDK is not yet initialized
-      .catchError((_) {});
-}
-
-void trackDiaryEntryCreated() {
-  FacebookAppEvents()
-      .logEvent(name: 'Lead', parameters: {'content_type': 'diary_entry'})
+      .logEvent(
+        name: eventName,
+        parameters: <String, Object>{'content_type': ?contentType},
+      )
+      // Swallowed on purpose: this throws a PlatformException when the Facebook
+      // SDK has not finished initialising, and a missed analytics event must
+      // never surface as an error in the app.
       .catchError((_) {});
 }

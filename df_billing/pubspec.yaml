@@ -1,0 +1,24 @@
+name: df_billing
+description: Subscription entitlement and checkout launching — the state layer behind df_paywall's UI. Payment-link resolution, cached premium status, and Riverpod providers.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.29.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.0.3
+  shared_preferences: ^2.3.2
+  url_launcher: ^6.3.1
+
+# Deliberately no Stripe SDK: every DF app bills through hosted Payment Links
+# and a webhook, so the client only ever needs to open a URL. Keeping the SDK
+# out also keeps this package usable on web and desktop.
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

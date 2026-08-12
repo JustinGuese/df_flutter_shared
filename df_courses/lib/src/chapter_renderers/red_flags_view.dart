@@ -1,3 +1,4 @@
+import 'package:df_theme/df_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../course_models.dart';
@@ -10,12 +11,13 @@ class RedFlagsChapterView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final df = context.df;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF5F5),
+        color: df.colors.error.bg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFCA5A5)),
+        border: Border.all(color: df.colors.error.soft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,10 +29,10 @@ class RedFlagsChapterView extends StatelessWidget {
               Expanded(
                 child: Text(
                   chapter.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF991B1B),
+                    color: df.colors.error.deep,
                   ),
                 ),
               ),
@@ -40,10 +42,10 @@ class RedFlagsChapterView extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               chapter.intro!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 height: 1.45,
-                color: Color(0xFF7F1D1D),
+                color: df.colors.error.deep,
               ),
             ),
           ],
@@ -54,21 +56,21 @@ class RedFlagsChapterView extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 2, right: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2, right: 8),
                     child: Icon(
                       Icons.warning_amber_rounded,
                       size: 18,
-                      color: Color(0xFFDC2626),
+                      color: df.colors.error.base,
                     ),
                   ),
                   Expanded(
                     child: Text(
                       s,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         height: 1.4,
-                        color: Color(0xFF7F1D1D),
+                        color: df.colors.error.deep,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -86,8 +88,8 @@ class RedFlagsChapterView extends StatelessWidget {
                 icon: const Icon(Icons.call_rounded, size: 18),
                 label: Text(chapter.ctaLabel!),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFDC2626),
-                  foregroundColor: Colors.white,
+                  backgroundColor: df.colors.error.base,
+                  foregroundColor: df.colors.textOnBrand,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

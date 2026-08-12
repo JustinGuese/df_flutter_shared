@@ -1,3 +1,4 @@
+import 'package:df_theme/df_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../course_models.dart';
@@ -16,6 +17,7 @@ class ChecklistChapterView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final df = context.df;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -26,10 +28,10 @@ class ChecklistChapterView extends StatelessWidget {
             Expanded(
               child: Text(
                 chapter.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF0C445A),
+                  color: df.colors.brand.deep,
                 ),
               ),
             ),
@@ -39,9 +41,9 @@ class ChecklistChapterView extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             chapter.intro!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: Color(0xFF475569),
+              color: df.colors.textSecondary,
               height: 1.45,
             ),
           ),
@@ -72,18 +74,13 @@ class _ChecklistTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final df = context.df;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: df.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: df.cardShadow,
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -116,7 +113,7 @@ class _ChecklistTile extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         height: 1.4,
-                        color: const Color(0xFF0F172A),
+                        color: df.colors.textPrimary,
                         fontWeight: FontWeight.w600,
                         decoration: checked ? TextDecoration.lineThrough : null,
                       ),
@@ -125,10 +122,10 @@ class _ChecklistTile extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         item.why!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           height: 1.4,
-                          color: Color(0xFF64748B),
+                          color: df.colors.textTertiary,
                         ),
                       ),
                     ],

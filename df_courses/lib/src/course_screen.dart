@@ -1,3 +1,4 @@
+import 'package:df_theme/df_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,10 +8,11 @@ import 'chapter_renderers/reading_view.dart';
 import 'chapter_renderers/red_flags_view.dart';
 import 'course_models.dart';
 import 'course_progress_notifier.dart';
+import 'course_strings.dart';
 
 /// Full-screen course viewer for a [CourseModel].
 ///
-/// One chapter per page, navigated via Back / Weiter with a progress bar.
+/// One chapter per page, navigated via Back / Next with a progress bar.
 /// Chapters are filtered by [tier] before rendering.
 ///
 /// Progress (checklist toggles + quiz pass) is persisted by
@@ -29,6 +31,7 @@ class CourseScreen extends ConsumerStatefulWidget {
     this.onFirstOpen,
     this.stepGateBuilder,
     this.onCtaAction,
+    this.strings = const CourseStrings(),
   });
 
   final CourseModel course;
@@ -39,6 +42,9 @@ class CourseScreen extends ConsumerStatefulWidget {
   final VoidCallback? onFirstOpen;
   final Widget? Function(int chapterIndex)? stepGateBuilder;
   final void Function(String action)? onCtaAction;
+
+  /// User-facing copy. Defaults to English; pass a localized instance.
+  final CourseStrings strings;
 
   @override
   ConsumerState<CourseScreen> createState() => _CourseScreenState();
@@ -72,7 +78,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
   }
 
   String _itemId(CourseChapter chapter, String suffix) =>
-      '${widget.course.moduleKey}_${chapter.id}_$suffix';
+      CourseProgressIds.item(widget.course.moduleKey, chapter.id, suffix);
 
   void _toggle(CourseChapter chapter, String suffix, bool checked) {
     final notifier = ref.read(courseProgressNotifierProvider.notifier);
@@ -120,8 +126,11 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     final totalPages = _pages.length;
     final ratio = totalPages == 0 ? 0.0 : (_currentPage + 1) / totalPages;
 
+    final df = context.df;
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
+      // canvas, not surfaceSunken: this is the page behind the chapter cards,
+      // and cards must read as sitting above it.
+      backgroundColor: df.colors.canvas,
       body: Column(
         children: [
           _Header(
@@ -161,12 +170,13 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
                 ? () => Navigator.of(context).maybePop()
                 : null,
             primaryColor: widget.course.gradient.last,
+            strings: widget.strings,
             disabledHint:
                 _isBlockingQuiz(
                   _pages.isEmpty ? null : _pages[_currentPage],
                   completed,
                 )
-                ? 'Bitte Quiz erfolgreich abschließen'
+                ? widget.strings.quizLockedLabel
                 : null,
           ),
         ],
@@ -199,6 +209,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
           chapter: q,
           initiallyPassed: passed,
           onPassed: () => _markQuizPassed(q),
+          strings: widget.strings,
         );
       default:
         return const SizedBox.shrink();
@@ -225,6 +236,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final df = context.df;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -243,9 +255,9 @@ class _Header extends StatelessWidget {
               Row(
                 children: [
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white,
+                      color: df.colors.textOnBrand,
                       size: 20,
                     ),
                     onPressed: () => Navigator.of(context).maybePop(),
@@ -287,8 +299,8 @@ class _Header extends StatelessWidget {
                         children: [
                           Text(
                             course.title,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: df.colors.textOnBrand,
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
                             ),
@@ -297,7 +309,9 @@ class _Header extends StatelessWidget {
                             Text(
                               course.subtitle,
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.85),
+                                color: df.colors.textOnBrand.withValues(
+                                  alpha: 0.85,
+                                ),
                                 fontSize: 11,
                               ),
                             ),
@@ -318,9 +332,11 @@ class _Header extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: ratio.clamp(0.0, 1.0),
                           minHeight: 5,
-                          backgroundColor: Colors.white.withValues(alpha: 0.25),
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+                          backgroundColor: df.colors.textOnBrand.withValues(
+                            alpha: 0.25,
+                          ),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            df.colors.textOnBrand,
                           ),
                         ),
                       ),
@@ -330,8 +346,8 @@ class _Header extends StatelessWidget {
                       chapterCount == 0
                           ? '–'
                           : '${chapterIndex + 1}/$chapterCount',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: df.colors.textOnBrand,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
@@ -352,6 +368,7 @@ class _BottomNav extends StatelessWidget {
     required this.current,
     required this.total,
     required this.primaryColor,
+    required this.strings,
     this.onBack,
     this.onNext,
     this.onFinish,
@@ -365,9 +382,11 @@ class _BottomNav extends StatelessWidget {
   final VoidCallback? onFinish;
   final Color primaryColor;
   final String? disabledHint;
+  final CourseStrings strings;
 
   @override
   Widget build(BuildContext context) {
+    final df = context.df;
     return SafeArea(
       top: false,
       child: Padding(
@@ -380,9 +399,9 @@ class _BottomNav extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
                   disabledHint!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF94A3B8),
+                    color: df.colors.textDisabled,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -394,10 +413,10 @@ class _BottomNav extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: onBack,
                       icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                      label: const Text('Zurück'),
+                      label: Text(strings.backLabel),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF334155),
-                        side: const BorderSide(color: Color(0xFFCBD5E1)),
+                        foregroundColor: df.colors.textSecondary,
+                        side: BorderSide(color: df.colors.border),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -415,10 +434,12 @@ class _BottomNav extends StatelessWidget {
                           : Icons.arrow_forward_rounded,
                       size: 18,
                     ),
-                    label: Text(onFinish != null ? 'Fertig' : 'Weiter'),
+                    label: Text(
+                      onFinish != null ? strings.doneLabel : strings.nextLabel,
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
+                      foregroundColor: df.colors.textOnBrand,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

@@ -1,3 +1,4 @@
+import 'package:df_theme/df_theme.dart';
 import 'package:flutter/material.dart';
 import 'paywall_config.dart';
 
@@ -58,11 +59,7 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Fehler beim Öffnen der Zahlungsseite. Bitte versuchen Sie es erneut.',
-            ),
-          ),
+          SnackBar(content: Text(widget.config.checkoutErrorText)),
         );
       }
     } finally {
@@ -73,6 +70,8 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
   @override
   Widget build(BuildContext context) {
     final cfg = widget.config;
+    final df = context.df;
+    final accent = cfg.accentColor ?? df.colors.brand.base;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -83,19 +82,19 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: cfg.accentColor.withValues(alpha: 0.08),
+              color: accent.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.lock_rounded, size: 32, color: cfg.accentColor),
+            child: Icon(Icons.lock_rounded, size: 32, color: accent),
           ),
           const SizedBox(height: 16),
           // Title
           Text(
             '${cfg.productName} erforderlich',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF0C445A),
+              color: df.colors.brand.deep,
             ),
           ),
           const SizedBox(height: 6),
@@ -103,10 +102,10 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
           Text(
             '„${widget.stepTitle}" freischalten',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF64748B),
+              color: df.colors.textTertiary,
             ),
           ),
           const SizedBox(height: 6),
@@ -114,7 +113,7 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
           Text(
             '${cfg.trialHeadline}  ·  ${cfg.priceLabel}  ·  ${cfg.cancellationNote}',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+            style: TextStyle(fontSize: 12, color: df.colors.textTertiary),
           ),
           const SizedBox(height: 24),
           // Features card
@@ -122,9 +121,9 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: df.colors.canvas,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: df.colors.hairline),
             ),
             child: Column(
               children: [
@@ -132,18 +131,14 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
                   if (i > 0) const SizedBox(height: 10),
                   Row(
                     children: [
-                      Icon(
-                        Icons.check_circle_rounded,
-                        size: 16,
-                        color: cfg.accentColor,
-                      ),
+                      Icon(Icons.check_circle_rounded, size: 16, color: accent),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           cfg.features.elementAt(i),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF334155),
+                            color: df.colors.textSecondary,
                             height: 1.3,
                           ),
                         ),
@@ -162,20 +157,20 @@ class _PaywallUpsellInlineState extends State<PaywallUpsellInline> {
             child: ElevatedButton(
               onPressed: _loading ? null : _handleCta,
               style: ElevatedButton.styleFrom(
-                backgroundColor: cfg.accentColor,
-                foregroundColor: Colors.white,
+                backgroundColor: accent,
+                foregroundColor: df.colors.textOnBrand,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
                 elevation: 0,
               ),
               child: _loading
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 22,
                       height: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        color: Colors.white,
+                        color: df.colors.textOnBrand,
                       ),
                     )
                   : Text(

@@ -33,6 +33,7 @@ jobs:
           - df_analytics
           - df_api_repository
           - df_audio_capture
+          - df_billing
           - df_chat
           - df_core_utils
           - df_courses
@@ -40,10 +41,12 @@ jobs:
           - df_feedback_prompt
           - df_firebase_auth
           - df_firebase_rest
+          - df_notifications
           - df_onboarding
           - df_paywall
           - df_speech_to_text
           - df_theme
+          - df_tour
           - df_ui_widgets
           - df_whisper_speech
     steps:

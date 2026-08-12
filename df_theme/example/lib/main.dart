@@ -1,4 +1,5 @@
 import 'package:df_theme/df_theme.dart';
+import 'package:df_ui_widgets/df_ui_widgets.dart';
 import 'package:flutter/material.dart';
 
 import 'brands.dart';
@@ -6,7 +7,7 @@ import 'sections/color_section.dart';
 import 'sections/components_section.dart';
 import 'sections/feedback_section.dart';
 import 'sections/type_section.dart';
-import 'widgets/section_header.dart';
+import 'sections/widgets_section.dart';
 
 void main() => runApp(const GalleryApp());
 
@@ -102,6 +103,8 @@ class GalleryHome extends StatelessWidget {
             const ComponentsSection(),
             SizedBox(height: df.spacing.xl),
             const FeedbackSection(),
+            SizedBox(height: df.spacing.xl),
+            const WidgetsSection(),
           ],
         ),
       ),
@@ -118,9 +121,10 @@ class _BrandPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final df = context.df;
-    // A scrolling Row rather than ListView.separated: a horizontal ListView
-    // hands its children unbounded width, and ChoiceChip mis-measures under
-    // that, clipping the final glyph of every label.
+    // Note: chip labels can look clipped for a moment on web. That is
+    // google_fonts fetching the face after first layout, so the chip is
+    // measured with fallback metrics and painted with wider ones. It settles
+    // once the font is cached, and does not affect apps that bundle fonts.
     return SizedBox(
       height: 56,
       child: SingleChildScrollView(
