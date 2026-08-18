@@ -8,6 +8,14 @@
 /// widgets to spotlight — is always supplied by the app.
 library;
 
+// `TourTarget.align` is typed `ContentAlign`, so it is part of this package's
+// public API whether or not it originates here. Without this re-export every
+// consumer has to add a direct `tutorial_coach_mark` dependency just to say
+// which side a bubble sits on — which defeats the point of wrapping it, and
+// pins apps to this package's transitive version.
+export 'package:tutorial_coach_mark/tutorial_coach_mark.dart'
+    show ContentAlign;
+
 export 'src/tour_coach_marks.dart';
 export 'src/tour_help_button.dart';
 export 'src/tour_hub_sheet.dart';
