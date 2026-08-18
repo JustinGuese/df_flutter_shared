@@ -19,6 +19,15 @@ dependencies:
   # depend on google_fonts — see its pubspec for why.
   google_fonts: ^8.1.0
 
+# df_ui_widgets depends on df_theme as a git dep on `main` (that is the only
+# description a consuming app can unify with — see the note in its pubspec).
+# This gallery wants the checkout instead, so it overrides both to paths.
+dependency_overrides:
+  df_theme:
+    path: ../
+  df_ui_widgets:
+    path: ../../df_ui_widgets
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
