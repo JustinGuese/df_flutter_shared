@@ -1,0 +1,25 @@
+name: df_file_download
+description: Cross-platform "save these bytes as a file" helper (browser download on web, temp-file + platform handler elsewhere).
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.29.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  web: ^1.1.0
+  # Brings READ_MEDIA_IMAGES / READ_MEDIA_VIDEO / READ_MEDIA_AUDIO /
+  # READ_EXTERNAL_STORAGE into the merged Android manifest of every consuming
+  # app. That is why this lives in its own package instead of df_core_utils —
+  # see README.md ("Android permissions"). Only depend on this package if the
+  # app really does hand files to the user.
+  open_filex: ^4.7.0
+  path_provider: ^2.1.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

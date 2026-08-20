@@ -1,5 +1,5 @@
 name: df_core_utils
-description: Reusable utilities (date, keyword, summary parsing, animation constants).
+description: Reusable pure-Dart utilities (date, keyword, summary parsing, animation constants). Deliberately free of platform plugins.
 version: 0.1.0
 publish_to: 'none'
 
@@ -11,9 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
   intl: ^0.20.2
-  web: ^1.1.0
-  open_filex: ^4.7.0
-  path_provider: ^2.1.5
+  # Keep this list plugin-free. `downloadFile` used to live here and dragged in
+  # open_filex, whose manifest injects READ_MEDIA_IMAGES/VIDEO into every
+  # consuming app — that got PsychDiary rejected from Google Play under the
+  # Photo and Video Permissions policy (Aug 2026). It now lives in
+  # df_file_download, which apps opt into only when they really hand files to
+  # the user. Most consumers want this package purely for dateOnly and friends;
+  # do not make them pay Android permissions for that.
 
 dev_dependencies:
   flutter_test:

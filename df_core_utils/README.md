@@ -1,6 +1,8 @@
 # df_core_utils
 
-Reusable Dart/Flutter utilities: date formatting, keyword and summary parsing, animation duration constants, and a cross-platform download helper. No app-specific types. Used by [DataFortress.cloud](https://datafortress.cloud/) apps (e.g. PsychDiary, DocumentChat).
+Reusable Dart/Flutter utilities: date formatting, keyword and summary parsing, and animation duration constants. No app-specific types. Used by [DataFortress.cloud](https://datafortress.cloud/) apps (e.g. PsychDiary, DocumentChat).
+
+This package is deliberately **plugin-free** — it adds no permissions, no native code and no platform channels to a consuming app. Please keep it that way when adding utilities.
 
 ---
 
@@ -12,7 +14,8 @@ Reusable Dart/Flutter utilities: date formatting, keyword and summary parsing, a
 | **keyword_utils** | `parseKeywords`, `keywordsFromController` | Comma-separated keyword string → list; extract keywords from a `TextEditingController`. |
 | **summary_utils** | `parseSummaryPoints` | Multi-line summary string → list of bullet points (handles •, -, *, numbered lines). |
 | **animation_constants** | `AnimationDurations` | Static durations: `fast`, `normal`, `medium`, `slow`, `pulse`, `emphasis`. |
-| **download_helper** | `downloadFile` | Cross-platform file download helper (web + mobile/desktop). |
+
+> **Moved:** `downloadFile` now lives in [`df_file_download`](../df_file_download). It depended on `open_filex`, whose manifest injects `READ_MEDIA_IMAGES` / `READ_MEDIA_VIDEO` into every app that transitively depended on this package — which got PsychDiary rejected from Google Play under the Photo and Video Permissions policy in August 2026. If you need it, add `df_file_download` explicitly and read its README before shipping.
 
 ---
 
@@ -39,13 +42,6 @@ Reusable Dart/Flutter utilities: date formatting, keyword and summary parsing, a
 
    // Animation durations
    final duration = AnimationDurations.normal;
-
-   // Cross-platform downloads:
-   // - Web: triggers browser download
-   // - Mobile/desktop: saves to temp and opens with platform handler
-   Future<void> saveBytes(Uint8List bytes, String name) async {
-     await downloadFile(bytes, name);
-   }
    ```
 
 ---
@@ -53,4 +49,5 @@ Reusable Dart/Flutter utilities: date formatting, keyword and summary parsing, a
 ## Dependencies
 
 - `flutter` (SDK), `intl` (for date formatting).
-- `open_filex`, `path_provider` (for the download helper on mobile/desktop).
+
+No platform plugins, and therefore no permissions added to consuming apps.

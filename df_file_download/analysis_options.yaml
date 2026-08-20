@@ -1,0 +1,19 @@
+# Lint configuration for this df_* package.
+#
+# Every package carries its own copy because `include: package:...` can only be
+# resolved from inside a package — a repo-root file cannot do it. Keep the
+# copies identical; they are generated, so edit the generator, not this file.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    # Public API of a shared package: missing docs are a warning, not noise.
+    todo: ignore
+  exclude:
+    - "**/*.g.dart"
+
+linter:
+  rules:
+    - prefer_single_quotes
+    - avoid_print
+    - unawaited_futures
