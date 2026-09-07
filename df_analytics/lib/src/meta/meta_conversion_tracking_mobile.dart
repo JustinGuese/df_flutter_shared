@@ -11,3 +11,13 @@ void trackMetaConversion(String eventName, String? contentType) {
       // never surface as an error in the app.
       .catchError((_) {});
 }
+
+void trackMetaCustomConversion(
+  String eventName,
+  Map<String, Object>? parameters,
+) {
+  FacebookAppEvents()
+      .logEvent(name: eventName, parameters: parameters)
+      // Swallowed for the same reason as above.
+      .catchError((_) {});
+}

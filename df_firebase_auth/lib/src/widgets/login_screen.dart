@@ -203,7 +203,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _loading = true);
     final config = ref.read(authConfigProvider);
     try {
-      await ref.read(authRepositoryProvider).signInWithGoogle();
+      final credential =
+          await ref.read(authRepositoryProvider).signInWithGoogle();
+      // Social sign-in from the *login* screen still creates the account when
+      // the user is new, so the registration is reported from here too.
+      if (credential.additionalUserInfo?.isNewUser ?? false) {
+        config.onRegistered?.call();
+      }
       if (mounted) context.go(config.homeRoute);
     } on Exception catch (error) {
       if (mounted) {
@@ -222,7 +228,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _loading = true);
     final config = ref.read(authConfigProvider);
     try {
-      await ref.read(authRepositoryProvider).signInWithApple();
+      final credential =
+          await ref.read(authRepositoryProvider).signInWithApple();
+      // See _signInWithGoogle: a first-time Apple user registers here.
+      if (credential.additionalUserInfo?.isNewUser ?? false) {
+        config.onRegistered?.call();
+      }
       if (mounted) context.go(config.homeRoute);
     } on Exception catch (error) {
       if (mounted) {

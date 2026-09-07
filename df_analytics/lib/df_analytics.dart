@@ -6,3 +6,4 @@ export 'src/installation_tracking_service.dart';
 export 'src/tracking_service.dart';
 export 'src/widgets/privacy_tracking_dialog.dart';
 export 'src/meta/meta_conversion_tracking.dart';
+export 'src/retention/df_retention_tracker.dart';

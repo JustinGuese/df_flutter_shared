@@ -30,7 +30,13 @@ class AuthRepository {
     );
   }
 
-  Future<void> signUp({required String email, required String password}) async {
+  /// Returns the credential so callers can tell a brand-new account from a
+  /// returning one via `additionalUserInfo?.isNewUser` — the signal an
+  /// analytics `CompleteRegistration` event depends on.
+  Future<UserCredential> signUp({
+    required String email,
+    required String password,
+  }) async {
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
@@ -40,14 +46,17 @@ class AuthRepository {
       '[AuthRepository] Email/password sign-up successful. '
       'uid=${user?.uid}, email=${user?.email}',
     );
+    return credential;
   }
 
-  Future<void> signInWithGoogle() async {
+  /// Signing in with Google creates the account when the user is new, so the
+  /// returned credential's `additionalUserInfo?.isNewUser` is what separates a
+  /// registration from a sign-in here.
+  Future<UserCredential> signInWithGoogle() async {
     try {
       // On web, use the standard OAuth popup — reliable regardless of FedCM support.
       if (kIsWeb) {
-        await _auth.signInWithPopup(GoogleAuthProvider());
-        return;
+        return await _auth.signInWithPopup(GoogleAuthProvider());
       }
 
       GoogleSignInAccount? googleUser;
@@ -112,7 +121,7 @@ class AuthRepository {
       }
 
       final credential = GoogleAuthProvider.credential(idToken: idToken);
-      await _auth.signInWithCredential(credential);
+      return await _auth.signInWithCredential(credential);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'account-exists-with-different-credential') {
         throw Exception(
@@ -161,7 +170,9 @@ class AuthRepository {
     return digest.toString();
   }
 
-  Future<void> signInWithApple() async {
+  /// As with Google, this creates the account when the user is new — see
+  /// [signInWithGoogle] on why the credential is returned.
+  Future<UserCredential> signInWithApple() async {
     debugPrint('🍎 [Apple Sign-In] Starting Apple Sign-In flow...');
     try {
       final rawNonce = _generateNonce();
@@ -181,7 +192,7 @@ class AuthRepository {
         accessToken: appleCredential.authorizationCode,
       );
 
-      await _auth.signInWithCredential(oauthCredential);
+      final userCredential = await _auth.signInWithCredential(oauthCredential);
 
       final user = _auth.currentUser;
       if (user != null &&
@@ -193,6 +204,8 @@ class AuthRepository {
         await user.updateDisplayName(displayName);
         await user.reload();
       }
+
+      return userCredential;
     } on SignInWithAppleAuthorizationException catch (e) {
       switch (e.code) {
         case AuthorizationErrorCode.canceled:

@@ -13,6 +13,7 @@ class AuthConfig {
     this.homeRoute = '/',
     this.loginRoute = '/login',
     this.registerRoute = '/register',
+    this.onRegistered,
   });
 
   final String apiBaseUrl;
@@ -24,4 +25,12 @@ class AuthConfig {
   final String homeRoute;
   final String loginRoute;
   final String registerRoute;
+
+  /// Called once when a brand-new account is created, on whichever screen it
+  /// happened — a social sign-in from the login screen registers a first-time
+  /// user just as the register screen does.
+  ///
+  /// Exists so an app can report a registration to analytics without the
+  /// package knowing what it reports to.
+  final VoidCallback? onRegistered;
 }

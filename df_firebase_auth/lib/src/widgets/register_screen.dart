@@ -41,6 +41,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
           );
+      // Unconditional: createUserWithEmailAndPassword only ever returns for a
+      // newly created account.
+      config.onRegistered?.call();
       if (mounted) context.go(config.homeRoute);
     } on Exception catch (error) {
       if (mounted) {
@@ -57,7 +60,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() => _loading = true);
     final config = ref.read(authConfigProvider);
     try {
-      await ref.read(authRepositoryProvider).signInWithGoogle();
+      final credential =
+          await ref.read(authRepositoryProvider).signInWithGoogle();
+      if (credential.additionalUserInfo?.isNewUser ?? false) {
+        config.onRegistered?.call();
+      }
       if (mounted) context.go(config.homeRoute);
     } on Exception catch (error) {
       if (mounted) {
@@ -76,7 +83,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() => _loading = true);
     final config = ref.read(authConfigProvider);
     try {
-      await ref.read(authRepositoryProvider).signInWithApple();
+      final credential =
+          await ref.read(authRepositoryProvider).signInWithApple();
+      if (credential.additionalUserInfo?.isNewUser ?? false) {
+        config.onRegistered?.call();
+      }
       if (mounted) context.go(config.homeRoute);
     } on Exception catch (error) {
       if (mounted) {

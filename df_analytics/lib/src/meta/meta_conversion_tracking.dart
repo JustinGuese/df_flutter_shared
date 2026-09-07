@@ -46,3 +46,43 @@ enum DfMetaEvent {
 void trackMetaConversion(DfMetaEvent event, {String? contentType}) {
   impl.trackMetaConversion(event.wireName, contentType);
 }
+
+/// Meta's constraint on custom event names: 1-40 characters, starting with a
+/// letter, digit or underscore, and otherwise limited to letters, digits,
+/// spaces, underscores and hyphens.
+final RegExp _customEventNamePattern = RegExp(r'^[0-9a-zA-Z_][0-9a-zA-Z _-]*$');
+
+/// The longest custom event name Meta accepts.
+const int kMetaCustomEventNameMaxLength = 40;
+
+/// Whether [eventName] satisfies Meta's rules for a custom event name.
+bool isValidMetaCustomEventName(String eventName) =>
+    eventName.isNotEmpty &&
+    eventName.length <= kMetaCustomEventNameMaxLength &&
+    _customEventNamePattern.hasMatch(eventName);
+
+/// Reports a conversion to Meta under an app-defined [eventName], for signals
+/// Meta has no standard event for — retention milestones, activation
+/// thresholds. Anything in [DfMetaEvent] belongs on [trackMetaConversion]
+/// instead, because only standard events are comparable across advertisers.
+///
+/// [eventName] must satisfy [isValidMetaCustomEventName]; an invalid name is
+/// dropped rather than sent, since Meta discards it silently on its side. In
+/// debug builds this asserts instead, so a typo surfaces during development.
+///
+/// On web only the name reaches the Pixel — [parameters] are dropped, matching
+/// [trackMetaConversion]'s handling of `contentType`.
+void trackMetaCustomConversion(
+  String eventName, {
+  Map<String, Object>? parameters,
+}) {
+  assert(
+    isValidMetaCustomEventName(eventName),
+    'Invalid Meta custom event name: "$eventName". Must be 1-'
+    '$kMetaCustomEventNameMaxLength chars, start with a letter, digit or '
+    'underscore, and contain only letters, digits, spaces, underscores and '
+    'hyphens.',
+  );
+  if (!isValidMetaCustomEventName(eventName)) return;
+  impl.trackMetaCustomConversion(eventName, parameters);
+}
