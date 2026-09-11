@@ -1,4 +1,5 @@
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:df_analytics_core/df_analytics_core.dart';
 import 'package:facebook_app_events/facebook_app_events.dart';
 import 'package:flutter/foundation.dart'
     show kIsWeb, defaultTargetPlatform, TargetPlatform, kDebugMode, debugPrint;
@@ -73,6 +74,10 @@ class InstallationTrackingService {
         // (Apple 5.1.1(iv) — the pre-ATT message must always lead to the
         // system prompt). A custom showConsentDialog may still return false.
         final userConsented = await showDialog(context);
+        DfAnalyticsCore.track(DfEvents.consentResult, {
+          DfEventParams.consentKind: 'tracking',
+          DfEventParams.granted: userConsented,
+        });
 
         if (!userConsented) {
           await prefs.setBool(consentGivenKey, false);
@@ -87,6 +92,9 @@ class InstallationTrackingService {
           final attStatus = await TrackingService.instance
               .requestTrackingAuthorization();
           trackingEnabled = attStatus == TrackingStatus.authorized;
+          DfAnalyticsCore.track(DfEvents.attResult, {
+            DfEventParams.status: attStatus?.name ?? 'unavailable',
+          });
 
           if (kDebugMode) {
             debugPrint(

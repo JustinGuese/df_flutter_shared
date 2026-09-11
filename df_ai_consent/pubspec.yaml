@@ -10,6 +10,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Sibling packages are git deps on this repo's `main` — the exact description
+  # the apps use. See df_onboarding/pubspec.yaml for why not `path:`.
+  df_analytics_core:
+    git:
+      url: https://github.com/JustinGuese/df_flutter_shared.git
+      path: df_analytics_core
+      ref: main
   shared_preferences: ^2.3.5
   url_launcher: ^6.3.1
 

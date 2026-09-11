@@ -1,3 +1,4 @@
+import 'package:df_analytics_core/df_analytics_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -31,6 +32,12 @@ class AiDataConsentDialog extends StatelessWidget {
       barrierDismissible: false,
       builder: (_) => AiDataConsentDialog(config: config),
     );
+    // Only reported when the dialog was actually shown — an already-consented
+    // user returning above is not a fresh decision.
+    DfAnalyticsCore.track(DfEvents.consentResult, {
+      DfEventParams.consentKind: 'ai_data',
+      DfEventParams.granted: result == true,
+    });
 
     if (result == true) {
       await service.grantConsent();

@@ -1,3 +1,4 @@
+import 'package:df_analytics_core/df_analytics_core.dart';
 import 'package:df_theme/df_theme.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
@@ -59,11 +60,16 @@ List<TargetFocus> buildTourTargetFocus(
 /// caller knows not to mark the step as shown, and can retry next frame
 /// instead of silently skipping it); returns `true` once the overlay is
 /// showing.
+///
+/// Reports `tour_step_view` for each spotlight shown and one `tour_complete`
+/// (with `skipped`) when the overlay closes, tagged with [analyticsId] — pass
+/// the step's id so reports can tell the steps of a multi-step tour apart.
 bool showTourCoachMarks(
   BuildContext context, {
   required List<TourTarget> targets,
   DfTourStrings strings = const DfTourStrings(),
   VoidCallback? onFinish,
+  String analyticsId = 'tour',
 }) {
   final df = context.df;
   final focusTargets = buildTourTargetFocus(
@@ -72,6 +78,18 @@ bool showTourCoachMarks(
     strings: strings,
   );
   if (focusTargets.isEmpty) return false;
+
+  var stepsSeen = 0;
+  var reportedEnd = false;
+  void reportEnd({required bool skipped}) {
+    if (reportedEnd) return;
+    reportedEnd = true;
+    DfAnalyticsCore.track(DfEvents.tourComplete, {
+      DfEventParams.stepId: analyticsId,
+      DfEventParams.skipped: skipped,
+      DfEventParams.stepsSeen: stepsSeen,
+    });
+  }
 
   TutorialCoachMark(
     targets: focusTargets,
@@ -87,8 +105,19 @@ bool showTourCoachMarks(
     ),
     alignSkip: Alignment.topRight,
     hideSkip: false,
-    onFinish: onFinish,
+    beforeFocus: (_) {
+      stepsSeen++;
+      DfAnalyticsCore.track(DfEvents.tourStepView, {
+        DfEventParams.stepId: analyticsId,
+        DfEventParams.stepIndex: stepsSeen,
+      });
+    },
+    onFinish: () {
+      reportEnd(skipped: false);
+      onFinish?.call();
+    },
     onSkip: () {
+      reportEnd(skipped: true);
       onFinish?.call();
       return true;
     },

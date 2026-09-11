@@ -25,7 +25,7 @@ enum DfMetaEvent {
   /// Someone paid.
   purchase;
 
-  /// The name Meta expects on the wire.
+  /// The Pixel (web) event name.
   String get wireName => switch (this) {
     DfMetaEvent.contact => 'Contact',
     DfMetaEvent.lead => 'Lead',
@@ -33,18 +33,40 @@ enum DfMetaEvent {
     DfMetaEvent.subscribe => 'Subscribe',
     DfMetaEvent.purchase => 'Purchase',
   };
+
+  /// The App Events (mobile SDK) event name.
+  ///
+  /// Not always [wireName]: the mobile SDK's older standard events carry an
+  /// `fb_mobile_` name, and sending the Pixel name instead lands as a *custom*
+  /// event that app campaigns cannot optimise for. `Lead` has no mobile
+  /// standard event, so it stays a custom event on mobile either way.
+  String get appEventName => switch (this) {
+    DfMetaEvent.completeRegistration => 'fb_mobile_complete_registration',
+    DfMetaEvent.purchase => 'fb_mobile_purchase',
+    _ => wireName,
+  };
 }
 
 /// Reports a conversion to Meta — App Events on mobile, Pixel on web.
 ///
 /// [contentType] names the app's own action (`'diary_entry'`,
 /// `'chat_message'`, `'quest_complete'`) and is what distinguishes two
-/// conversions of the same [event] in Ads Manager.
+/// conversions of the same [event] in Ads Manager. [registrationMethod]
+/// (`'email'`, `'google'`) belongs on [DfMetaEvent.completeRegistration].
 ///
 /// Replaces `trackChatMessageSent()` / `trackDiaryEntryCreated()`, which baked
 /// PsychDiary's domain into a package shared by five apps.
-void trackMetaConversion(DfMetaEvent event, {String? contentType}) {
-  impl.trackMetaConversion(event.wireName, contentType);
+void trackMetaConversion(
+  DfMetaEvent event, {
+  String? contentType,
+  String? registrationMethod,
+}) {
+  impl.trackMetaConversion(
+    pixelName: event.wireName,
+    appEventName: event.appEventName,
+    contentType: contentType,
+    registrationMethod: registrationMethod,
+  );
 }
 
 /// Meta's constraint on custom event names: 1-40 characters, starting with a

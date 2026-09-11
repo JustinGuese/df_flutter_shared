@@ -1,5 +1,8 @@
+import 'package:df_analytics_core/df_analytics_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
+
+import 'df_firebase_meta_sink.dart';
 
 /// Service for logging analytics events using Firebase Analytics.
 class AnalyticsService {
@@ -9,7 +12,21 @@ class AnalyticsService {
 
   FirebaseAnalytics? _analytics;
 
-  void initialize() {
+  /// Connects Firebase Analytics and installs [DfFirebaseMetaSink] as
+  /// `DfAnalyticsCore.sink`, so the events shared packages emit (onboarding,
+  /// sign-in, consent, screen views) start flowing without further wiring.
+  ///
+  /// [metaConversions] names the app's events that also count as Meta
+  /// conversions, on top of [dfDefaultMetaConversions]. [sendUserId] sends the
+  /// signed-in account id to GA4 (never to Meta).
+  void initialize({
+    Map<String, DfMetaConversion> metaConversions = const {},
+    bool sendUserId = false,
+  }) {
+    DfAnalyticsCore.sink = DfFirebaseMetaSink(
+      metaConversions: metaConversions,
+      sendUserId: sendUserId,
+    );
     try {
       _analytics = FirebaseAnalytics.instance;
       if (kDebugMode) {

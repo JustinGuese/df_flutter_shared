@@ -17,6 +17,11 @@ dependencies:
   # the apps use. A `path: ../df_x` here would reach a consuming app as a git
   # dep pinned to a commit, which pub then refuses to unify with the app's own
   # `ref: main`. tool/analyze_all.sh and CI redirect these to the checkout.
+  df_analytics_core:
+    git:
+      url: https://github.com/JustinGuese/df_flutter_shared.git
+      path: df_analytics_core
+      ref: main
   df_theme:
     git:
       url: https://github.com/JustinGuese/df_flutter_shared.git

@@ -1,0 +1,22 @@
+name: df_analytics_core
+description: >-
+  The analytics contract shared packages emit into — a sink interface, the
+  funnel event vocabulary and a screen observer. No analytics SDKs.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.29.0'
+
+# Deliberately nothing but Flutter: df_onboarding, df_firebase_auth, df_tour and
+# df_ai_consent depend on this, and anything added here is forced on every app
+# that uses any of them. The Firebase/Meta implementation lives in df_analytics.
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

@@ -3,10 +3,13 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:df_analytics_core/df_analytics_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+
+import 'auth_analytics.dart';
 
 class AuthRepository {
   AuthRepository(this._auth, this._googleSignIn);
@@ -18,17 +21,22 @@ class AuthRepository {
 
   User? get currentUser => _auth.currentUser;
 
-  Future<void> signIn({required String email, required String password}) async {
-    final credential = await _auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    final user = credential.user;
-    debugPrint(
-      '[AuthRepository] Email/password sign-in successful. '
-      'uid=${user?.uid}, email=${user?.email}',
-    );
-  }
+  // Every sign-in path below goes through trackAuth, which reports login /
+  // sign_up / auth_failed to df_analytics_core. Doing it here rather than in
+  // the screens means apps with their own auth UI get the funnel too.
+
+  Future<void> signIn({required String email, required String password}) =>
+      trackAuth(DfAuthMethod.email, DfAuthFlow.login, () async {
+        final credential = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        final user = credential.user;
+        debugPrint(
+          '[AuthRepository] Email/password sign-in successful. '
+          'uid=${user?.uid}, email=${user?.email}',
+        );
+      });
 
   /// Returns the credential so callers can tell a brand-new account from a
   /// returning one via `additionalUserInfo?.isNewUser` — the signal an
@@ -36,7 +44,7 @@ class AuthRepository {
   Future<UserCredential> signUp({
     required String email,
     required String password,
-  }) async {
+  }) => trackAuth(DfAuthMethod.email, DfAuthFlow.signUp, () async {
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
@@ -47,12 +55,22 @@ class AuthRepository {
       'uid=${user?.uid}, email=${user?.email}',
     );
     return credential;
-  }
+  });
+
+  static bool _isNewUser(UserCredential credential) =>
+      credential.additionalUserInfo?.isNewUser ?? false;
 
   /// Signing in with Google creates the account when the user is new, so the
   /// returned credential's `additionalUserInfo?.isNewUser` is what separates a
   /// registration from a sign-in here.
-  Future<UserCredential> signInWithGoogle() async {
+  Future<UserCredential> signInWithGoogle() => trackAuth(
+    DfAuthMethod.google,
+    DfAuthFlow.sso,
+    _signInWithGoogle,
+    isNewUser: _isNewUser,
+  );
+
+  Future<UserCredential> _signInWithGoogle() async {
     try {
       // On web, use the standard OAuth popup — reliable regardless of FedCM support.
       if (kIsWeb) {
@@ -172,7 +190,14 @@ class AuthRepository {
 
   /// As with Google, this creates the account when the user is new — see
   /// [signInWithGoogle] on why the credential is returned.
-  Future<UserCredential> signInWithApple() async {
+  Future<UserCredential> signInWithApple() => trackAuth(
+    DfAuthMethod.apple,
+    DfAuthFlow.sso,
+    _signInWithApple,
+    isNewUser: _isNewUser,
+  );
+
+  Future<UserCredential> _signInWithApple() async {
     debugPrint('🍎 [Apple Sign-In] Starting Apple Sign-In flow...');
     try {
       final rawNonce = _generateNonce();
@@ -258,6 +283,7 @@ class AuthRepository {
 
     try {
       await user.delete();
+      DfAnalyticsCore.track(DfEvents.accountDeleted);
       if (!kIsWeb) await _googleSignIn.signOut();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {

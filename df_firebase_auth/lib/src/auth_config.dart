@@ -30,7 +30,10 @@ class AuthConfig {
   /// happened — a social sign-in from the login screen registers a first-time
   /// user just as the register screen does.
   ///
-  /// Exists so an app can report a registration to analytics without the
-  /// package knowing what it reports to.
+  /// Not needed for analytics: [AuthRepository] reports `sign_up` (and `login`,
+  /// `auth_failed`) to df_analytics_core on its own, and df_analytics maps
+  /// `sign_up` to Meta's CompleteRegistration. Wiring an analytics call here as
+  /// well counts every registration twice. Keep this for non-analytics side
+  /// effects only.
   final VoidCallback? onRegistered;
 }

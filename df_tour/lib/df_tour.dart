@@ -13,8 +13,7 @@ library;
 // consumer has to add a direct `tutorial_coach_mark` dependency just to say
 // which side a bubble sits on — which defeats the point of wrapping it, and
 // pins apps to this package's transitive version.
-export 'package:tutorial_coach_mark/tutorial_coach_mark.dart'
-    show ContentAlign;
+export 'package:tutorial_coach_mark/tutorial_coach_mark.dart' show ContentAlign;
 
 export 'src/tour_coach_marks.dart';
 export 'src/tour_help_button.dart';

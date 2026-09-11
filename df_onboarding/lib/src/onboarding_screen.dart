@@ -1,3 +1,4 @@
+import 'package:df_analytics_core/df_analytics_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,13 +31,40 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  bool _completed = false;
 
-  Future<void> _completeOnboarding() async {
+  @override
+  void initState() {
+    super.initState();
+    // Help mode is a returning user re-reading the slides — not the funnel.
+    if (widget.isHelpMode) return;
+    DfAnalyticsCore.track(DfEvents.tutorialBegin);
+    _trackPageView(0);
+  }
+
+  void _trackPageView(int index) {
+    if (widget.isHelpMode) return;
+    DfAnalyticsCore.track(DfEvents.onboardingPageView, {
+      DfEventParams.pageIndex: index + 1,
+      DfEventParams.pageCount: ref.read(onboardingConfigProvider).pages.length,
+    });
+  }
+
+  /// [skipped] separates the Skip button from finishing the last page — the
+  /// two leave onboarding identically, but mean very different things.
+  Future<void> _completeOnboarding({required bool skipped}) async {
     final config = ref.read(onboardingConfigProvider);
     if (widget.isHelpMode) {
       if (mounted) Navigator.of(context).pop();
       return;
     }
+    if (_completed) return;
+    _completed = true;
+
+    DfAnalyticsCore.track(DfEvents.tutorialComplete, {
+      DfEventParams.skipped: skipped,
+      DfEventParams.pageIndex: _currentPage + 1,
+    });
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(config.preferencesKey, true);
@@ -96,7 +124,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   child: Align(
                     alignment: Alignment.topRight,
                     child: TextButton(
-                      onPressed: _completeOnboarding,
+                      onPressed: () => _completeOnboarding(skipped: true),
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.white.withOpacityCompat(0.2),
@@ -123,6 +151,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     setState(() {
                       _currentPage = index;
                     });
+                    _trackPageView(index);
                   },
                   itemCount: pages.length,
                   itemBuilder: (context, index) {
@@ -185,7 +214,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               curve: Curves.easeInOut,
                             );
                           } else {
-                            _completeOnboarding();
+                            _completeOnboarding(skipped: false);
                           }
                         },
                         style: ElevatedButton.styleFrom(

@@ -60,8 +60,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() => _loading = true);
     final config = ref.read(authConfigProvider);
     try {
-      final credential =
-          await ref.read(authRepositoryProvider).signInWithGoogle();
+      final credential = await ref
+          .read(authRepositoryProvider)
+          .signInWithGoogle();
       if (credential.additionalUserInfo?.isNewUser ?? false) {
         config.onRegistered?.call();
       }
@@ -83,8 +84,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() => _loading = true);
     final config = ref.read(authConfigProvider);
     try {
-      final credential =
-          await ref.read(authRepositoryProvider).signInWithApple();
+      final credential = await ref
+          .read(authRepositoryProvider)
+          .signInWithApple();
       if (credential.additionalUserInfo?.isNewUser ?? false) {
         config.onRegistered?.call();
       }

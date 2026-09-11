@@ -65,17 +65,17 @@ class DfRetentionTracker {
       await prefs.setString(_firstOpenKey(config), today);
     }
 
-    final activeDays = prefs.getStringList(_activeDaysKey(config)) ?? <String>[];
+    final activeDays =
+        prefs.getStringList(_activeDaysKey(config)) ?? <String>[];
     if (!activeDays.contains(today)) {
       activeDays
         ..add(today)
         ..sort();
       // Drop the oldest entries rather than the newest: a streak is measured
       // backwards from today, so recent days are the ones that matter.
-      final trimmed =
-          activeDays.length > config.maxRetainedDays
-              ? activeDays.sublist(activeDays.length - config.maxRetainedDays)
-              : activeDays;
+      final trimmed = activeDays.length > config.maxRetainedDays
+          ? activeDays.sublist(activeDays.length - config.maxRetainedDays)
+          : activeDays;
       await prefs.setStringList(_activeDaysKey(config), trimmed);
     }
 
@@ -156,11 +156,10 @@ class DfRetentionTracker {
     DfRetentionConfig config = const DfRetentionConfig(),
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    final owned =
-        prefs
-            .getKeys()
-            .where((key) => key.startsWith('${config.keyPrefix}_'))
-            .toList();
+    final owned = prefs
+        .getKeys()
+        .where((key) => key.startsWith('${config.keyPrefix}_'))
+        .toList();
     for (final key in owned) {
       await prefs.remove(key);
     }
@@ -200,10 +199,9 @@ String _firebaseEventName(String metaEventName) {
       .replaceAll(RegExp(r'_+'), '_');
   final leadingTrimmed = sanitised.replaceFirst(RegExp(r'^_+'), '');
   // Firebase requires a letter first and caps names at 40 characters.
-  final prefixed =
-      RegExp(r'^[a-z]').hasMatch(leadingTrimmed)
-          ? leadingTrimmed
-          : 'e_$leadingTrimmed';
+  final prefixed = RegExp(r'^[a-z]').hasMatch(leadingTrimmed)
+      ? leadingTrimmed
+      : 'e_$leadingTrimmed';
   return prefixed.length <= 40 ? prefixed : prefixed.substring(0, 40);
 }
 
