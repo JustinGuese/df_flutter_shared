@@ -1,3 +1,4 @@
+import 'package:df_ui_widgets/df_ui_widgets.dart';
 import 'package:flutter/foundation.dart'
     show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
@@ -6,10 +7,14 @@ import 'package:go_router/go_router.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../auth_providers.dart';
+import '../auth_routing.dart';
 import 'google_icon.dart';
+import 'login_strings.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({super.key, this.strings = const DfRegisterStrings()});
+
+  final DfRegisterStrings strings;
 
   @override
   ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
@@ -30,6 +35,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     super.dispose();
   }
 
+  String _destination(String homeRoute) =>
+      dfPostAuthDestination(context, fallback: homeRoute);
+
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
@@ -44,13 +52,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       // Unconditional: createUserWithEmailAndPassword only ever returns for a
       // newly created account.
       config.onRegistered?.call();
-      if (mounted) context.go(config.homeRoute);
+      if (mounted) context.go(_destination(config.homeRoute));
     } on Exception catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error.toString())));
-      }
+      if (mounted) DfSnackbar.error(context, error.toString());
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -66,14 +70,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (credential.additionalUserInfo?.isNewUser ?? false) {
         config.onRegistered?.call();
       }
-      if (mounted) context.go(config.homeRoute);
+      if (mounted) context.go(_destination(config.homeRoute));
     } on Exception catch (error) {
       if (mounted) {
         final errorMessage = error.toString();
         if (errorMessage.contains('cancelled')) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage.replaceAll('Exception: ', ''))),
-        );
+        DfSnackbar.error(context, errorMessage.replaceAll('Exception: ', ''));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -90,7 +92,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (credential.additionalUserInfo?.isNewUser ?? false) {
         config.onRegistered?.call();
       }
-      if (mounted) context.go(config.homeRoute);
+      if (mounted) context.go(_destination(config.homeRoute));
     } on Exception catch (error) {
       if (mounted) {
         final errorMessage = error.toString();
@@ -99,9 +101,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           return;
         }
         final friendlyMessage = _appleSignInFriendlyError(errorMessage);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(friendlyMessage)));
+        DfSnackbar.error(context, friendlyMessage);
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -128,6 +128,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final config = ref.watch(authConfigProvider);
+    final s = widget.strings;
 
     return Scaffold(
       body: Center(
@@ -149,7 +150,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       Image.asset(config.logoAssetPath, height: 96),
                       const SizedBox(height: 24),
                       Text(
-                        'Create your account',
+                        s.title,
                         style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -157,14 +158,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       const SizedBox(height: 24),
                       TextFormField(
                         controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: Icon(Icons.email_outlined),
+                        decoration: InputDecoration(
+                          labelText: s.emailLabel,
+                          prefixIcon: const Icon(Icons.email_outlined),
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
+                            return s.emailRequired;
                           }
                           return null;
                         },
@@ -172,14 +173,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _passwordController,
-                        decoration: const InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: Icon(Icons.lock_outline),
+                        decoration: InputDecoration(
+                          labelText: s.passwordLabel,
+                          prefixIcon: const Icon(Icons.lock_outline),
                         ),
                         obscureText: true,
                         validator: (value) {
                           if (value == null || value.length < 6) {
-                            return 'Password must be at least 6 characters';
+                            return s.passwordTooShort;
                           }
                           return null;
                         },
@@ -187,14 +188,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _confirmController,
-                        decoration: const InputDecoration(
-                          labelText: 'Confirm Password',
-                          prefixIcon: Icon(Icons.lock_outline),
+                        decoration: InputDecoration(
+                          labelText: s.confirmPasswordLabel,
+                          prefixIcon: const Icon(Icons.lock_outline),
                         ),
                         obscureText: true,
                         validator: (value) {
                           if (value != _passwordController.text) {
-                            return 'Passwords do not match';
+                            return s.passwordMismatch;
                           }
                           return null;
                         },
@@ -212,23 +213,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                     strokeWidth: 2,
                                   ),
                                 )
-                              : const Text('Sign Up'),
+                              : Text(s.signUpButton),
                         ),
                       ),
                       const SizedBox(height: 24),
                       Row(
                         children: [
-                          Expanded(child: Divider(thickness: 1)),
+                          const Expanded(child: Divider(thickness: 1)),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
-                              'OR',
+                              s.orDivider,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
-                          Expanded(child: Divider(thickness: 1)),
+                          const Expanded(child: Divider(thickness: 1)),
                         ],
                       ),
                       const SizedBox(height: 24),
@@ -243,14 +244,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            GoogleIcon(),
-                            SizedBox(width: 12),
+                            const GoogleIcon(),
+                            const SizedBox(width: 12),
                             Text(
-                              'Sign up with Google',
-                              style: TextStyle(fontWeight: FontWeight.w500),
+                              s.googleButton,
+                              style: const TextStyle(fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
@@ -269,8 +270,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ],
                       const SizedBox(height: 16),
                       TextButton(
-                        onPressed: () => context.go(config.loginRoute),
-                        child: const Text('Already have an account? Sign in'),
+                        onPressed: () => context.go(
+                          '${config.loginRoute}${_nextQuery(context)}',
+                        ),
+                        child: Text(s.haveAccount),
                       ),
                     ],
                   ),
@@ -282,4 +285,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
     );
   }
+}
+
+String _nextQuery(BuildContext context) {
+  final next = GoRouterState.of(context).uri.queryParameters['next'];
+  final safe = dfSanitizeNextPath(next);
+  return safe == null ? '' : '?next=${Uri.encodeQueryComponent(safe)}';
 }

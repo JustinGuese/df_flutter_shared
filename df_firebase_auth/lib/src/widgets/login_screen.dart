@@ -1,3 +1,4 @@
+import 'package:df_ui_widgets/df_ui_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart'
     show kIsWeb, defaultTargetPlatform, TargetPlatform, debugPrint;
@@ -7,12 +8,19 @@ import 'package:go_router/go_router.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../auth_providers.dart';
+import '../auth_routing.dart';
 import 'google_icon.dart';
+import 'login_strings.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key, this.sessionReason});
+  const LoginScreen({
+    super.key,
+    this.sessionReason,
+    this.strings = const DfLoginStrings(),
+  });
 
   final String? sessionReason;
+  final DfLoginStrings strings;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -30,11 +38,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final reason = widget.sessionReason;
       if (!mounted || reason != 'sessionExpired') return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Your session expired. Please log in again.'),
-        ),
-      );
+      DfSnackbar.show(context, widget.strings.sessionExpired);
     });
   }
 
@@ -45,7 +49,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
+  /// Where to land after a successful sign-in — honours `?next=` so a bounce
+  /// from an invite link or a paywall returns where it started.
+  String _destination(String homeRoute) =>
+      dfPostAuthDestination(context, fallback: homeRoute);
+
   Future<void> _showForgotPasswordDialog() async {
+    final s = widget.strings;
     final resetEmailController = TextEditingController();
     final resetFormKey = GlobalKey<FormState>();
     bool resetLoading = false;
@@ -54,32 +64,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Reset Password'),
+          title: Text(s.resetDialogTitle),
           content: Form(
             key: resetFormKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Enter your email address and we\'ll send you a link to reset your password.',
-                ),
+                Text(s.resetDialogBody),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: resetEmailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
+                  decoration: InputDecoration(
+                    labelText: s.emailLabel,
+                    prefixIcon: const Icon(Icons.email_outlined),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   enabled: !resetLoading,
                   autofocus: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email address';
+                      return s.emailRequired;
                     }
-                    if (!value.contains('@')) {
-                      return 'Please enter a valid email address';
-                    }
+                    if (!value.contains('@')) return s.resetEmailInvalid;
                     return null;
                   },
                 ),
@@ -91,7 +97,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               onPressed: resetLoading
                   ? null
                   : () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(s.resetCancel),
             ),
             FilledButton(
               onPressed: resetLoading
@@ -106,14 +112,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             .sendPasswordReset(email);
                         if (context.mounted) {
                           Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Password reset email sent to $email. Please check your inbox.',
-                              ),
-                              backgroundColor: Colors.green,
-                              duration: const Duration(seconds: 5),
-                            ),
+                          DfSnackbar.show(
+                            context,
+                            DfLoginStrings.fill(s.resetSent, {
+                              'email': email,
+                            }),
                           );
                         }
                       } on FirebaseAuthException catch (e) {
@@ -137,23 +140,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   e.message ??
                                   'An error occurred. Please try again.';
                           }
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(errorMessage),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
+                          DfSnackbar.error(context, errorMessage);
                         }
                       } on Exception catch (error) {
                         setDialogState(() => resetLoading = false);
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                error.toString().replaceAll('Exception: ', ''),
-                              ),
-                              backgroundColor: Colors.red,
-                            ),
+                          DfSnackbar.error(
+                            context,
+                            error.toString().replaceAll('Exception: ', ''),
                           );
                         }
                       }
@@ -167,7 +161,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         valueColor: AlwaysStoppedAnimation(Colors.white),
                       ),
                     )
-                  : const Text('Send Reset Link'),
+                  : Text(s.resetSend),
             ),
           ],
         ),
@@ -187,13 +181,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
           );
-      if (mounted) context.go(config.homeRoute);
+      if (mounted) context.go(_destination(config.homeRoute));
     } on Exception catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error.toString())));
-      }
+      if (mounted) DfSnackbar.error(context, error.toString());
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -211,14 +201,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (credential.additionalUserInfo?.isNewUser ?? false) {
         config.onRegistered?.call();
       }
-      if (mounted) context.go(config.homeRoute);
+      if (mounted) context.go(_destination(config.homeRoute));
     } on Exception catch (error) {
       if (mounted) {
         final errorMessage = error.toString();
         if (errorMessage.contains('cancelled')) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage.replaceAll('Exception: ', ''))),
-        );
+        DfSnackbar.error(context, errorMessage.replaceAll('Exception: ', ''));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -236,7 +224,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (credential.additionalUserInfo?.isNewUser ?? false) {
         config.onRegistered?.call();
       }
-      if (mounted) context.go(config.homeRoute);
+      if (mounted) context.go(_destination(config.homeRoute));
     } on Exception catch (error) {
       if (mounted) {
         final errorMessage = error.toString();
@@ -245,16 +233,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           return;
         }
         final friendlyMessage = _appleSignInFriendlyError(errorMessage);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(friendlyMessage)));
+        DfSnackbar.error(context, friendlyMessage);
       }
     } catch (error, stackTrace) {
       debugPrint('Apple Sign-In unexpected error: $error $stackTrace');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sign-in failed. Please try again.')),
-        );
+        DfSnackbar.error(context, 'Sign-in failed. Please try again.');
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -281,6 +265,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final config = ref.watch(authConfigProvider);
+    final s = widget.strings;
 
     return Scaffold(
       body: Center(
@@ -303,14 +288,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       Image.asset(config.logoAssetPath, height: 96),
                       const SizedBox(height: 24),
                       Text(
-                        'Welcome Back',
+                        s.welcomeTitle,
                         style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Sign in to your ${config.appName} workspace',
+                        DfLoginStrings.fill(s.subtitle, {
+                          'appName': config.appName,
+                        }),
                         style: theme.textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
@@ -320,9 +307,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           children: [
                             TextFormField(
                               controller: _emailController,
-                              decoration: const InputDecoration(
-                                labelText: 'Email',
-                                prefixIcon: Icon(Icons.email_outlined),
+                              decoration: InputDecoration(
+                                labelText: s.emailLabel,
+                                prefixIcon: const Icon(Icons.email_outlined),
                               ),
                               keyboardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.next,
@@ -332,7 +319,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ],
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your email';
+                                  return s.emailRequired;
                                 }
                                 return null;
                               },
@@ -340,9 +327,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const SizedBox(height: 16),
                             TextFormField(
                               controller: _passwordController,
-                              decoration: const InputDecoration(
-                                labelText: 'Password',
-                                prefixIcon: Icon(Icons.lock_outline),
+                              decoration: InputDecoration(
+                                labelText: s.passwordLabel,
+                                prefixIcon: const Icon(Icons.lock_outline),
                               ),
                               obscureText: true,
                               textInputAction: TextInputAction.done,
@@ -352,7 +339,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
+                                  return s.passwordRequired;
                                 }
                                 return null;
                               },
@@ -376,23 +363,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     ),
                                   ),
                                 )
-                              : const Text('Sign In'),
+                              : Text(s.signInButton),
                         ),
                       ),
                       const SizedBox(height: 24),
                       Row(
                         children: [
-                          Expanded(child: Divider(thickness: 1)),
+                          const Expanded(child: Divider(thickness: 1)),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
-                              'OR',
+                              s.orDivider,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
-                          Expanded(child: Divider(thickness: 1)),
+                          const Expanded(child: Divider(thickness: 1)),
                         ],
                       ),
                       const SizedBox(height: 24),
@@ -407,14 +394,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            GoogleIcon(),
-                            SizedBox(width: 12),
+                            const GoogleIcon(),
+                            const SizedBox(width: 12),
                             Text(
-                              'Sign in with Google',
-                              style: TextStyle(fontWeight: FontWeight.w500),
+                              s.googleButton,
+                              style: const TextStyle(fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
@@ -434,12 +421,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: 16),
                       TextButton(
                         onPressed: _loading ? null : _showForgotPasswordDialog,
-                        child: const Text('Forgot Password?'),
+                        child: Text(s.forgotPassword),
                       ),
                       const SizedBox(height: 8),
                       TextButton(
-                        onPressed: () => context.go(config.registerRoute),
-                        child: const Text("Don't have an account? Sign up"),
+                        onPressed: () => context.go(
+                          '${config.registerRoute}${_nextQuery(context)}',
+                        ),
+                        child: Text(s.noAccount),
                       ),
                     ],
                   ),
@@ -451,4 +440,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
+}
+
+/// Carries `?next=` along from login to register, so switching between them
+/// mid-invite-flow doesn't lose the destination.
+String _nextQuery(BuildContext context) {
+  final next = GoRouterState.of(context).uri.queryParameters['next'];
+  final safe = dfSanitizeNextPath(next);
+  return safe == null ? '' : '?next=${Uri.encodeQueryComponent(safe)}';
 }

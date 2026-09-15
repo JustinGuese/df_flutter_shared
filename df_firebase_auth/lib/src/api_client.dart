@@ -87,15 +87,22 @@ class ApiClient {
         onError: (error, handler) async {
           if (error.response?.statusCode == 401) {
             String errorDetail = '';
+            String? problemCode;
             if (error.response?.data != null) {
               if (error.response!.data is Map) {
-                errorDetail = error.response!.data['detail']?.toString() ?? '';
+                final data = error.response!.data as Map;
+                errorDetail = data['detail']?.toString() ?? '';
+                // RFC 9457 problem+json (e.g. FastAPI backends built around
+                // ApiError/ErrorCode): the missing-header case reads as
+                // `code: "UNAUTHENTICATED"` instead of a `detail` sentence.
+                problemCode = data['code']?.toString();
               } else {
                 errorDetail = error.response!.data.toString();
               }
             }
 
             final isMissingHeader =
+                problemCode == 'UNAUTHENTICATED' ||
                 errorDetail.toLowerCase().contains(
                   'authorization header missing',
                 ) ||

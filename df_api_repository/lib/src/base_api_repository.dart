@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import 'api_repository_config.dart';
+import 'cursor_page.dart';
 
 /// Base for Dio-based repositories. Provides [dio] and optional [config].
 /// Use [getList] for paginated GET list endpoints.
@@ -41,5 +42,28 @@ abstract class BaseApiRepository {
   }) async {
     final response = await dio.get<Map<String, dynamic>>(path);
     return fromJson(response.data!);
+  }
+
+  /// GET one page from a cursor-paginated endpoint: `{items, next_cursor}`.
+  /// Pass the previous page's `nextCursor` to fetch the next one, or null for
+  /// the first page. [queryParameters] are merged with cursor/limit.
+  Future<DfCursorPage<T>> getCursorPage<T>(
+    String path, {
+    String? cursor,
+    int? limit,
+    Map<String, dynamic>? queryParameters,
+    required T Function(Map<String, dynamic>) fromJson,
+  }) async {
+    final params = Map<String, dynamic>.from(
+      queryParameters ?? <String, dynamic>{},
+    );
+    if (cursor != null) params['cursor'] = cursor;
+    params['limit'] = limit ?? config.defaultPageSize;
+
+    final response = await dio.get<Map<String, dynamic>>(
+      path,
+      queryParameters: params,
+    );
+    return DfCursorPage.fromJson(response.data ?? const {}, fromJson);
   }
 }

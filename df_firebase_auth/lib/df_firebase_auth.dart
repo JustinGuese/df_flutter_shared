@@ -11,4 +11,5 @@ export 'src/widgets/account_settings_section.dart';
 export 'src/widgets/account_settings_strings.dart';
 export 'src/widgets/google_icon.dart';
 export 'src/widgets/login_screen.dart';
+export 'src/widgets/login_strings.dart';
 export 'src/widgets/register_screen.dart';
