@@ -67,8 +67,15 @@ String? dfSafeNextPath(String location) {
 ///
 /// Reads `?next=` from the current route, falling back to [fallback].
 String dfPostAuthDestination(BuildContext context, {String fallback = '/'}) {
-  final next = GoRouterState.of(context).uri.queryParameters['next'];
-  return dfSanitizeNextPath(next) ?? fallback;
+  if (GoRouter.maybeOf(context) == null) {
+    return fallback;
+  }
+  try {
+    final next = GoRouterState.of(context).uri.queryParameters['next'];
+    return dfSanitizeNextPath(next) ?? fallback;
+  } catch (_) {
+    return fallback;
+  }
 }
 
 /// Returns [next] when it is a safe internal path, else null.

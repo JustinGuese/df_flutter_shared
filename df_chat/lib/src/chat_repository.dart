@@ -65,7 +65,7 @@ class ChatRepository {
   Future<Message> sendMessage(int chatId, String content) async {
     final response = await _dio.post<Map<String, dynamic>>(
       _resolvePath(config.messagesEndpoint, chatId: chatId),
-      queryParameters: {'content': content},
+      data: {'content': content},
     );
     return Message.fromJson(response.data!);
   }
@@ -85,7 +85,7 @@ class ChatRepository {
 
     final response = await _dio.post(
       _resolvePath(streamEndpoint, chatId: chatId),
-      queryParameters: {'content': content},
+      data: {'content': content},
       options: Options(
         responseType: ResponseType.stream,
         headers: {'Accept': 'text/event-stream'},

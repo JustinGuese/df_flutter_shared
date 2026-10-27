@@ -10,6 +10,7 @@ import '../auth_providers.dart';
 import '../auth_routing.dart';
 import 'google_icon.dart';
 import 'login_strings.dart';
+import 'login_screen.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key, this.strings = const DfRegisterStrings()});
@@ -52,7 +53,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       // Unconditional: createUserWithEmailAndPassword only ever returns for a
       // newly created account.
       config.onRegistered?.call();
-      if (mounted) context.go(_destination(config.homeRoute));
+      if (mounted) _navigateToHome(context, config.homeRoute);
     } on Exception catch (error) {
       if (mounted) DfSnackbar.error(context, error.toString());
     } finally {
@@ -70,7 +71,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (credential.additionalUserInfo?.isNewUser ?? false) {
         config.onRegistered?.call();
       }
-      if (mounted) context.go(_destination(config.homeRoute));
+      if (mounted) _navigateToHome(context, config.homeRoute);
     } on Exception catch (error) {
       if (mounted) {
         final errorMessage = error.toString();
@@ -92,7 +93,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (credential.additionalUserInfo?.isNewUser ?? false) {
         config.onRegistered?.call();
       }
-      if (mounted) context.go(_destination(config.homeRoute));
+      if (mounted) _navigateToHome(context, config.homeRoute);
     } on Exception catch (error) {
       if (mounted) {
         final errorMessage = error.toString();
@@ -270,9 +271,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ],
                       const SizedBox(height: 16),
                       TextButton(
-                        onPressed: () => context.go(
-                          '${config.loginRoute}${_nextQuery(context)}',
-                        ),
+                        onPressed: () {
+                          if (GoRouter.maybeOf(context) != null) {
+                            context.go('${config.loginRoute}${_nextQuery(context)}');
+                          } else {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (_) => const LoginScreen()),
+                            );
+                          }
+                        },
                         child: Text(s.haveAccount),
                       ),
                     ],
@@ -285,10 +292,33 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
     );
   }
+
+  void _navigateToHome(BuildContext context, String homeRoute) {
+    final config = ref.read(authConfigProvider);
+    if (config.onAuthenticated != null) {
+      config.onAuthenticated!(context);
+      return;
+    }
+    final dest = _destination(homeRoute);
+    if (GoRouter.maybeOf(context) != null) {
+      context.go(dest);
+    } else {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).maybePop();
+      }
+    }
+  }
 }
 
 String _nextQuery(BuildContext context) {
-  final next = GoRouterState.of(context).uri.queryParameters['next'];
-  final safe = dfSanitizeNextPath(next);
-  return safe == null ? '' : '?next=${Uri.encodeQueryComponent(safe)}';
+  if (GoRouter.maybeOf(context) == null) return '';
+  try {
+    final next = GoRouterState.of(context).uri.queryParameters['next'];
+    final safe = dfSanitizeNextPath(next);
+    return safe == null ? '' : '?next=${Uri.encodeQueryComponent(safe)}';
+  } catch (_) {
+    return '';
+  }
 }

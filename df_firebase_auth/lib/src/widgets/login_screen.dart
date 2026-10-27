@@ -11,6 +11,7 @@ import '../auth_providers.dart';
 import '../auth_routing.dart';
 import 'google_icon.dart';
 import 'login_strings.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({
@@ -181,7 +182,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
           );
-      if (mounted) context.go(_destination(config.homeRoute));
+      if (mounted) _navigateToHome(context, config.homeRoute);
     } on Exception catch (error) {
       if (mounted) DfSnackbar.error(context, error.toString());
     } finally {
@@ -201,7 +202,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (credential.additionalUserInfo?.isNewUser ?? false) {
         config.onRegistered?.call();
       }
-      if (mounted) context.go(_destination(config.homeRoute));
+      if (mounted) _navigateToHome(context, config.homeRoute);
     } on Exception catch (error) {
       if (mounted) {
         final errorMessage = error.toString();
@@ -224,7 +225,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (credential.additionalUserInfo?.isNewUser ?? false) {
         config.onRegistered?.call();
       }
-      if (mounted) context.go(_destination(config.homeRoute));
+      if (mounted) _navigateToHome(context, config.homeRoute);
     } on Exception catch (error) {
       if (mounted) {
         final errorMessage = error.toString();
@@ -425,9 +426,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       TextButton(
-                        onPressed: () => context.go(
-                          '${config.registerRoute}${_nextQuery(context)}',
-                        ),
+                        onPressed: () {
+                          if (GoRouter.maybeOf(context) != null) {
+                            context.go('${config.registerRoute}${_nextQuery(context)}');
+                          } else {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (_) => RegisterScreen()),
+                            );
+                          }
+                        },
                         child: Text(s.noAccount),
                       ),
                     ],
@@ -440,12 +447,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
+
+  void _navigateToHome(BuildContext context, String homeRoute) {
+    final config = ref.read(authConfigProvider);
+    if (config.onAuthenticated != null) {
+      config.onAuthenticated!(context);
+      return;
+    }
+    final dest = _destination(homeRoute);
+    if (GoRouter.maybeOf(context) != null) {
+      context.go(dest);
+    } else {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).maybePop();
+      }
+    }
+  }
 }
 
 /// Carries `?next=` along from login to register, so switching between them
 /// mid-invite-flow doesn't lose the destination.
 String _nextQuery(BuildContext context) {
-  final next = GoRouterState.of(context).uri.queryParameters['next'];
-  final safe = dfSanitizeNextPath(next);
-  return safe == null ? '' : '?next=${Uri.encodeQueryComponent(safe)}';
+  if (GoRouter.maybeOf(context) == null) return '';
+  try {
+    final next = GoRouterState.of(context).uri.queryParameters['next'];
+    final safe = dfSanitizeNextPath(next);
+    return safe == null ? '' : '?next=${Uri.encodeQueryComponent(safe)}';
+  } catch (_) {
+    return '';
+  }
 }

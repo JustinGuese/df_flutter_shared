@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 
 /// Configuration for Firebase Auth and API client.
 @immutable
@@ -14,6 +15,7 @@ class AuthConfig {
     this.loginRoute = '/login',
     this.registerRoute = '/register',
     this.onRegistered,
+    this.onAuthenticated,
   });
 
   final String apiBaseUrl;
@@ -36,4 +38,9 @@ class AuthConfig {
   /// well counts every registration twice. Keep this for non-analytics side
   /// effects only.
   final VoidCallback? onRegistered;
+
+  /// Called when authentication or registration succeeds. Allows apps using
+  /// standard Navigator (instead of GoRouter) to define custom navigation
+  /// (e.g. pushAndRemoveUntil to MainNavigationScreen).
+  final void Function(BuildContext context)? onAuthenticated;
 }
