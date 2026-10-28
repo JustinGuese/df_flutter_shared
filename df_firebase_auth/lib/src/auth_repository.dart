@@ -146,7 +146,8 @@ class AuthRepository {
           'An account already exists with a different sign-in method',
         );
       }
-      if (e.code == 'auth-domain-config-required' || e.code == 'unauthorized-domain') {
+      if (e.code == 'auth-domain-config-required' ||
+          e.code == 'unauthorized-domain') {
         throw Exception(
           'This domain is not authorized for Firebase Authentication. '
           'Please add it to Authorized Domains in the Firebase Console (Authentication -> Settings -> Authorized domains).',

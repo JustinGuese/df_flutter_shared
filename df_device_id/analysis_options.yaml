@@ -11,6 +11,7 @@ analyzer:
     todo: ignore
   exclude:
     - "**/*.g.dart"
+    - build/**
 
 linter:
   rules:

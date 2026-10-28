@@ -13,3 +13,5 @@ export 'src/widgets/google_icon.dart';
 export 'src/widgets/login_screen.dart';
 export 'src/widgets/login_strings.dart';
 export 'src/widgets/register_screen.dart';
+export 'src/widgets/sign_in_sheet.dart';
+export 'src/widgets/sign_in_sheet_strings.dart';

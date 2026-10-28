@@ -1,0 +1,27 @@
+name: df_swipe_deck
+description: Generic swipe deck harness wrapping flutter_card_swiper with action bar, hint, progress bar, and interleaving.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.29.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_card_swiper: ^7.0.0
+  # Sibling packages are git deps on this repo's `main` — the exact description
+  # the apps use. A `path: ../df_x` here would reach a consuming app as a git
+  # dep pinned to a commit, which pub then refuses to unify with the app's own
+  # `ref: main`. tool/analyze_all.sh and CI redirect these to the checkout.
+  df_theme:
+    git:
+      url: https://github.com/JustinGuese/df_flutter_shared.git
+      path: df_theme
+      ref: main
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

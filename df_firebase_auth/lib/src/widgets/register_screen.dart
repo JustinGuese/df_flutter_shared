@@ -252,7 +252,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             const SizedBox(width: 12),
                             Text(
                               s.googleButton,
-                              style: const TextStyle(fontWeight: FontWeight.w500),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ],
                         ),
@@ -273,10 +275,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       TextButton(
                         onPressed: () {
                           if (GoRouter.maybeOf(context) != null) {
-                            context.go('${config.loginRoute}${_nextQuery(context)}');
+                            context.go(
+                              '${config.loginRoute}${_nextQuery(context)}',
+                            );
                           } else {
                             Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (_) => const LoginScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const LoginScreen(),
+                              ),
                             );
                           }
                         },

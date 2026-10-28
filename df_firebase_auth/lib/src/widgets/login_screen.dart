@@ -115,9 +115,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           Navigator.of(context).pop();
                           DfSnackbar.show(
                             context,
-                            DfLoginStrings.fill(s.resetSent, {
-                              'email': email,
-                            }),
+                            DfLoginStrings.fill(s.resetSent, {'email': email}),
                           );
                         }
                       } on FirebaseAuthException catch (e) {
@@ -402,7 +400,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const SizedBox(width: 12),
                             Text(
                               s.googleButton,
-                              style: const TextStyle(fontWeight: FontWeight.w500),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ],
                         ),
@@ -428,10 +428,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       TextButton(
                         onPressed: () {
                           if (GoRouter.maybeOf(context) != null) {
-                            context.go('${config.registerRoute}${_nextQuery(context)}');
+                            context.go(
+                              '${config.registerRoute}${_nextQuery(context)}',
+                            );
                           } else {
                             Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (_) => RegisterScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => RegisterScreen(),
+                              ),
                             );
                           }
                         },

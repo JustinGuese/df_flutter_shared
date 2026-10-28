@@ -1,0 +1,35 @@
+name: df_revenuecat
+description: RevenueCat subscription harness wrapping purchases_flutter and purchases_ui_flutter with analytics, trials, exit offers, and paywalls.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.29.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.0.3
+  purchases_flutter: ^10.18.1
+  purchases_ui_flutter: ^10.18.1
+  shared_preferences: ^2.3.2
+  # Sibling packages are git deps on this repo's `main` — the exact description
+  # the apps use. A `path: ../df_x` here would reach a consuming app as a git
+  # dep pinned to a commit, which pub then refuses to unify with the app's own
+  # `ref: main`. tool/analyze_all.sh and CI redirect these to the checkout.
+  df_analytics_core:
+    git:
+      url: https://github.com/JustinGuese/df_flutter_shared.git
+      path: df_analytics_core
+      ref: main
+  df_theme:
+    git:
+      url: https://github.com/JustinGuese/df_flutter_shared.git
+      path: df_theme
+      ref: main
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
