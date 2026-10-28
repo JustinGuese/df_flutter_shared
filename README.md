@@ -65,6 +65,10 @@ its own or builds a `TextTheme` with `google_fonts` and passes it in.
 
 | Package | Description |
 |---------|-------------|
+| **[df_swipe_deck](df_swipe_deck/)** | Tinder-like card swiping deck (`DfSwipeDeck`), action bar (`DfSwipeActionBar`), hint (`DfSwipeHint`), progress bar (`DfDeckProgressBar`), and item interleaving (`interleaveEvery`). |
+| **[df_ads](df_ads/)** | Google Mobile Ads wrapper: test/release unit IDs (`DfAdUnitIds`), pluggable `DfAdFactory`, banner slots, card ads, and interstitial cadence control. |
+| **[df_revenuecat](df_revenuecat/)** | RevenueCat subscriptions & paywall launcher: config, trial offer helpers, paywall launcher with analytics tracking and exit offers, and customer info streams. |
+| **[df_ads_revenuecat](df_ads_revenuecat/)** | Bridge adapter (`DfRevenueCatAdFactory`) connecting `df_ads` and RevenueCat AdMob ad tracking. |
 | **[df_theme](df_theme/)** | The design system. `DfBrand` (palette + typography + spacing + shape + motion), `DfTokens` `ThemeExtension` with `context.df`, and `DfTheme.light/dark` builders that emit a full `ThemeData` including component sub-themes. Presets for the house style and for every existing app. |
 | **[df_ui_widgets](df_ui_widgets/)** | Reusable UI: `QuickActionChip`, `SummaryBulletList`, `KeywordChipList`, `LoadingAppBarAction`, `CharacterCounter`, `BrandedAppBar`, `NumberedStepList`, `SuccessBanner`, `AudioLevelBar`, `RecordingTimer`. |
 | **[df_core_utils](df_core_utils/)** | Pure and Flutter utilities: date formatting, keyword/summary parsing, animation durations, cross-platform download helper. |

@@ -29,6 +29,8 @@ jobs:
       fail-fast: false
       matrix:
         package:
+          - df_ads
+          - df_ads_revenuecat
           - df_ai_consent
           - df_analytics
           - df_analytics_core
@@ -45,7 +47,9 @@ jobs:
           - df_notifications
           - df_onboarding
           - df_paywall
+          - df_revenuecat
           - df_speech_to_text
+          - df_swipe_deck
           - df_theme
           - df_tour
           - df_ui_widgets
@@ -102,6 +106,9 @@ jobs:
             path: .
           - name: navicare
             repo: JustinGuese/navicarenow_enduserapp_frontend_flutter
+            path: .
+          - name: bigtechnews
+            repo: JustinGuese/flutter-bigtechnews-swiper-app
             path: .
     steps:
       - name: Check out shared packages
