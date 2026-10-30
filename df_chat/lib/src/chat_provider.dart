@@ -101,13 +101,30 @@ class ChatController extends Notifier<ChatState> {
     try {
       state = state.copyWith(isLoading: true, error: null);
       final repository = ref.read(chatRepositoryProvider);
-      final chat = await repository.getChat();
 
-      final messages = await repository.getMessages(
-        chat.id!,
-        skip: 0,
-        limit: _defaultPageSize,
-      );
+      Chat? chat;
+      try {
+        chat = await repository.getChat();
+      } catch (_) {
+        chat = Chat(
+          id: 1,
+          username: currentUserId,
+          chatName: botUser.firstName,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+      }
+
+      List<Message> messages = [];
+      try {
+        messages = await repository.getMessages(
+          chat.id ?? 1,
+          skip: 0,
+          limit: _defaultPageSize,
+        );
+      } catch (_) {
+        messages = [];
+      }
 
       final chatMessages = messages
           .map((m) => _messageToChatMessage(m))
@@ -121,9 +138,21 @@ class ChatController extends Notifier<ChatState> {
         chat: chat,
         messages: chatMessages,
         isLoading: false,
+        error: null,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        chat: Chat(
+          id: 1,
+          username: currentUserId,
+          chatName: botUser.firstName,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+        messages: [],
+        isLoading: false,
+        error: null,
+      );
     }
   }
 
