@@ -31,47 +31,10 @@ class ApiClient {
           }
 
           if (user != null) {
-            String? token;
-            Exception? lastError;
-
-            for (int attempt = 0; attempt < 5; attempt++) {
-              try {
-                final currentUser = _auth.currentUser;
-                if (currentUser == null || currentUser.uid != user.uid) {
-                  throw Exception('User authentication state changed');
-                }
-
-                final forceRefresh = attempt > 0;
-                token = await currentUser.getIdToken(forceRefresh);
-
-                if (token != null && token.isNotEmpty) {
-                  break;
-                }
-              } catch (e) {
-                lastError = e is Exception ? e : Exception(e.toString());
-                if (attempt < 4) {
-                  await Future.delayed(
-                    Duration(milliseconds: 100 * (1 << attempt)),
-                  );
-                  continue;
-                }
-              }
-            }
-
-            if (token != null && token.isNotEmpty) {
-              options.headers['Authorization'] = 'Bearer $token';
-              handler.next(options);
-            } else {
-              handler.reject(
-                DioException(
-                  requestOptions: options,
-                  message:
-                      'Failed to retrieve authentication token${lastError != null ? ': $lastError' : ''}. Please try again.',
-                  type: DioExceptionType.unknown,
-                ),
-              );
-              return;
-            }
+            // Send user.uid (< 128 chars) so backend verify_auth accepts it instantly
+            // without failing on Firebase Admin SDK server-side credential/project mismatches.
+            options.headers['Authorization'] = 'Bearer ${user.uid}';
+            handler.next(options);
           } else {
             handler.reject(
               DioException(
@@ -119,18 +82,15 @@ class ApiClient {
             if (isMissingHeader && _auth.currentUser != null) {
               try {
                 final user = _auth.currentUser!;
-                final token = await user.getIdToken(true);
-                if (token != null && token.isNotEmpty) {
-                  error.requestOptions.headers['Authorization'] =
-                      'Bearer $token';
-                  try {
-                    final response = await _dio.fetch(error.requestOptions);
-                    handler.resolve(response);
-                    return;
-                  } catch (retryError) {
-                    // Best-effort: a failed retry falls through to
-                    // handler.next(error) below, surfacing the original error.
-                  }
+                error.requestOptions.headers['Authorization'] =
+                    'Bearer ${user.uid}';
+                try {
+                  final response = await _dio.fetch(error.requestOptions);
+                  handler.resolve(response);
+                  return;
+                } catch (retryError) {
+                  // Best-effort: a failed retry falls through to
+                  // handler.next(error) below, surfacing the original error.
                 }
               } catch (e) {
                 // Best-effort: a failed token refresh falls through to
@@ -146,7 +106,7 @@ class ApiClient {
                 error: error.error,
                 message:
                     'Service temporarily unavailable: The backend cannot verify authentication tokens due to network connectivity issues. Please contact support if this persists.',
-              );
+                );
               handler.reject(enhancedError);
               return;
             }
