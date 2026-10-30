@@ -109,7 +109,7 @@ class ChatController extends Notifier<ChatState> {
         chat = Chat(
           id: 1,
           username: currentUserId,
-          chatName: botUser.firstName,
+          chatName: botUser.firstName ?? 'AI Assistant',
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -145,7 +145,7 @@ class ChatController extends Notifier<ChatState> {
         chat: Chat(
           id: 1,
           username: currentUserId,
-          chatName: botUser.firstName,
+          chatName: botUser.firstName ?? 'AI Assistant',
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         ),
