@@ -32,5 +32,6 @@ library;
 
 export 'src/checkout_launcher.dart';
 export 'src/checkout_links.dart';
+export 'src/debug_billing.dart';
 export 'src/subscription_provider.dart';
 export 'src/subscription_status.dart';

@@ -40,10 +40,21 @@ class ChatRepository {
   }
 
   Future<Chat> getChat() async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      _resolvePath(config.chatEndpoint),
-    );
-    return Chat.fromJson(response.data!);
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        _resolvePath(config.chatEndpoint),
+      );
+      return Chat.fromJson(response.data!);
+    } catch (_) {
+      // Fallback for stateless or RAG backends without a dedicated GET /chat endpoint
+      return Chat(
+        id: 1,
+        username: config.currentUserName,
+        chatName: config.botUserName,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+    }
   }
 
   Future<List<Message>> getMessages(
@@ -51,14 +62,27 @@ class ChatRepository {
     int skip = 0,
     int? limit,
   }) async {
-    final response = await _dio.get<List<dynamic>>(
-      _resolvePath(config.messagesEndpoint, chatId: chatId),
-      queryParameters: {'skip': skip, 'limit': limit ?? config.defaultPageSize},
-    );
-    final data = response.data ?? [];
-    return data
-        .map((json) => Message.fromJson(json as Map<String, dynamic>))
-        .toList();
+    try {
+      final response = await _dio.get(
+        _resolvePath(config.messagesEndpoint, chatId: chatId),
+        queryParameters: {'skip': skip, 'limit': limit ?? config.defaultPageSize},
+      );
+      final rawData = response.data;
+      List<dynamic> data = [];
+      if (rawData is List) {
+        data = rawData;
+      } else if (rawData is Map<String, dynamic>) {
+        final list = rawData['messages'] ?? rawData['data'] ?? rawData['items'];
+        if (list is List) {
+          data = list;
+        }
+      }
+      return data
+          .map((json) => Message.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return [];
+    }
   }
 
   /// Send a message and return the bot's [Message] response.
@@ -71,7 +95,13 @@ class ChatRepository {
   }
 
   Future<void> resetChat(int chatId) async {
-    await _dio.delete<void>(_resolvePath(config.resetEndpoint, chatId: chatId));
+    try {
+      await _dio.post<void>(_resolvePath(config.resetEndpoint, chatId: chatId));
+    } catch (_) {
+      try {
+        await _dio.delete<void>(_resolvePath(config.resetEndpoint, chatId: chatId));
+      } catch (_) {}
+    }
   }
 
   Stream<String> streamMessage(int chatId, String content) async* {

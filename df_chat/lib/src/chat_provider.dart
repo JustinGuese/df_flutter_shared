@@ -75,8 +75,13 @@ class ChatController extends Notifier<ChatState> {
       ref.read(chatConfigProvider).streamingPlaceholderText;
 
   bool get _hasStreamingEndpoint {
-    final endpoint = ref.read(chatConfigProvider).streamEndpoint;
-    return endpoint != null && endpoint.isNotEmpty;
+    try {
+      final endpoint = ref.read(chatRepositoryProvider).config.streamEndpoint;
+      return endpoint != null && endpoint.isNotEmpty;
+    } catch (_) {
+      final endpoint = ref.read(chatConfigProvider).streamEndpoint;
+      return endpoint != null && endpoint.isNotEmpty;
+    }
   }
 
   types.User get currentUser => types.User(

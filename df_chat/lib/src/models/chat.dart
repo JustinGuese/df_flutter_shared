@@ -49,8 +49,28 @@ class SourceDocument {
     this.endIndex,
   });
 
-  factory SourceDocument.fromJson(Map<String, dynamic> json) =>
-      _$SourceDocumentFromJson(json);
+  factory SourceDocument.fromJson(Map<String, dynamic> json) {
+    final snippet = json['snippet'] as String? ??
+                    json['title'] as String? ??
+                    json['heading'] as String? ??
+                    json['description'] as String? ?? '';
+    final downloadUrl = json['download_url'] as String? ??
+                        json['source_url'] as String? ??
+                        json['url'] as String? ??
+                        json['preview_url'] as String?;
+    return SourceDocument(
+      entryId: (json['entry_id'] as num?)?.toInt(),
+      entryDate: json['entry_date'] as String?,
+      snippet: snippet,
+      documentId: (json['document_id'] as num?)?.toInt(),
+      fileName: json['file_name'] as String?,
+      previewUrl: json['preview_url'] as String?,
+      downloadUrl: downloadUrl,
+      chunkText: json['chunk_text'] as String?,
+      startIndex: (json['start_index'] as num?)?.toInt(),
+      endIndex: (json['end_index'] as num?)?.toInt(),
+    );
+  }
 
   Map<String, dynamic> toJson() => _$SourceDocumentToJson(this);
 
@@ -94,8 +114,49 @@ class Message {
     List<SourceDocument>? sourceDocuments,
   }) : sourceDocuments = sourceDocuments ?? const [];
 
-  factory Message.fromJson(Map<String, dynamic> json) =>
-      _$MessageFromJson(json);
+  factory Message.fromJson(Map<String, dynamic> json) {
+    final rawId = json['id'];
+    final id = rawId is num
+        ? rawId.toInt()
+        : int.tryParse(rawId?.toString() ?? '1') ?? rawId.hashCode;
+
+    final rawChatId = json['chat_id'] ?? json['chatId'] ?? 1;
+    final chatId = rawChatId is num
+        ? rawChatId.toInt()
+        : int.tryParse(rawChatId.toString()) ?? 1;
+
+    final roleStr = json['role'] as String? ?? 'bot';
+    final role = roleStr == 'user' ? MessageRole.user : MessageRole.bot;
+
+    final content = json['content'] as String? ?? json['text'] as String? ?? '';
+
+    DateTime createdAt;
+    final rawCreatedAt = json['created_at'] ?? json['createdAt'];
+    if (rawCreatedAt is num) {
+      createdAt = DateTime.fromMillisecondsSinceEpoch(rawCreatedAt.toInt());
+    } else if (rawCreatedAt is String) {
+      createdAt = DateTime.tryParse(rawCreatedAt) ?? DateTime.now();
+    } else {
+      createdAt = DateTime.now();
+    }
+
+    List<SourceDocument> sourceDocuments = [];
+    final rawDocs = json['source_documents'] ?? json['sourceDocuments'];
+    if (rawDocs is List) {
+      sourceDocuments = rawDocs
+          .map((e) => SourceDocument.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
+    return Message(
+      id: id,
+      chatId: chatId,
+      role: role,
+      content: content,
+      createdAt: createdAt,
+      sourceDocuments: sourceDocuments,
+    );
+  }
 
   Map<String, dynamic> toJson() => _$MessageToJson(this);
 
