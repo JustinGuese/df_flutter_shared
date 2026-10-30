@@ -23,8 +23,8 @@ class ApiClient {
           User? user = _auth.currentUser;
 
           if (user == null) {
-            for (int i = 0; i < 10; i++) {
-              await Future.delayed(const Duration(milliseconds: 100));
+            for (int i = 0; i < 5; i++) {
+              await Future.delayed(const Duration(milliseconds: 50));
               user = _auth.currentUser;
               if (user != null) break;
             }
@@ -34,18 +34,9 @@ class ApiClient {
             // Send user.uid (< 128 chars) so backend verify_auth accepts it instantly
             // without failing on Firebase Admin SDK server-side credential/project mismatches.
             options.headers['Authorization'] = 'Bearer ${user.uid}';
-            handler.next(options);
-          } else {
-            handler.reject(
-              DioException(
-                requestOptions: options,
-                message:
-                    'No user is currently signed in. Please sign in to continue.',
-                type: DioExceptionType.unknown,
-              ),
-            );
-            return;
           }
+          // Allow unauthenticated requests to proceed for public endpoints (news, categories, etc.)
+          handler.next(options);
         },
         onError: (error, handler) async {
           if (error.response?.statusCode == 401) {
@@ -106,7 +97,7 @@ class ApiClient {
                 error: error.error,
                 message:
                     'Service temporarily unavailable: The backend cannot verify authentication tokens due to network connectivity issues. Please contact support if this persists.',
-                );
+              );
               handler.reject(enhancedError);
               return;
             }
