@@ -23,6 +23,7 @@ extension DfPaywallResultFromRevenueCat on PaywallResult {
 abstract final class DfRevenueCat {
   static DfRevenueCatConfig? _config;
   static DfPaywallPresenter? _presenter;
+  static Future<void>? _ready;
 
   /// Active configuration. Must be initialized via [initialize] or [configure].
   static DfRevenueCatConfig get config {
@@ -54,10 +55,20 @@ abstract final class DfRevenueCat {
   static void debugReset() {
     _config = null;
     _presenter = null;
+    _ready = null;
   }
+
+  /// Completes once [initialize] has configured the SDK (immediately if it was
+  /// never called), so identity calls cannot race the native configure.
+  static Future<void> get ready => _ready ?? Future<void>.value();
 
   /// Initializes RevenueCat with [config] and optional [appUserId]. Web-safe.
   static Future<void> initialize({
+    DfRevenueCatConfig? config,
+    String? appUserId,
+  }) => _ready = _configure(config: config, appUserId: appUserId);
+
+  static Future<void> _configure({
     DfRevenueCatConfig? config,
     String? appUserId,
   }) async {
@@ -80,6 +91,7 @@ abstract final class DfRevenueCat {
   static Future<CustomerInfo?> logIn(String appUserId) async {
     if (kIsWeb) return null;
     try {
+      await ready;
       final result = await Purchases.logIn(appUserId);
       return result.customerInfo;
     } catch (e) {
@@ -92,6 +104,7 @@ abstract final class DfRevenueCat {
   static Future<CustomerInfo?> logOut() async {
     if (kIsWeb) return null;
     try {
+      await ready;
       return await Purchases.logOut();
     } catch (e) {
       debugPrint('DfRevenueCat logOut error: $e');
