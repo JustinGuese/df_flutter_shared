@@ -52,12 +52,21 @@ ProviderScope(
 ### Usage
 
 ```dart
-// Wrap your root widget — automatically shows onboarding on first launch
-OnboardingWrapper(child: MyApp())
+// Shows onboarding on first launch, or calls onAlreadyCompleted if already completed
+OnboardingWrapper(
+  onAlreadyCompleted: () {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
+  },
+)
 
 // Or navigate directly
-Navigator.push(context, MaterialPageRoute(builder: (_) => OnboardingScreen()))
+Navigator.push(context, MaterialPageRoute(builder: (_) => const OnboardingScreen()));
 ```
+
+> [!TIP]
+> To coordinate onboarding together with paywalls and authentication in a complete launch funnel, use [`df_funnel`](../df_funnel)'s `DfLaunchGate`.
 
 ### Key classes
 | Class | Purpose |
@@ -65,7 +74,7 @@ Navigator.push(context, MaterialPageRoute(builder: (_) => OnboardingScreen()))
 | `OnboardingConfig` | Page list, prefs key, callbacks |
 | `OnboardingPageModel` | Single page: emoji, title, subtitle, gradient, features list |
 | `onboardingConfigProvider` | Override this in ProviderScope |
-| `OnboardingWrapper` | Auto-shows onboarding on first launch |
+| `OnboardingWrapper` | Shows onboarding on first launch; invokes `onAlreadyCompleted` if done |
 | `OnboardingScreen` | The full carousel screen |
 
 ---
