@@ -29,6 +29,12 @@ abstract final class DfEvents {
   /// The user deleted their account.
   static const accountDeleted = 'account_deleted';
 
+  /// A paywall was presented to the user.
+  static const paywallOpened = 'paywall_opened';
+
+  /// A paywall presentation was completed, cancelled, or failed.
+  static const paywallResult = 'paywall_result';
+
   /// A consent dialog was answered. See [DfEventParams.consentKind].
   static const consentResult = 'consent_result';
 
