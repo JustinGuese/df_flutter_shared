@@ -1,4 +1,8 @@
-# df_paywall
+# df_paywall (Deprecated)
+
+> [!WARNING]
+> **Deprecated:** Use [`df_funnel`](../df_funnel) instead.
+> `df_funnel` provides unified premium entitlement (`dfEffectivePremiumProvider`), launch gating (`DfLaunchGate`), lock overlays (`DfPremiumGate`), upsell sheets (`DfUpsellSheet`), and prompt chaining (`DfPromptChain`).
 
 Generic subscription paywall UI for Flutter apps. Pure UI package — no Stripe SDK, no Riverpod, no app-specific logic. You wire in your own checkout callbacks; the widgets handle the visuals, loading states, and copy.
 
