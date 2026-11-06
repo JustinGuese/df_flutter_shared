@@ -8,3 +8,4 @@ export 'src/premium_gate.dart';
 export 'src/premium_providers.dart';
 export 'src/pro_widgets.dart';
 export 'src/prompt_chain.dart';
+export 'src/subscription_settings_section.dart';

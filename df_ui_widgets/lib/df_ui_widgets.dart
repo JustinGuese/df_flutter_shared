@@ -26,3 +26,5 @@ export 'src/loading_app_bar_action.dart';
 // Audio
 export 'src/audio_level_bar.dart';
 export 'src/recording_timer.dart';
+export 'src/filter_chip_bar.dart';
+export 'src/typing_indicator.dart';
