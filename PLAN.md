@@ -26,3 +26,7 @@ Files: df_ui_widgets/lib/src/filter_chip_bar.dart, df_ui_widgets/lib/src/typing_
 Accept: selection callback test; indicator animates without throwing and disposes cleanly.
 
 ## Batch 2 (app, after the shared repo is pushed) - defined after Batch 1 merges
+
+## Batch 1.5 - N5 docs (runs after Batch 1 is merged)
+Files: README.md, df_notifications/README.md, df_funnel/README.md, df_ui_widgets/README.md, CLAUDE.md (new, root)
+- Document every new API with a usage snippet. Root README: package table updated, plus a "For LLMs / agents working in this repo" section: decision tree (which package to use for onboarding/paywall/login/premium lock/notifications/settings/widgets), the funnel order (onboarding -> paywall -> login), conventions (no hard-coded copy/colours, additive changes, git deps with ref: main, pubspec_overrides.yaml for local dev, push before apps can consume), "before writing app-local code check this repo first" rule, and how to add a new package/test. CLAUDE.md at root: short pointer to those rules.
