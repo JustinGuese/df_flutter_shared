@@ -4,11 +4,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../df_feedback_prompt/lib/src/cooldown.dart';
-import '../../../df_feedback_prompt/lib/src/prompt_scheduler.dart';
+import 'package:df_feedback_prompt/df_feedback_prompt.dart';
 
-export '../../../df_feedback_prompt/lib/src/cooldown.dart';
-export '../../../df_feedback_prompt/lib/src/prompt_scheduler.dart';
+export 'package:df_feedback_prompt/df_feedback_prompt.dart'
+    show DfCooldown, DfPromptScheduler, dfPromptSchedulerProvider, dfPromptSchedulerFamily;
+
 
 /// Callback invoked to display a prompt interruption.
 ///
@@ -101,7 +101,7 @@ class DfPromptChain {
   ) {
     if (scheduler != null) {
       try {
-        scheduler.state;
+        scheduler.lastReservedAt;
         return scheduler;
       } catch (_) {
         final container = ProviderContainer();
@@ -121,7 +121,7 @@ class DfPromptChain {
   bool canReserve(int eventCount, {int? minEventsBetween}) {
     final effectiveMin =
         minEventsBetween ?? this.minEventsBetween ?? scheduler.minEventsBetween;
-    final last = scheduler.state;
+    final last = scheduler.lastReservedAt;
     return last == null || (eventCount - last) >= effectiveMin;
   }
 

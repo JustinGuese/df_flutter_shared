@@ -23,6 +23,9 @@ class DfPromptScheduler extends Notifier<int?> {
   @override
   int? build() => null;
 
+  /// Event count of the last reservation (null if none). Read-only view of [state].
+  int? get lastReservedAt => state;
+
   /// Attempts to reserve a prompt display slot at [eventCount].
   ///
   /// Returns `true` if at least [minEventsBetween] (or the optional override)

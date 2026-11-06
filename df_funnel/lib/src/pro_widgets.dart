@@ -1,3 +1,4 @@
+import 'package:df_feedback_prompt/df_feedback_prompt.dart' show DfCooldown;
 import 'package:df_revenuecat/df_revenuecat.dart' hide DfPaywallPresenter;
 import 'package:df_theme/df_theme.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'contracts.dart';
+
+export 'package:df_feedback_prompt/df_feedback_prompt.dart' show DfCooldown;
 
 /// Centralized strings used across the funnel widgets.
 ///
@@ -50,44 +53,6 @@ class DfFunnelStrings {
   final String perkAiAnalystBody;
   final String perkAskAnyStoryTitle;
   final String perkAskAnyStoryBody;
-}
-
-/// Persistent cooldown gate backed by [SharedPreferences].
-///
-/// Records an ISO 8601 timestamp at [key]. [isReady] returns true if the key
-/// has never been set or if at least [duration] has passed since the last [mark].
-class DfCooldown {
-  const DfCooldown({required this.key, required this.duration});
-
-  final String key;
-  final Duration duration;
-
-  Future<bool> isReady({SharedPreferences? prefs}) async {
-    final p = prefs ?? await SharedPreferences.getInstance();
-    final raw = p.getString(key);
-    if (raw == null || raw.isEmpty) return true;
-    final last = DateTime.tryParse(raw);
-    if (last == null) return true;
-    return DateTime.now().difference(last) >= duration;
-  }
-
-  Future<void> mark({SharedPreferences? prefs, DateTime? now}) async {
-    final p = prefs ?? await SharedPreferences.getInstance();
-    final timestamp = (now ?? DateTime.now()).toIso8601String();
-    await p.setString(key, timestamp);
-  }
-
-  Future<void> reset({SharedPreferences? prefs}) async {
-    final p = prefs ?? await SharedPreferences.getInstance();
-    await p.remove(key);
-  }
-
-  Future<DateTime?> lastMarked({SharedPreferences? prefs}) async {
-    final p = prefs ?? await SharedPreferences.getInstance();
-    final raw = p.getString(key);
-    if (raw == null || raw.isEmpty) return null;
-    return DateTime.tryParse(raw);
-  }
 }
 
 /// Representation of a perk listed inside [DfUpsellSheet].
