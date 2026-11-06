@@ -28,6 +28,7 @@ dependencies:
     git:
       url: https://github.com/JustinGuese/df_flutter_shared.git
       path: df_feedback_prompt
+      ref: main
 
   df_firebase_auth:
     git:
