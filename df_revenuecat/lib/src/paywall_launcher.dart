@@ -17,8 +17,8 @@ typedef DfPurchaseCallback = FutureOr<void> Function(BuildContext context);
 abstract final class DfPaywallLauncher {
   /// Opens a paywall for [placement].
   ///
-  /// - Tracks `paywall_opened` and `paywall_result` via [DfAnalyticsCore].
-  /// - On Web, tracks `paywall_result` ('web_info') and delegates to [onWeb] or
+  /// - Tracks [DfEvents.paywallOpened] and [DfEvents.paywallResult] via [DfAnalyticsCore].
+  /// - On Web, tracks [DfEvents.paywallResult] ('web_info') and delegates to [onWeb] or
   ///   shows [DfWebSubscriptionDialog].
   /// - On cancel, checks if [placement] is in `config.exitOfferAfter` and triggers
   ///   the exit offer at most once per install.
@@ -33,10 +33,10 @@ abstract final class DfPaywallLauncher {
     DfPurchaseCallback? onPurchased,
     DfRevenueCatStrings strings = const DfRevenueCatStrings(),
   }) async {
-    DfAnalyticsCore.track('paywall_opened', {'placement': placement});
+    DfAnalyticsCore.track(DfEvents.paywallOpened, {'placement': placement});
 
     if (kIsWeb) {
-      DfAnalyticsCore.track('paywall_result', {
+      DfAnalyticsCore.track(DfEvents.paywallResult, {
         'placement': placement,
         'result': 'web_info',
       });
@@ -59,7 +59,7 @@ abstract final class DfPaywallLauncher {
         placement: placement,
         force: force,
       );
-      DfAnalyticsCore.track('paywall_result', {
+      DfAnalyticsCore.track(DfEvents.paywallResult, {
         'placement': placement,
         'result': result.name,
       });
@@ -81,7 +81,7 @@ abstract final class DfPaywallLauncher {
       return result;
     } catch (e) {
       debugPrint('Error presenting paywall for placement $placement: $e');
-      DfAnalyticsCore.track('paywall_result', {
+      DfAnalyticsCore.track(DfEvents.paywallResult, {
         'placement': placement,
         'result': 'error',
       });
@@ -111,7 +111,7 @@ abstract final class DfPaywallLauncher {
         return dismissed;
       }
       await p.setBool(config.exitOfferShownKey, true);
-      DfAnalyticsCore.track('paywall_result', {
+      DfAnalyticsCore.track(DfEvents.paywallResult, {
         'placement': config.exitOfferPlacement,
         'result': exitResult.name,
       });
