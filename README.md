@@ -169,7 +169,7 @@ If a shared component, service, or provider exists, consume it. If a generic fea
 
 | Need | Recommended Package & API | Notes |
 |------|---------------------------|-------|
-| **Onboarding** | **`df_funnel`** (`DfLaunchGate`, `DfFunnelStep.onboarding`) + **`df_onboarding`** (`OnboardingCarousel`, `onboardingConfigProvider`) | `DfLaunchGate` sequences onboarding before home, tracking completion via SharedPreferences. |
+| **Onboarding** | **`df_funnel`** (`DfLaunchGate`, `DfFunnelStep.onboarding`) + **`df_onboarding`** (`OnboardingScreen`, `onboardingConfigProvider`) | `DfLaunchGate` sequences onboarding before home, tracking completion via SharedPreferences. |
 | **Paywall** | **`df_funnel`** (`DfLaunchGate` paywall step, `DfUpsellSheet`, or `requirePremium()`) backed by **`df_revenuecat`** (`DfPaywallLauncher`) | **`df_paywall` is deprecated** — do not use `df_paywall` in new code. |
 | **Login / Auth** | **`df_funnel`** (`DfLaunchGate`, `DfFunnelStep.login`) + **`df_firebase_auth`** (`AuthRepository`, `currentUserProvider`, `LoginScreen`) or **`df_firebase_rest`** (REST for Windows/Linux) | Governed by `DfLoginMode` (`required`, `optional`, or `deferred`). |
 | **Premium Lock** | **`df_funnel`** (`DfPremiumGate`, `requirePremium()`) | Wraps UI widgets with a lock overlay that launches the paywall and automatically unlocks upon purchase. |
