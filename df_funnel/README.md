@@ -149,3 +149,60 @@ final chain = DfPromptChain(
 // Call when an event occurs (e.g. user completes an action):
 await chain.run(completedEventsCount, context: context);
 ```
+
+---
+
+## 5. Subscription Settings (`DfSubscriptionSettingsSection`)
+
+A pre-built settings section providing standard subscription actions:
+- **Manage Subscription**: opens the OS store settings page (Apple or Google Play subscriptions) via `DfCheckout.openPortal`.
+- **Customer Center**: presents the RevenueCat Customer Center modal sheet via `DfRevenueCat.presentCustomerCenter()`.
+- **Restore Purchases**: triggers `DfRevenueCat.restore()` and displays success, empty, or error feedback snackbars.
+- **Web Safe**: falls back gracefully with friendly user messaging on web platforms where store management is unavailable.
+
+### Signature
+```dart
+class DfSubscriptionSettingsSection extends StatelessWidget {
+  const DfSubscriptionSettingsSection({
+    super.key,
+    this.strings = const DfSubscriptionSettingsStrings(),
+    this.isWeb = kIsWeb,
+    this.platform,
+    this.showManageSubscription = true,
+    this.showCustomerCenter = true,
+    this.showRestorePurchases = true,
+    this.onManageSubscription,
+    this.onOpenUrl,
+    this.onCustomerCenter,
+    this.onPresentCustomerCenter,
+    this.onRestorePurchases,
+    this.onRestore,
+    this.onShowSnackBar,
+    this.extraRows = const <Widget>[],
+    this.header,
+  });
+}
+```
+
+### Usage
+```dart
+// Basic drop-in inside your app's Settings screen:
+DfSubscriptionSettingsSection()
+
+// Fully customized with overrides and custom rows:
+DfSubscriptionSettingsSection(
+  strings: const DfSubscriptionSettingsStrings(
+    sectionHeader: 'Plan & Billing',
+    manageSubscriptionSubtitle: 'Modify plan or cancel renewal',
+  ),
+  showCustomerCenter: true,
+  showRestorePurchases: true,
+  extraRows: [
+    ListTile(
+      leading: const Icon(Icons.help_outline),
+      title: const Text('Billing FAQ'),
+      onTap: () => launchFaq(),
+    ),
+  ],
+)
+```
