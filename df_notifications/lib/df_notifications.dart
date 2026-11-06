@@ -25,3 +25,6 @@ export 'src/df_reminder.dart';
 export 'src/df_reminder_preferences.dart';
 export 'src/df_reminder_schedule.dart';
 export 'src/df_reminder_service.dart';
+export 'src/df_daily_reminder.dart';
+export 'src/df_trial_ending_reminder.dart';
+export 'src/df_notification_toggle_tile.dart';

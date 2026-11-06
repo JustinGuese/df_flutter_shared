@@ -67,6 +67,170 @@ await prefs.save(hour: 19, minute: 30);
 final time = await prefs.getTime(); // null while disabled
 ```
 
+---
+
+## Controllers & Settings Tile
+
+### `DfDailyReminder`
+
+A controller for scheduling and cancelling a repeating daily reminder. Idempotent: re-calling `ensure()` updates the next occurrence without duplicating notifications.
+
+#### Signature
+```dart
+class DfDailyReminder {
+  DfDailyReminder({
+    int? id,
+    int hour = 8,
+    int minute = 0,
+    String? title,
+    String? body,
+    String? payload = 'daily_reminder',
+    String? prefsKey,
+    DfNotificationChannel channel = DfNotificationChannel.defaultChannel,
+    DfDailyReminderStrings strings = const DfDailyReminderStrings(),
+    DfReminderService? service,
+    DateTime Function()? now,
+  });
+
+  Future<DfReminder> ensure({DfReminderService? service});
+  Future<void> cancel({DfReminderService? service});
+  Future<bool> restoreIfEnabled([String? prefsKey, SharedPreferences? prefs, DfReminderService? service]);
+}
+```
+
+#### Usage
+```dart
+final dailyReminder = DfDailyReminder(
+  id: DfNotificationIds.slot(0),
+  hour: 9,
+  minute: 0,
+  title: 'Good morning!',
+  body: 'Take a moment to check in today.',
+  prefsKey: 'daily_reminder_enabled',
+);
+
+// Schedule for the next occurrence (repeats daily):
+await dailyReminder.ensure();
+
+// On app launch, restore if the user had enabled it previously:
+await dailyReminder.restoreIfEnabled();
+
+// To turn off:
+await dailyReminder.cancel();
+```
+
+---
+
+### `DfTrialEndingReminder`
+
+Schedules a one-shot heads-up reminder before a subscription free trial converts into a paid renewal.
+- Respects the user's notification preference (`prefsKey`, defaults to `'notifications_enabled'`).
+- Silently skips if notifications are disabled or if the target fire time is less than 1 hour away.
+- Defaults to a 2-day lead time before trial end.
+
+#### Signature
+```dart
+abstract final class DfTrialEndingReminder {
+  static const Duration defaultLeadTime = Duration(days: 2);
+  static final int defaultId = DfNotificationIds.slot(1);
+
+  static Future<DfReminder?> schedule(
+    DateTime trialEnd, {
+    Duration leadTime = defaultLeadTime,
+    String prefsKey = 'notifications_enabled',
+    int? id,
+    String? title,
+    String? body,
+    String payload = 'trial_ending',
+    DfNotificationChannel channel = DfNotificationChannel.defaultChannel,
+    DfTrialEndingReminderStrings strings = const DfTrialEndingReminderStrings(),
+    DfReminderService? service,
+    SharedPreferences? prefs,
+    DateTime Function()? now,
+  });
+
+  static Future<void> cancel({
+    int? id,
+    DfReminderService? service,
+  });
+}
+```
+
+#### Usage
+```dart
+final trialExpiresAt = DateTime.now().add(const Duration(days: 7));
+
+// Schedules reminder 2 days before trialExpiresAt (e.g. day 5):
+final scheduledReminder = await DfTrialEndingReminder.schedule(
+  trialExpiresAt,
+  leadTime: const Duration(days: 2),
+  prefsKey: 'notifications_enabled',
+);
+
+if (scheduledReminder != null) {
+  print('Trial reminder set for: ${scheduledReminder.scheduledAt}');
+}
+
+// Cancel if user upgrades early or cancels subscription:
+await DfTrialEndingReminder.cancel();
+```
+
+---
+
+### `DfNotificationToggleTile`
+
+A ready-made settings `ListTile` with an adaptive switch that loads and persists its enabled state in `SharedPreferences`. Displays a loading spinner during transitions and emits user feedback via snackbars.
+
+- **Toggle On**: Invokes `requestPermission()`. If granted, sets preference to `true`, calls `onEnabled()`, and displays `strings.enabledMessage`. If denied, resets switch to `false` and displays `strings.permissionDeniedMessage`.
+- **Toggle Off**: Sets preference to `false`, calls `onDisabled()`, and displays `strings.disabledMessage`.
+
+#### Signature
+```dart
+class DfNotificationToggleTile extends StatefulWidget {
+  const DfNotificationToggleTile({
+    super.key,
+    this.prefKey = defaultNotificationPrefKey, // 'notifications_enabled'
+    this.title,
+    this.subtitle,
+    this.leading,
+    this.icon,
+    this.requestPermission,
+    this.onEnabled,
+    this.onDisabled,
+    this.strings = const DfNotificationStrings(),
+    this.showFeedbackSnackBar = true,
+    this.wrapInCard = true,
+    this.decoration,
+    this.contentPadding,
+  });
+}
+```
+
+#### Usage
+```dart
+DfNotificationToggleTile(
+  prefKey: 'notifications_enabled',
+  requestPermission: () async {
+    // Show priming sheet or request permission from the OS:
+    return await ensureDfNotificationPermission(context, ref);
+  },
+  onEnabled: () async {
+    // Re-arm daily notifications:
+    await dailyReminder.ensure();
+  },
+  onDisabled: () async {
+    // Cancel daily notifications:
+    await dailyReminder.cancel();
+  },
+  strings: const DfNotificationStrings(
+    tileTitle: 'Push Notifications',
+    tileSubtitle: 'Daily reminders and important updates',
+    enabledMessage: 'Reminders turned on!',
+    disabledMessage: 'Reminders turned off.',
+  ),
+)
+```
+
 ## The reserved id range
 
 Notification ids are a flat `int` namespace shared with the OS. Apps that
