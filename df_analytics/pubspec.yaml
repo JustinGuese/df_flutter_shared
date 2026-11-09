@@ -19,7 +19,7 @@ dependencies:
       ref: main
   firebase_analytics: ^12.0.4
   app_tracking_transparency: ^2.0.4
-  facebook_app_events: ^0.24.0
+  facebook_app_events: ">=0.24.0 <0.33.0"
   shared_preferences: ^2.3.2
 
 dev_dependencies:
