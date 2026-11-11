@@ -46,6 +46,22 @@ class FakeRevenueCatAuthSyncHandler implements DfRevenueCatAuthSyncHandler {
   }
 }
 
+class _SlowHandler extends FakeRevenueCatAuthSyncHandler {
+  _SlowHandler(this.gate);
+  final Future<void> gate;
+
+  @override
+  Future<void> logIn(String uid) async {
+    await gate;
+    await super.logIn(uid);
+  }
+}
+
+class _ThrowingHandler extends FakeRevenueCatAuthSyncHandler {
+  @override
+  Future<void> logIn(String uid) async => throw StateError('offline');
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -171,6 +187,60 @@ void main() {
         expect(onSyncedCount, equals(1));
       },
     );
+
+    test('dfAuthSyncSettledProvider is false until sync finishes', () async {
+      final gate = Completer<void>();
+      final handler = _SlowHandler(gate.future);
+      final authController = StreamController<User?>();
+      addTearDown(authController.close);
+
+      final container = ProviderContainer(
+        overrides: [
+          dfRevenueCatAuthSyncHandlerProvider.overrideWithValue(handler),
+          authStateChangesProvider.overrideWith((ref) => authController.stream),
+          dfSubscriptionFetcherProvider.overrideWithValue(
+            () async => const DfSubscriptionStatus.free(),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      container.listen(dfAuthRevenueCatSyncProvider(), (_, _) {});
+      container.listen(dfAuthSyncSettledProvider, (_, _) {});
+
+      // Signed out: nothing to wait for.
+      expect(container.read(dfAuthSyncSettledProvider), isTrue);
+
+      authController.add(FakeUser('u1'));
+      await pumpEventQueue();
+      expect(container.read(dfAuthSyncSettledProvider), isFalse);
+
+      gate.complete();
+      await pumpEventQueue();
+      expect(container.read(dfAuthSyncSettledProvider), isTrue);
+    });
+
+    test('dfAuthSyncSettledProvider settles even if logIn throws', () async {
+      final handler = _ThrowingHandler();
+      final authController = StreamController<User?>();
+      addTearDown(authController.close);
+
+      final container = ProviderContainer(
+        overrides: [
+          dfRevenueCatAuthSyncHandlerProvider.overrideWithValue(handler),
+          authStateChangesProvider.overrideWith((ref) => authController.stream),
+          dfSubscriptionFetcherProvider.overrideWithValue(
+            () async => const DfSubscriptionStatus.free(),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      container.listen(dfAuthRevenueCatSyncProvider(), (_, _) {});
+      container.listen(dfAuthSyncSettledProvider, (_, _) {});
+
+      authController.add(FakeUser('u1'));
+      await pumpEventQueue();
+      expect(container.read(dfAuthSyncSettledProvider), isTrue);
+    });
 
     test('signs in: does not restore purchases if already pro', () async {
       final fakeHandler = FakeRevenueCatAuthSyncHandler()..isProResult = true;

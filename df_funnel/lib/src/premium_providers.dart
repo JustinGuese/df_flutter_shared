@@ -4,6 +4,7 @@ import 'package:df_billing/df_billing.dart';
 import 'package:df_firebase_auth/df_firebase_auth.dart';
 import 'package:df_revenuecat/df_revenuecat.dart';
 import 'package:firebase_auth/firebase_auth.dart' show User;
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Callback invoked when auth/RevenueCat synchronization completes on sign-in.
@@ -50,6 +51,34 @@ final dfRevenueCatAuthSyncHandlerProvider =
   return const DfRevenueCatAuthSyncHandler();
 });
 
+/// UID for which [dfAuthRevenueCatSyncProvider] last finished its
+/// `logIn` -> `isPro` -> `restore` sequence (null until the first one).
+class DfAuthSyncedUid extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  /// Records that the sync for [uid] has finished.
+  void mark(String? uid) => state = uid;
+}
+
+/// See [DfAuthSyncedUid].
+final dfAuthSyncedUidProvider =
+    NotifierProvider<DfAuthSyncedUid, String?>(DfAuthSyncedUid.new);
+
+/// True once RevenueCat has finished syncing the signed-in user (or nobody is
+/// signed in).
+///
+/// Between `logIn(uid)` and `restore()` RevenueCat briefly reports no
+/// entitlement for a user who actually has one. Anything that would show a
+/// paywall for "signed in but not premium" must wait for this to be true,
+/// otherwise a just-subscribed user sees the paywall again right after login.
+/// Pair it with `DfAuthSyncWait`, which gives up after a timeout.
+final dfAuthSyncSettledProvider = Provider<bool>((ref) {
+  final user = ref.watch(currentUserProvider);
+  if (user == null) return true;
+  return ref.watch(dfAuthSyncedUidProvider) == user.uid;
+});
+
 void _setupAuthRevenueCatSync(
   Ref ref,
   DfAuthSyncCallback? onSynced,
@@ -66,14 +95,25 @@ void _setupAuthRevenueCatSync(
 
       if (nextUser != null) {
         if (prevUser?.uid != nextUser.uid) {
-          await handler.logIn(nextUser.uid);
-          final pro = await handler.isPro();
-          if (!pro) {
-            await handler.restore();
-          }
-          ref.invalidate(dfSubscriptionProvider);
-          if (onSynced != null) {
-            await onSynced();
+          try {
+            await handler.logIn(nextUser.uid);
+            final pro = await handler.isPro();
+            if (!pro) {
+              await handler.restore();
+            }
+            ref.invalidate(dfRevenueCatCustomerInfoProvider);
+            ref.invalidate(dfSubscriptionProvider);
+            if (onSynced != null) {
+              await onSynced();
+            }
+          } catch (e) {
+            debugPrint('df_funnel: RevenueCat auth sync failed: $e');
+          } finally {
+            // Mark even on failure so a flaky network never leaves the
+            // "settled" gate closed forever; callers then see the real state.
+            if (ref.read(currentUserProvider)?.uid == nextUser.uid) {
+              ref.read(dfAuthSyncedUidProvider.notifier).mark(nextUser.uid);
+            }
           }
         }
       } else if (prevUser != null) {
