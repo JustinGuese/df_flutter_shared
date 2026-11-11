@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -96,19 +97,31 @@ class NativeReminderService implements DfReminderService {
     final fireAt = DfReminderSchedule.nextOccurrence(reminder, DateTime.now());
     if (fireAt == null) return;
 
-    await _plugin.zonedSchedule(
+    final details = NotificationDetails(
+      android: _androidDetails(reminder.channel),
+      iOS: const DarwinNotificationDetails(),
+    );
+    final when = tz.TZDateTime.from(fireAt, tz.local);
+
+    Future<void> zoned(AndroidScheduleMode mode) => _plugin.zonedSchedule(
       id: reminder.id,
       title: reminder.title,
       body: reminder.body,
-      scheduledDate: tz.TZDateTime.from(fireAt, tz.local),
-      notificationDetails: NotificationDetails(
-        android: _androidDetails(reminder.channel),
-        iOS: const DarwinNotificationDetails(),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      scheduledDate: when,
+      notificationDetails: details,
+      androidScheduleMode: mode,
       matchDateTimeComponents: _matchComponents(reminder.repeat),
       payload: reminder.payload,
     );
+
+    try {
+      await zoned(AndroidScheduleMode.exactAllowWhileIdle);
+    } on PlatformException catch (e) {
+      // Android 12+ gates exact alarms behind a user-granted permission. A
+      // reminder that fires a few minutes late beats one that never fires.
+      if (e.code != 'exact_alarms_not_permitted') rethrow;
+      await zoned(AndroidScheduleMode.inexactAllowWhileIdle);
+    }
   }
 
   DateTimeComponents? _matchComponents(DfReminderRepeat repeat) {
