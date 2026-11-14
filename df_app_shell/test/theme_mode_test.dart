@@ -15,9 +15,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
 
       final container1 = ProviderContainer(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(prefs),
-        ],
+        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
       );
       addTearDown(container1.dispose);
 
@@ -27,16 +25,11 @@ void main() {
       // Change to light theme
       await container1.read(dfThemeModeProvider.notifier).setLight();
       expect(container1.read(dfThemeModeProvider), ThemeMode.light);
-      expect(
-        prefs.getString(DfThemeModeController.defaultStorageKey),
-        'light',
-      );
+      expect(prefs.getString(DfThemeModeController.defaultStorageKey), 'light');
 
       // Fresh container restores updated light theme
       final container2 = ProviderContainer(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(prefs),
-        ],
+        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
       );
       addTearDown(container2.dispose);
       expect(container2.read(dfThemeModeProvider), ThemeMode.light);
@@ -49,9 +42,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
 
       final container = ProviderContainer(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(prefs),
-        ],
+        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
       );
       addTearDown(container.dispose);
 
@@ -68,19 +59,16 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
 
       final container1 = ProviderContainer(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(prefs),
-        ],
+        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
       );
       addTearDown(container1.dispose);
 
-      expect(
-        container1.read(dfLocaleProvider),
-        const Locale('en', 'US'),
-      );
+      expect(container1.read(dfLocaleProvider), const Locale('en', 'US'));
 
       // Change to German
-      await container1.read(dfLocaleProvider.notifier).setLocale(const Locale('de'));
+      await container1
+          .read(dfLocaleProvider.notifier)
+          .setLocale(const Locale('de'));
       expect(container1.read(dfLocaleProvider), const Locale('de'));
       expect(prefs.getString(DfLocaleController.defaultStorageKey), 'de');
 

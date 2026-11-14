@@ -99,10 +99,9 @@ class DfLocaleController extends Notifier<Locale?> {
 }
 
 /// Provider managing the active [Locale] or `null` for system default.
-final dfLocaleProvider =
-    NotifierProvider<DfLocaleController, Locale?>(
-      DfLocaleController.new,
-    );
+final dfLocaleProvider = NotifierProvider<DfLocaleController, Locale?>(
+  DfLocaleController.new,
+);
 
 /// Alias for [dfLocaleProvider].
 final dfLocaleControllerProvider = dfLocaleProvider;

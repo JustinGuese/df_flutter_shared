@@ -65,25 +65,28 @@ void main() {
     expect(() => sink.log('something happened'), returnsNormally);
   });
 
-  test('wires platform dispatcher onError and handles sink exceptions safely', () {
-    final sink = RecordingErrorSink.install();
-    final error = Exception('uncaught async error');
-    final stack = StackTrace.current;
+  test(
+    'wires platform dispatcher onError and handles sink exceptions safely',
+    () {
+      final sink = RecordingErrorSink.install();
+      final error = Exception('uncaught async error');
+      final stack = StackTrace.current;
 
-    final handled = PlatformDispatcher.instance.onError?.call(error, stack);
+      final handled = PlatformDispatcher.instance.onError?.call(error, stack);
 
-    expect(handled, isTrue);
-    expect(sink.errors, hasLength(1));
-    expect(sink.errors.single.exception, error);
-    expect(sink.errors.single.fatal, isTrue);
+      expect(handled, isTrue);
+      expect(sink.errors, hasLength(1));
+      expect(sink.errors.single.exception, error);
+      expect(sink.errors.single.fatal, isTrue);
 
-    // Fail-soft: a broken sink never throws into the caller
-    DfErrorReporting.sink = _ThrowingSink();
-    expect(
-      () => DfErrorReporting.recordError(Exception('boom'), null),
-      returnsNormally,
-    );
-    expect(() => DfErrorReporting.setUser('user'), returnsNormally);
-    expect(() => DfErrorReporting.log('log'), returnsNormally);
-  });
+      // Fail-soft: a broken sink never throws into the caller
+      DfErrorReporting.sink = _ThrowingSink();
+      expect(
+        () => DfErrorReporting.recordError(Exception('boom'), null),
+        returnsNormally,
+      );
+      expect(() => DfErrorReporting.setUser('user'), returnsNormally);
+      expect(() => DfErrorReporting.log('log'), returnsNormally);
+    },
+  );
 }

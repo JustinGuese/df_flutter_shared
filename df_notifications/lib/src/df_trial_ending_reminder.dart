@@ -85,10 +85,7 @@ abstract final class DfTrialEndingReminder {
   }
 
   /// Cancels any scheduled trial-ending reminder.
-  static Future<void> cancel({
-    int? id,
-    DfReminderService? service,
-  }) async {
+  static Future<void> cancel({int? id, DfReminderService? service}) async {
     final s = service ?? DfReminderService();
     await s.init();
     await s.cancel(id ?? defaultId);

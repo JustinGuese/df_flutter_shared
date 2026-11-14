@@ -33,8 +33,9 @@ class DfNavDestination {
   Widget get effectiveIcon => badge != null ? Badge(child: icon) : icon;
 
   /// Returns [selectedIcon] (or [icon]) wrapped in [Badge] if [badge] is provided.
-  Widget get effectiveSelectedIcon =>
-      badge != null ? Badge(child: selectedIcon ?? icon) : (selectedIcon ?? icon);
+  Widget get effectiveSelectedIcon => badge != null
+      ? Badge(child: selectedIcon ?? icon)
+      : (selectedIcon ?? icon);
 }
 
 /// Adaptive navigation shell switching between a bottom [NavigationBar] and [NavigationRail].
@@ -116,8 +117,7 @@ class DfNavShell extends StatelessWidget {
                 NavigationRail(
                   selectedIndex: currentIndex,
                   onDestinationSelected: onDestinationSelected,
-                  labelType:
-                      extended ? null : NavigationRailLabelType.all,
+                  labelType: extended ? null : NavigationRailLabelType.all,
                   extended: extended,
                   backgroundColor: df.colors.surface,
                   leading: leading,

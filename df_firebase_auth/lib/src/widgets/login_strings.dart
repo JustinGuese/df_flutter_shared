@@ -15,7 +15,8 @@ class DfLoginStrings {
     this.noAccount = "Don't have an account? Sign up",
     this.sessionExpired = 'Your session expired. Please sign in again.',
     this.resetDialogTitle = 'Reset password',
-    this.resetDialogBody = "Enter your email address and we'll send you a link to reset your password.",
+    this.resetDialogBody =
+        "Enter your email address and we'll send you a link to reset your password.",
     this.resetEmailInvalid = 'Please enter a valid email address',
     this.resetCancel = 'Cancel',
     this.resetSend = 'Send reset link',
@@ -38,11 +39,13 @@ class DfLoginStrings {
     this.sessionExpired =
         'Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.',
     this.resetDialogTitle = 'Passwort zurücksetzen',
-    this.resetDialogBody = 'Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen deines Passworts.',
+    this.resetDialogBody =
+        'Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen deines Passworts.',
     this.resetEmailInvalid = 'Gib eine gültige E-Mail-Adresse ein',
     this.resetCancel = 'Abbrechen',
     this.resetSend = 'Link senden',
-    this.resetSent = 'E-Mail zum Zurücksetzen wurde an {email} gesendet. Prüfe dein Postfach.',
+    this.resetSent =
+        'E-Mail zum Zurücksetzen wurde an {email} gesendet. Prüfe dein Postfach.',
   });
 
   final String welcomeTitle;

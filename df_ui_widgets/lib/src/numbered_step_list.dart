@@ -59,14 +59,16 @@ class NumberedStepList extends StatelessWidget {
                   children: [
                     Text(
                       step.title,
-                      style: Theme.of(context).textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       step.description,
-                      style: Theme.of(context).textTheme.bodySmall
-                          ?.copyWith(height: 1.4),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(height: 1.4),
                     ),
                   ],
                 ),

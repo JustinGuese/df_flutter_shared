@@ -43,12 +43,14 @@ class DfAccountSettingsStrings {
     this.terms = 'Nutzungsbedingungen',
     this.signOut = 'Abmelden',
     this.signOutConfirmTitle = 'Abmelden?',
-    this.signOutConfirmBody = 'Du musst dich auf diesem Gerät erneut anmelden, um wieder auf deine Daten zuzugreifen.',
+    this.signOutConfirmBody =
+        'Du musst dich auf diesem Gerät erneut anmelden, um wieder auf deine Daten zuzugreifen.',
     this.cancel = 'Abbrechen',
     this.deleteAccount = 'Konto löschen',
     this.keepAccount = 'Konto behalten',
     this.deleteConfirmTitle = 'Konto löschen?',
-    this.deleteConfirmBody = 'Dadurch werden dein Konto und alle zugehörigen Daten auf allen Geräten entfernt. Das kann nicht rückgängig gemacht werden.',
+    this.deleteConfirmBody =
+        'Dadurch werden dein Konto und alle zugehörigen Daten auf allen Geräten entfernt. Das kann nicht rückgängig gemacht werden.',
     this.deleteFailed =
         'Das Konto konnte nicht gelöscht werden. Versuch es erneut.',
     this.supportMailSubject = 'Support-Anfrage',

@@ -103,8 +103,9 @@ class DfPromptChain {
         return scheduler;
       } catch (_) {
         final container = ProviderContainer();
-        final provider =
-            NotifierProvider<DfPromptScheduler, int?>(() => scheduler);
+        final provider = NotifierProvider<DfPromptScheduler, int?>(
+          () => scheduler,
+        );
         return container.read(provider.notifier);
       }
     }
@@ -187,13 +188,12 @@ class DfPromptChain {
     BuildContext? context,
     SharedPreferences? prefs,
     int? minEventsBetween,
-  }) =>
-      run(
-        eventCount,
-        context: context,
-        prefs: prefs,
-        minEventsBetween: minEventsBetween,
-      );
+  }) => run(
+    eventCount,
+    context: context,
+    prefs: prefs,
+    minEventsBetween: minEventsBetween,
+  );
 
   /// Shorthand alias for [run].
   Future<bool> afterEvent(
@@ -201,13 +201,12 @@ class DfPromptChain {
     BuildContext? context,
     SharedPreferences? prefs,
     int? minEventsBetween,
-  }) =>
-      run(
-        eventCount,
-        context: context,
-        prefs: prefs,
-        minEventsBetween: minEventsBetween,
-      );
+  }) => run(
+    eventCount,
+    context: context,
+    prefs: prefs,
+    minEventsBetween: minEventsBetween,
+  );
 
   /// Callable invocation forwarded to [run].
   Future<bool> call(
@@ -215,11 +214,10 @@ class DfPromptChain {
     BuildContext? context,
     SharedPreferences? prefs,
     int? minEventsBetween,
-  }) =>
-      run(
-        eventCount,
-        context: context,
-        prefs: prefs,
-        minEventsBetween: minEventsBetween,
-      );
+  }) => run(
+    eventCount,
+    context: context,
+    prefs: prefs,
+    minEventsBetween: minEventsBetween,
+  );
 }

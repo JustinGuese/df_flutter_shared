@@ -9,10 +9,8 @@ import 'contracts.dart';
 import 'funnel_state.dart';
 
 /// Builder callback for funnel steps providing context and a completion callback.
-typedef DfStepBuilder = Widget Function(
-  BuildContext context,
-  VoidCallback onComplete,
-);
+typedef DfStepBuilder =
+    Widget Function(BuildContext context, VoidCallback onComplete);
 
 /// Inherited scope providing access to [DfFunnelState] and [DfFunnelNotifier].
 class DfFunnelScope extends InheritedWidget {
@@ -83,9 +81,9 @@ class DfLaunchGate extends ConsumerStatefulWidget {
     this.loginBuilder,
     this.loadingBuilder,
   }) : assert(
-          homeBuilder != null || child != null,
-          'Either homeBuilder or child must be provided',
-        );
+         homeBuilder != null || child != null,
+         'Either homeBuilder or child must be provided',
+       );
 
   /// Builder for the main app view displayed after the funnel completes.
   final WidgetBuilder? homeBuilder;
@@ -122,14 +120,15 @@ class _DfLaunchGateState extends ConsumerState<DfLaunchGate> {
 
     Widget content;
     if (funnelState.isLoading) {
-      content = widget.loadingBuilder?.call(context) ??
-          const _DefaultLoadingView();
+      content =
+          widget.loadingBuilder?.call(context) ?? const _DefaultLoadingView();
     } else if (funnelState.isFunnelComplete) {
       content = widget.homeBuilder?.call(context) ?? widget.child!;
     } else {
       switch (funnelState.currentStep) {
         case DfFunnelStep.onboarding:
-          content = widget.onboardingBuilder?.call(
+          content =
+              widget.onboardingBuilder?.call(
                 context,
                 () => notifier.completeOnboarding(),
               ) ??
@@ -138,7 +137,8 @@ class _DfLaunchGateState extends ConsumerState<DfLaunchGate> {
                 onSkip: () => notifier.completeOnboarding(skipped: true),
               );
         case DfFunnelStep.paywall:
-          content = widget.paywallBuilder?.call(
+          content =
+              widget.paywallBuilder?.call(
                 context,
                 () => notifier.completePaywall(),
               ) ??
@@ -148,7 +148,8 @@ class _DfLaunchGateState extends ConsumerState<DfLaunchGate> {
                 onSkip: () => notifier.completePaywall(skipped: true),
               );
         case DfFunnelStep.login:
-          content = widget.loginBuilder?.call(
+          content =
+              widget.loginBuilder?.call(
                 context,
                 () => notifier.completeLogin(),
               ) ??
@@ -180,9 +181,7 @@ class _DefaultLoadingView extends StatelessWidget {
       key: const Key('df_funnel_loading_spinner'),
       backgroundColor: df.colors.canvas,
       body: Center(
-        child: CircularProgressIndicator(
-          color: df.colors.brand.base,
-        ),
+        child: CircularProgressIndicator(color: df.colors.brand.base),
       ),
     );
   }
@@ -328,11 +327,7 @@ class _DefaultPaywallStepState extends State<_DefaultPaywallStep> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              Icon(
-                Icons.stars_rounded,
-                size: 72,
-                color: df.colors.brand.base,
-              ),
+              Icon(Icons.stars_rounded, size: 72, color: df.colors.brand.base),
               SizedBox(height: df.spacing.lg),
               Text(
                 'Unlock Premium Access',

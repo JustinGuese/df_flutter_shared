@@ -191,16 +191,15 @@ class _DfNotificationToggleTileState extends State<DfNotificationToggleTile> {
     final messenger = ScaffoldMessenger.maybeOf(context);
     if (messenger == null) return;
     messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    messenger.showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
     final df = context.df;
 
-    final leadingWidget = widget.leading ??
+    final leadingWidget =
+        widget.leading ??
         Container(
           padding: EdgeInsets.all(df.spacing.sm),
           decoration: BoxDecoration(
@@ -214,7 +213,8 @@ class _DfNotificationToggleTileState extends State<DfNotificationToggleTile> {
           ),
         );
 
-    final titleWidget = widget.title ??
+    final titleWidget =
+        widget.title ??
         Text(
           widget.strings.tileTitle,
           style: TextStyle(
@@ -223,7 +223,8 @@ class _DfNotificationToggleTileState extends State<DfNotificationToggleTile> {
           ),
         );
 
-    final subtitleWidget = widget.subtitle ??
+    final subtitleWidget =
+        widget.subtitle ??
         (widget.strings.tileSubtitle != null
             ? Text(
                 widget.strings.tileSubtitle!,
@@ -247,7 +248,8 @@ class _DfNotificationToggleTileState extends State<DfNotificationToggleTile> {
           );
 
     final tile = ListTile(
-      contentPadding: widget.contentPadding ??
+      contentPadding:
+          widget.contentPadding ??
           EdgeInsets.symmetric(
             horizontal: df.spacing.lg,
             vertical: df.spacing.xs,
@@ -260,23 +262,18 @@ class _DfNotificationToggleTileState extends State<DfNotificationToggleTile> {
     );
 
     if (!widget.wrapInCard) {
-      return Material(
-        type: MaterialType.transparency,
-        child: tile,
-      );
+      return Material(type: MaterialType.transparency, child: tile);
     }
 
     return Container(
-      decoration: widget.decoration ??
+      decoration:
+          widget.decoration ??
           BoxDecoration(
             color: df.colors.surfaceElevated.withValues(alpha: 0.3),
             borderRadius: df.shape.radiusLg,
             border: Border.all(color: df.colors.hairline),
           ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: tile,
-      ),
+      child: Material(type: MaterialType.transparency, child: tile),
     );
   }
 }

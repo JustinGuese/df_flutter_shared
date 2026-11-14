@@ -30,13 +30,21 @@ class DfDebugProTile extends ConsumerWidget {
       child: Material(
         color: Colors.transparent,
         child: SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 4,
+          ),
           secondary: const Icon(Icons.bug_report, color: Colors.amber),
-          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           subtitle: Text(subtitle),
           value: override,
           onChanged: (val) {
-            ref.read(dfDebugPremiumOverrideProvider.notifier).set(val ? true : null);
+            ref
+                .read(dfDebugPremiumOverrideProvider.notifier)
+                .set(val ? true : null);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -59,7 +67,8 @@ abstract final class DfDebugBilling {
   static Future<bool> showSimulatorDialog(
     BuildContext context, {
     String title = '🧪 Test Paywall (Debug)',
-    String message = 'Products are not published in store yet ("product not found").\n\nWould you like to simulate a successful Pro purchase?',
+    String message =
+        'Products are not published in store yet ("product not found").\n\nWould you like to simulate a successful Pro purchase?',
     String confirmButtonText = 'Simulate Pro Purchase 🎉',
   }) async {
     if (!kDebugMode) return false;
@@ -82,9 +91,10 @@ abstract final class DfDebugBilling {
     );
 
     if (simulate == true && context.mounted) {
-      ProviderScope.containerOf(context, listen: false)
-          .read(dfDebugPremiumOverrideProvider.notifier)
-          .set(true);
+      ProviderScope.containerOf(
+        context,
+        listen: false,
+      ).read(dfDebugPremiumOverrideProvider.notifier).set(true);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Pro mode simulated successfully! 🎉')),
       );

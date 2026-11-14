@@ -67,12 +67,12 @@ class DfFunnelState {
 
   @override
   int get hashCode => Object.hash(
-        isLoading,
-        onboardingCompleted,
-        paywallCompleted,
-        loginCompleted,
-        currentStep,
-      );
+    isLoading,
+    onboardingCompleted,
+    paywallCompleted,
+    loginCompleted,
+    currentStep,
+  );
 
   @override
   String toString() =>
@@ -82,12 +82,14 @@ class DfFunnelState {
 }
 
 /// Optional override for [SharedPreferences] used by funnel controllers.
-final dfFunnelSharedPreferencesProvider =
-    Provider<SharedPreferences?>((ref) => null);
+final dfFunnelSharedPreferencesProvider = Provider<SharedPreferences?>(
+  (ref) => null,
+);
 
 /// Default funnel configuration provider.
-final dfFunnelConfigProvider =
-    Provider<DfFunnelConfig>((ref) => const DfFunnelConfig());
+final dfFunnelConfigProvider = Provider<DfFunnelConfig>(
+  (ref) => const DfFunnelConfig(),
+);
 
 /// Family notifier provider managing funnel state per configuration.
 final dfFunnelProvider =

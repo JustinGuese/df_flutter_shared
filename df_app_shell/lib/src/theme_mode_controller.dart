@@ -110,10 +110,9 @@ class DfThemeModeController extends Notifier<ThemeMode> {
 }
 
 /// Provider managing the active [ThemeMode].
-final dfThemeModeProvider =
-    NotifierProvider<DfThemeModeController, ThemeMode>(
-      DfThemeModeController.new,
-    );
+final dfThemeModeProvider = NotifierProvider<DfThemeModeController, ThemeMode>(
+  DfThemeModeController.new,
+);
 
 /// Alias for [dfThemeModeProvider].
 final dfThemeModeControllerProvider = dfThemeModeProvider;

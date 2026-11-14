@@ -20,7 +20,8 @@ class DfSignInSheetStrings {
   /// German strings.
   const DfSignInSheetStrings.de({
     this.title = 'Fortschritt geräteübergreifend speichern',
-    this.subtitle = 'Melde dich sicher mit Google oder Apple an, um deine Daten synchron zu halten.',
+    this.subtitle =
+        'Melde dich sicher mit Google oder Apple an, um deine Daten synchron zu halten.',
     this.googleButton = 'Weiter mit Google',
     this.appleButton = 'Weiter mit Apple',
     this.notNowButton = 'Nicht jetzt',

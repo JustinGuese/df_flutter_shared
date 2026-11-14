@@ -31,10 +31,8 @@ enum DfLoginMode {
 }
 
 /// Callback seam for presenting a paywall.
-typedef DfPaywallPresenter = Future<DfPaywallResult> Function(
-  BuildContext context, {
-  String? placement,
-});
+typedef DfPaywallPresenter =
+    Future<DfPaywallResult> Function(BuildContext context, {String? placement});
 
 /// Callback seam for reading whether the active user has premium access.
 typedef DfEntitlementReader = bool Function();
@@ -121,15 +119,15 @@ class DfFunnelConfig {
 
   @override
   int get hashCode => Object.hash(
-        Object.hashAll(steps),
-        loginMode,
-        paywallPlacement,
-        paywallPresenter,
-        entitlementReader,
-        onboardingCompletedKey,
-        paywallCompletedKey,
-        loginCompletedKey,
-      );
+    Object.hashAll(steps),
+    loginMode,
+    paywallPlacement,
+    paywallPresenter,
+    entitlementReader,
+    onboardingCompletedKey,
+    paywallCompletedKey,
+    loginCompletedKey,
+  );
 
   @override
   String toString() =>

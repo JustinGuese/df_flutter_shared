@@ -3,16 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _buildTestWidget(Widget child) {
-  return MaterialApp(
-    home: Scaffold(
-      body: child,
-    ),
-  );
+  return MaterialApp(home: Scaffold(body: child));
 }
 
 void main() {
   group('DfSubscriptionSettingsSection', () {
-    testWidgets('shows success snackbar on restore purchases success', (tester) async {
+    testWidgets('shows success snackbar on restore purchases success', (
+      tester,
+    ) async {
       const strings = DfSubscriptionSettingsStrings();
 
       await tester.pumpWidget(
@@ -30,7 +28,9 @@ void main() {
       expect(find.text(strings.restoreSuccessMessage), findsOneWidget);
     });
 
-    testWidgets('shows error snackbar on restore purchases error', (tester) async {
+    testWidgets('shows error snackbar on restore purchases error', (
+      tester,
+    ) async {
       const strings = DfSubscriptionSettingsStrings();
 
       await tester.pumpWidget(
@@ -51,7 +51,9 @@ void main() {
       );
     });
 
-    testWidgets('shows web fallback message when running on web', (tester) async {
+    testWidgets('shows web fallback message when running on web', (
+      tester,
+    ) async {
       const strings = DfSubscriptionSettingsStrings();
       var restoreCalled = false;
       var customerCenterCalled = false;
@@ -84,14 +86,17 @@ void main() {
       expect(customerCenterCalled, isFalse);
     });
 
-    testWidgets('shows error snackbar when Customer Center fails', (tester) async {
+    testWidgets('shows error snackbar when Customer Center fails', (
+      tester,
+    ) async {
       const strings = DfSubscriptionSettingsStrings();
 
       await tester.pumpWidget(
         _buildTestWidget(
           DfSubscriptionSettingsSection(
             isWeb: false,
-            onCustomerCenter: () async => throw Exception('Service unavailable'),
+            onCustomerCenter: () async =>
+                throw Exception('Service unavailable'),
           ),
         ),
       );
@@ -100,12 +105,16 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text(strings.customerCenterError(Exception('Service unavailable'))),
+        find.text(
+          strings.customerCenterError(Exception('Service unavailable')),
+        ),
         findsOneWidget,
       );
     });
 
-    testWidgets('shows fallback snackbar when store link cannot be opened', (tester) async {
+    testWidgets('shows fallback snackbar when store link cannot be opened', (
+      tester,
+    ) async {
       const strings = DfSubscriptionSettingsStrings();
 
       await tester.pumpWidget(

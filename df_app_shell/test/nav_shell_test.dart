@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('DfNavShell switches rail vs bar at the breakpoint', (tester) async {
+  testWidgets('DfNavShell switches rail vs bar at the breakpoint', (
+    tester,
+  ) async {
     int selected = 0;
 
     Widget buildShell() {

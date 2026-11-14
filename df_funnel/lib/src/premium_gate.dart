@@ -93,10 +93,7 @@ class _DfPremiumGateState extends ConsumerState<DfPremiumGate> {
 
     try {
       final result = widget.paywallPresenter != null
-          ? await widget.paywallPresenter!(
-              context,
-              placement: widget.placement,
-            )
+          ? await widget.paywallPresenter!(context, placement: widget.placement)
           : await DfPaywallLauncher.show(
               context,
               placement: widget.placement ?? 'premium_gate',
@@ -119,7 +116,8 @@ class _DfPremiumGateState extends ConsumerState<DfPremiumGate> {
 
   @override
   Widget build(BuildContext context) {
-    final isEntitled = _locallyUnlocked ||
+    final isEntitled =
+        _locallyUnlocked ||
         (widget.entitlementReader != null
             ? widget.entitlementReader!()
             : ref.watch(dfPremiumAccessProvider));

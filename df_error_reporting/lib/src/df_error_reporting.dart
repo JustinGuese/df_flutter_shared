@@ -12,7 +12,7 @@ abstract final class DfErrorReporting {
   static DfErrorSink sink = const NoopErrorSink();
   static FlutterExceptionHandler? _originalFlutterOnError;
   static bool Function(Object exception, StackTrace stackTrace)?
-      _originalPlatformOnError;
+  _originalPlatformOnError;
   static bool _installed = false;
 
   /// Whether [install] has been called.
@@ -35,7 +35,9 @@ abstract final class DfErrorReporting {
         DfErrorReporting.sink.recordError(
           details.exception,
           details.stack,
-          reason: details.context?.toDescription() ?? details.summary.toDescription(),
+          reason:
+              details.context?.toDescription() ??
+              details.summary.toDescription(),
           fatal: fatalFlutterErrors,
         );
       });
@@ -43,11 +45,7 @@ abstract final class DfErrorReporting {
 
     PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
       _guard(() {
-        DfErrorReporting.sink.recordError(
-          error,
-          stack,
-          fatal: true,
-        );
+        DfErrorReporting.sink.recordError(error, stack, fatal: true);
       });
       return true;
     };
