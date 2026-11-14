@@ -8,11 +8,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: DfTypingIndicator(),
-          ),
-        ),
+        const MaterialApp(home: Scaffold(body: DfTypingIndicator())),
       );
 
       expect(find.byType(DfTypingIndicator), findsOneWidget);
@@ -25,11 +21,7 @@ void main() {
 
       // Unmount to verify clean disposal
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: SizedBox.shrink(),
-          ),
-        ),
+        const MaterialApp(home: Scaffold(body: SizedBox.shrink())),
       );
 
       expect(find.byType(DfTypingIndicator), findsNothing);
@@ -43,9 +35,7 @@ void main() {
           data: MediaQueryData(disableAnimations: true),
           child: MaterialApp(
             home: Scaffold(
-              body: DfTypingIndicator(
-                label: 'Generating summary…',
-              ),
+              body: DfTypingIndicator(label: 'Generating summary…'),
             ),
           ),
         ),

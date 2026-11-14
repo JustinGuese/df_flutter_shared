@@ -2,6 +2,7 @@
 ///
 /// Accepts strings that use newlines or bullet characters (e.g. •, -, *).
 /// Empty lines and bullet prefixes are trimmed.
+@Deprecated('Use dfParseSummaryPoints from package:df_ui_widgets.')
 List<String> parseSummaryPoints(String? summary) {
   if (summary == null) return const [];
   final normalized = summary.replaceAll('•', '\n•');
