@@ -20,40 +20,50 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
+  # Layer architecture check: dependencies may only point downward.
+  # ---------------------------------------------------------------------------
+  layers:
+    name: check layers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: check layer boundaries
+        run: ./tool/check_layers.sh
+
+  # ---------------------------------------------------------------------------
+  # Discover all df_* packages dynamically so new or unlisted packages are
+  # automatically included in CI matrix analysis.
+  # ---------------------------------------------------------------------------
+  discover:
+    name: discover packages
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.set-matrix.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          pkgs=$(python3 -c '
+          import os, json
+          pkgs = sorted([
+              d for d in os.listdir(".")
+              if d.startswith("df_") and os.path.isfile(os.path.join(d, "pubspec.yaml"))
+          ])
+          print(json.dumps(pkgs))
+          ')
+          echo "packages=$pkgs" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------------
   # Every package must resolve, format and analyse cleanly on its own.
   # ---------------------------------------------------------------------------
   packages:
     name: analyze ${{ matrix.package }}
+    needs: discover
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        package:
-          - df_ads
-          - df_ads_revenuecat
-          - df_ai_consent
-          - df_analytics
-          - df_analytics_core
-          - df_api_repository
-          - df_audio_capture
-          - df_billing
-          - df_chat
-          - df_core_utils
-          - df_courses
-          - df_device_id
-          - df_feedback_prompt
-          - df_firebase_auth
-          - df_firebase_rest
-          - df_notifications
-          - df_onboarding
-          - df_paywall
-          - df_revenuecat
-          - df_speech_to_text
-          - df_swipe_deck
-          - df_theme
-          - df_tour
-          - df_ui_widgets
-          - df_whisper_speech
+        package: ${{ fromJson(needs.discover.outputs.packages) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -93,7 +103,7 @@ jobs:
   consumers:
     name: consumer ${{ matrix.app.name }}
     runs-on: ubuntu-latest
-    needs: packages
+    needs: [packages, layers]
     strategy:
       fail-fast: false
       matrix:
@@ -109,6 +119,18 @@ jobs:
             path: .
           - name: bigtechnews
             repo: JustinGuese/flutter-bigtechnews-swiper-app
+            path: .
+          - name: socialanxiety
+            repo: JustinGuese/frontend_flutter_socialancietygame
+            path: .
+          - name: quoteremember
+            repo: JustinGuese/flutter-quoteremember-app
+            path: .
+          - name: tradingbot
+            repo: JustinGuese/tradingbot-ui-flutter
+            path: .
+          - name: explainer-video
+            repo: JustinGuese/deterministic-explainer-video-saas-flutter-frontend
             path: .
     steps:
       - name: Check out shared packages
@@ -134,7 +156,7 @@ jobs:
 
       - name: Point the app's df_* deps at this commit
         if: steps.app_checkout.outcome == 'success'
-        working-directory: app
+        working-directory: app/${{ matrix.app.path }}
         run: |
           set -euo pipefail
           # Every df_* package the app declares gets overridden to the local
@@ -150,12 +172,12 @@ jobs:
 
       - name: pub get
         if: steps.app_checkout.outcome == 'success'
-        working-directory: app
+        working-directory: app/${{ matrix.app.path }}
         run: flutter pub get
 
       - name: analyze
         if: steps.app_checkout.outcome == 'success'
-        working-directory: app
+        working-directory: app/${{ matrix.app.path }}
         # Apps are not held to --fatal-infos; a shared-package change must not
         # fail on pre-existing app-side lint debt. Errors still fail the build.
         run: flutter analyze
