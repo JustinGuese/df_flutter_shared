@@ -11,6 +11,7 @@ export 'src/scroll_hint.dart';
 
 // Async, empty and error states
 export 'src/async_state.dart';
+export 'src/skeleton.dart';
 
 // Content
 export 'src/quick_action_chip.dart';
@@ -22,6 +23,7 @@ export 'src/success_banner.dart';
 // Input affordances
 export 'src/character_counter.dart';
 export 'src/loading_app_bar_action.dart';
+export 'src/speech_text_controller.dart';
 
 // Audio
 export 'src/audio_level_bar.dart';
