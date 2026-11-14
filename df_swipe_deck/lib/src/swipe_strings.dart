@@ -16,6 +16,17 @@ class DfSwipeStrings {
     this.progressTemplate = '{current} / {total}',
   });
 
+  /// German strings constructor.
+  const DfSwipeStrings.de({
+    this.undoTooltip = 'Letzten Swipe rückgängig machen',
+    this.passTooltip = 'Überspringen',
+    this.openTooltip = 'Ganze Geschichte lesen',
+    this.likeTooltip = 'Gefällt mir',
+    this.passHint = 'Überspringen',
+    this.likeHint = 'Gefällt mir & speichern',
+    this.progressTemplate = '{current} / {total}',
+  });
+
   /// Tooltip for the undo action button.
   final String undoTooltip;
 

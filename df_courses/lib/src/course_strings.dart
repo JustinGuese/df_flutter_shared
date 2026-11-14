@@ -20,6 +20,21 @@ class CourseStrings {
     this.quizScoreLabel = '{correct} of {total} correct · {percent}%',
   });
 
+  /// German strings constructor.
+  const CourseStrings.de({
+    this.backLabel = 'Zurück',
+    this.nextLabel = 'Weiter',
+    this.doneLabel = 'Fertig',
+    this.quizLockedLabel = 'Bestehe das Quiz, um fortzufahren',
+    this.checkAnswersLabel = 'Antworten überprüfen',
+    this.questionLabel = 'Frage',
+    this.passingScoreLabel = 'Bestehensgrenze',
+    this.quizPassedLabel = 'Bestanden',
+    this.quizFailedLabel = 'Noch nicht bestanden',
+    this.retryLabel = 'Erneut versuchen',
+    this.quizScoreLabel = '{correct} von {total} richtig · {percent}%',
+  });
+
   /// Substitutes `{correct}`, `{total}` and `{percent}` in [quizScoreLabel].
   ///
   /// Placeholders rather than interpolation at the call site, so a translation

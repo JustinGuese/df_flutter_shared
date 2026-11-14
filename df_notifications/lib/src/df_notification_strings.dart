@@ -21,6 +21,22 @@ class DfNotificationStrings {
     this.disabledMessage = 'Notifications disabled.',
   });
 
+  /// German strings constructor.
+  const DfNotificationStrings.de({
+    this.primingTitle = 'Dranbleiben',
+    this.primingBody =
+        'Aktiviere Erinnerungen, um nichts Wichtiges zu verpassen. '
+        'Du kannst dies jederzeit in den Einstellungen ändern.',
+    this.primingAcceptLabel = 'Ja, erinnere mich',
+    this.primingDeclineLabel = 'Nicht jetzt',
+    this.tileTitle = 'Benachrichtigungen',
+    this.tileSubtitle,
+    this.enabledMessage = 'Benachrichtigungen aktiviert.',
+    this.permissionDeniedMessage =
+        'Benachrichtigungsberechtigung wurde nicht erteilt.',
+    this.disabledMessage = 'Benachrichtigungen deaktiviert.',
+  });
+
   /// Heading of the soft-ask sheet, shown before the OS permission prompt.
   final String primingTitle;
 
