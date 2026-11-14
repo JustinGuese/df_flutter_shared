@@ -25,5 +25,16 @@ void main() {
       expect(strings.fillTrialStart(7), 'Start 7-day free trial');
       expect(strings.fillTrialTry(30), 'Try Pro free for 30 days');
     });
+
+    test('German strings (.de) provide valid localized copy', () {
+      const de = DfRevenueCatStrings.de();
+      expect(de.upgradeLabel, 'Auf Pro upgraden');
+      expect(de.trialStartTemplate, '{days} Tage kostenlos testen');
+      expect(de.trialTryTemplate, 'Pro {days} Tage kostenlos testen');
+      expect(de.webDialogTitle, 'Premium-Abonnement');
+      expect(de.webDialogButtonLabel, 'Verstanden');
+      expect(de.fillTrialStart(7), '7 Tage kostenlos testen');
+      expect(de.fillTrialTry(14), 'Pro 14 Tage kostenlos testen');
+    });
   });
 }
