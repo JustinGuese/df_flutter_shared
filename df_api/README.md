@@ -6,6 +6,19 @@ Part of Layer 0 (L0) in the `df_flutter_shared` architecture. Has no dependencie
 
 ---
 
+## Installation
+
+```yaml
+dependencies:
+  df_api:
+    git:
+      url: https://github.com/JustinGuese/df_flutter_shared.git
+      path: df_api
+      ref: main
+```
+
+---
+
 ## What’s included
 
 - **DfApiClient** – Configurable `Dio` wrapper that automatically injects a Bearer token via `DfTokenProvider` and performs exactly one token refresh and retry when receiving a 401 response.
