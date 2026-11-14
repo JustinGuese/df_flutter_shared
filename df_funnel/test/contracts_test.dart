@@ -55,10 +55,7 @@ void main() {
         config.onboardingCompletedKey,
         equals('df_funnel_onboarding_completed'),
       );
-      expect(
-        config.paywallCompletedKey,
-        equals('df_funnel_paywall_completed'),
-      );
+      expect(config.paywallCompletedKey, equals('df_funnel_paywall_completed'));
       expect(config.loginCompletedKey, equals('df_funnel_login_completed'));
     });
 
@@ -97,9 +94,7 @@ void main() {
         return true;
       };
 
-      final config = DfFunnelConfig(
-        entitlementReader: reader,
-      );
+      final config = DfFunnelConfig(entitlementReader: reader);
 
       expect(config.entitlementReader!(), isTrue);
       expect(entitlementChecked, isTrue);
@@ -109,14 +104,12 @@ void main() {
       bool paywallPresented = false;
       String? recordedPlacement;
 
-      final DfPaywallPresenter presenter = (
-        BuildContext context, {
-        String? placement,
-      }) async {
-        paywallPresented = true;
-        recordedPlacement = placement;
-        return DfPaywallResult.purchased;
-      };
+      final DfPaywallPresenter presenter =
+          (BuildContext context, {String? placement}) async {
+            paywallPresented = true;
+            recordedPlacement = placement;
+            return DfPaywallResult.purchased;
+          };
 
       final config = DfFunnelConfig(paywallPresenter: presenter);
 

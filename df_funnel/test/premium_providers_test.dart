@@ -83,27 +83,43 @@ void main() {
       expect(container.read(dfEffectivePremiumProvider), isTrue);
     });
 
-    test('returns true when user is signed in and backend premium is active', () {
+    test(
+      'returns true when user is signed in and backend premium is active',
+      () {
+        final container = ProviderContainer(
+          overrides: [
+            dfRevenueCatIsProProvider.overrideWithValue(false),
+            currentUserProvider.overrideWithValue(FakeUser('test-uid')),
+            dfIsPremiumProvider.overrideWithValue(true),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        expect(container.read(dfEffectivePremiumProvider), isTrue);
+      },
+    );
+
+    test('returns false when signed out with backend premium true', () {
       final container = ProviderContainer(
         overrides: [
           dfRevenueCatIsProProvider.overrideWithValue(false),
-          currentUserProvider.overrideWithValue(FakeUser('test-uid')),
+          currentUserProvider.overrideWithValue(null),
           dfIsPremiumProvider.overrideWithValue(true),
         ],
       );
       addTearDown(container.dispose);
 
-      expect(container.read(dfEffectivePremiumProvider), isTrue);
+      expect(container.read(dfEffectivePremiumProvider), isFalse);
     });
 
     test(
-      'returns false when signed out with backend premium true',
+      'returns false when signed in but neither RC nor backend is premium',
       () {
         final container = ProviderContainer(
           overrides: [
             dfRevenueCatIsProProvider.overrideWithValue(false),
-            currentUserProvider.overrideWithValue(null),
-            dfIsPremiumProvider.overrideWithValue(true),
+            currentUserProvider.overrideWithValue(FakeUser('test-uid')),
+            dfIsPremiumProvider.overrideWithValue(false),
           ],
         );
         addTearDown(container.dispose);
@@ -111,19 +127,6 @@ void main() {
         expect(container.read(dfEffectivePremiumProvider), isFalse);
       },
     );
-
-    test('returns false when signed in but neither RC nor backend is premium', () {
-      final container = ProviderContainer(
-        overrides: [
-          dfRevenueCatIsProProvider.overrideWithValue(false),
-          currentUserProvider.overrideWithValue(FakeUser('test-uid')),
-          dfIsPremiumProvider.overrideWithValue(false),
-        ],
-      );
-      addTearDown(container.dispose);
-
-      expect(container.read(dfEffectivePremiumProvider), isFalse);
-    });
   });
 
   group('dfAuthRevenueCatSyncProvider', () {
@@ -250,9 +253,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           dfRevenueCatAuthSyncHandlerProvider.overrideWithValue(fakeHandler),
-          authStateChangesProvider.overrideWith(
-            (ref) => authController.stream,
-          ),
+          authStateChangesProvider.overrideWith((ref) => authController.stream),
           dfSubscriptionFetcherProvider.overrideWithValue(
             () async => const DfSubscriptionStatus.free(),
           ),
@@ -270,54 +271,57 @@ void main() {
       expect(fakeHandler.restoreCalls, equals(0));
     });
 
-    test('signs out: calls logOut and invalidates subscription provider', () async {
-      final fakeHandler = FakeRevenueCatAuthSyncHandler();
-      final authController = StreamController<User?>();
-      addTearDown(authController.close);
+    test(
+      'signs out: calls logOut and invalidates subscription provider',
+      () async {
+        final fakeHandler = FakeRevenueCatAuthSyncHandler();
+        final authController = StreamController<User?>();
+        addTearDown(authController.close);
 
-      int fetchCount = 0;
+        int fetchCount = 0;
 
-      final container = ProviderContainer(
-        overrides: [
-          dfRevenueCatAuthSyncHandlerProvider.overrideWithValue(fakeHandler),
-          authStateChangesProvider.overrideWith(
-            (ref) => authController.stream,
-          ),
-          dfSubscriptionFetcherProvider.overrideWithValue(() async {
-            fetchCount++;
-            return const DfSubscriptionStatus(
-              status: 'active',
-              isPremium: true,
-            );
-          }),
-        ],
-      );
-      addTearDown(container.dispose);
+        final container = ProviderContainer(
+          overrides: [
+            dfRevenueCatAuthSyncHandlerProvider.overrideWithValue(fakeHandler),
+            authStateChangesProvider.overrideWith(
+              (ref) => authController.stream,
+            ),
+            dfSubscriptionFetcherProvider.overrideWithValue(() async {
+              fetchCount++;
+              return const DfSubscriptionStatus(
+                status: 'active',
+                isPremium: true,
+              );
+            }),
+          ],
+        );
+        addTearDown(container.dispose);
 
-      container.listen(dfAuthRevenueCatSyncProvider(), (_, _) {});
-      container.listen(dfSubscriptionProvider, (_, _) {});
+        container.listen(dfAuthRevenueCatSyncProvider(), (_, _) {});
+        container.listen(dfSubscriptionProvider, (_, _) {});
 
-      // Sign in first
-      authController.add(FakeUser('user-logout'));
-      await pumpEventQueue();
-      await container.read(dfSubscriptionProvider.future);
-      expect(fakeHandler.logOutCalls, equals(0));
-      final initialFetchCount = fetchCount;
+        // Sign in first
+        authController.add(FakeUser('user-logout'));
+        await pumpEventQueue();
+        await container.read(dfSubscriptionProvider.future);
+        expect(fakeHandler.logOutCalls, equals(0));
+        final initialFetchCount = fetchCount;
 
-      // Set a debug override to verify it resets on sign-out
-      container.read(dfDebugPremiumOverrideProvider.notifier).set(true);
-      expect(container.read(dfDebugPremiumOverrideProvider), isTrue);
+        // Set a debug override to verify it resets on sign-out
+        container.read(dfDebugPremiumOverrideProvider.notifier).set(true);
+        expect(container.read(dfDebugPremiumOverrideProvider), isTrue);
 
-      // Sign out
-      authController.add(null);
-      await pumpEventQueue();
+        // Sign out
+        authController.add(null);
+        await pumpEventQueue();
 
-      expect(fakeHandler.logOutCalls, equals(1));
-      expect(container.read(dfDebugPremiumOverrideProvider), isNull);
+        expect(fakeHandler.logOutCalls, equals(1));
+        expect(container.read(dfDebugPremiumOverrideProvider), isNull);
 
-      // Verify dfSubscriptionProvider was invalidated
-      await container.read(dfSubscriptionProvider.future);
-      expect(fetchCount, greaterThan(initialFetchCount));
-    });
+        // Verify dfSubscriptionProvider was invalidated
+        await container.read(dfSubscriptionProvider.future);
+        expect(fetchCount, greaterThan(initialFetchCount));
+      },
+    );
   });
 }

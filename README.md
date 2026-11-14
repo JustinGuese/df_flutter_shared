@@ -81,9 +81,15 @@ its own or builds a `TextTheme` with `google_fonts` and passes it in.
 | **[df_ai_consent](df_ai_consent/)** | GDPR AI-data consent dialog and SharedPreferences-backed `AiDataConsentService`. App supplies the copy and data items. |
 | **[df_onboarding](df_onboarding/)** | Onboarding carousel — configurable pages, completion flag in SharedPreferences, override `onboardingConfigProvider`. |
 | **[df_funnel](df_funnel/)** | Cohesive launch funnel (`DfLaunchGate`), unified premium state (`dfEffectivePremiumProvider`), lock widgets (`DfPremiumGate`), upsell sheets (`DfUpsellSheet`), prompt chains (`DfPromptChain`), and subscription settings (`DfSubscriptionSettingsSection`). Supersedes `df_paywall`. |
+| **[df_api](df_api/)** | Core HTTP client abstraction with Bearer token injection, 401 retry, and Dio error mapping (`DfApiClient`, `DfTokenProvider`, `DfApiException`, `mapDioError`). |
+| **[df_error_reporting](df_error_reporting/)** | Core error reporting contract (`DfErrorReporting.install`, `DfErrorSink`, `NoopErrorSink`, `RecordingErrorSink`). Catches Flutter framework and platform errors. |
+| **[df_error_reporting_firebase](df_error_reporting_firebase/)** | Firebase Crashlytics sink (`FirebaseErrorSink`) implementing `DfErrorSink` for `df_error_reporting`. |
+| **[df_settings](df_settings/)** | Composable settings screen components: `DfSettingsScaffold`, `DfSettingsGroup`, `DfSettingsTile`, `DfThemeModeTile`, `DfLocaleTile`, `DfLegalLinksSection`, `DfVersionFooter`, and `DfDeleteAccountTile`. |
+| **[df_app_shell](df_app_shell/)** | Adaptive navigation shell (`DfNavShell`, `DfNavDestination`) and SharedPreferences-backed controllers (`DfThemeModeController`, `DfLocaleController`, `sharedPreferencesProvider`). |
+| **[df_file_download](df_file_download/)** | Cross-platform file downloader supporting web downloads, native file saving, and streaming bytes to disk. |
 | **[df_courses](df_courses/)** | Stepped course player with pluggable chapter types (reading, checklist, red flags, quiz), `CourseProgressNotifier`, and optional per-step gating via `stepGateBuilder`. Supersedes the learning-course screens that used to live in `df_onboarding`. |
 | **[df_paywall](df_paywall/)** *(deprecated)* | **Deprecated** — use **[df_funnel](df_funnel/)**. Legacy subscription paywall UI (`PaywallConfig`, `showPaywallUpsellSheet`, `PaywallUpsellInline`, `PaywallPremiumScreen`). |
-| **[df_billing](df_billing/)** | The state layer behind `df_paywall`: `DfSubscriptionStatus`, cached entitlement that survives a backend outage, refresh-on-resume, `dfIsPremiumProvider`, and `DfCheckout` for opening hosted payment links. No Stripe SDK. |
+| **[df_billing](df_billing/)** | The state layer behind subscription entitlements (`DfSubscriptionStatus`, `dfIsPremiumProvider`, `DfCheckout`) and hosted checkout links. Unifies into `df_funnel`'s `dfEffectivePremiumProvider`. |
 | **[df_notifications](df_notifications/)** | Local reminders & scheduling: neutral `DfReminder` model, native/web split, reserved id ranges, daily reminder controller (`DfDailyReminder`), trial ending reminder (`DfTrialEndingReminder`), settings toggle tile (`DfNotificationToggleTile`), and soft-ask permission sheet (`ensureDfNotificationPermission`). |
 | **[df_tour](df_tour/)** | Coach-mark tour harness over `tutorial_coach_mark`: app-declared steps, prefs-backed completion, safe target building, a replay hub sheet and a help button. Step content stays in the app. |
 | **[df_feedback_prompt](df_feedback_prompt/)** | One-time feedback dialog on first launch, with configurable copy and callbacks. |
@@ -142,14 +148,30 @@ here reaches five production apps on their next `pub upgrade`. CI is the only
 thing between a bad push and five broken builds — keep it green, and prefer an
 additive change over a breaking one.
 
-Conventions:
+### Architecture Layers
 
-- Packages should not depend on each other, with one exception: anything visual
-  may depend on `df_theme`. The app wires everything else together.
+Packages follow a strict layered hierarchy enforced by `tool/check_layers.sh` in CI. A package may only depend on lower layers (or peer L2s). Upward dependencies fail CI.
+
+- **Layer 0 (L0) — Foundations & Leaf Utils**:
+  `df_theme`, `df_analytics_core`, `df_error_reporting`, `df_api`, `df_core_utils`, `df_device_id`, `df_file_download`, `df_audio_capture`.
+  *Rule:* L0 packages must not depend on any other `df_*` packages.
+- **Layer 1 (L1) — UI Kit**:
+  `df_ui_widgets`.
+  *Rule:* May depend only on L0 packages (`df_theme`, leaf utils).
+- **Layer 2 (L2) — Capability Packages**:
+  `df_ads`, `df_ads_revenuecat`, `df_ai_consent`, `df_analytics`, `df_api_repository`, `df_billing`, `df_chat`, `df_courses`, `df_error_reporting_firebase`, `df_feedback_prompt`, `df_firebase_auth`, `df_firebase_rest`, `df_notifications`, `df_onboarding`, `df_paywall`, `df_revenuecat`, `df_speech_to_text`, `df_swipe_deck`, `df_tour`, `df_whisper_speech`.
+  *Rule:* May depend on lower layers (L0, L1); lateral dependencies between L2 packages are permitted.
+- **Layer 3 (L3) — Orchestration & App Assemblies**:
+  `df_funnel`, `df_settings`, `df_app_shell`.
+  *Rule:* May depend on lower layers (L0–L2), but must never depend on peer L3 packages.
+
+### Conventions
+
+- Respect the architecture layers above: never introduce an upward or illegal peer dependency.
 - No hardcoded colours, radii or spacing in a shared widget — read `context.df`.
-  A literal hex in this repo is a bug; it bakes one app's brand into all of them.
-- No hardcoded user-facing copy in a language. Strings belong in a config object
-  with English defaults.
+  A literal hex in this repo is a bug; it bakes one brand into all of them.
+- No hardcoded user-facing copy in a language. Strings belong in a `*Strings` class
+  with English defaults and optional `.de()` localisations.
 - Every package has its own `analysis_options.yaml`; they are generated copies,
   so change them together.
 - Library packages do not commit `pubspec.lock`.
@@ -176,7 +198,11 @@ If a shared component, service, or provider exists, consume it. If a generic fea
 | **Effective Premium State** | **`df_funnel`** (`dfEffectivePremiumProvider`, `dfAuthRevenueCatSyncProvider`) | Unifies RevenueCat Pro and backend subscriptions (`dfIsPremiumProvider`) into a single reactive boolean. Syncs auth changes with RevenueCat. |
 | **In-App Prompt Chain** | **`df_funnel`** (`DfPromptChain`, `DfPrompt`) + **`df_feedback_prompt`** (`DfCooldown`, `DfPromptScheduler`) | Priority-ordered interruption queue spaced by event counts and persistent cooldowns. |
 | **Notifications** | **`df_notifications`** (`DfDailyReminder`, `DfTrialEndingReminder`, `DfNotificationToggleTile`, `ensureDfNotificationPermission`, `DfReminderService`) | Neutral reminder models, idempotent daily controllers, trial expiration alerts, and pre-prompt priming sheets. |
-| **Settings Screen** | **`df_funnel`** (`DfSubscriptionSettingsSection`) + **`df_notifications`** (`DfNotificationToggleTile`) | Ready-made sections for App Store / Google Play subscription management, Customer Center, purchase restore, and push notification toggles. |
+| **Settings Screen** | **`df_settings`** (`DfSettingsScaffold`, `DfSettingsGroup`, `DfSettingsTile`, `DfThemeModeTile`, `DfLocaleTile`, `DfLegalLinksSection`, `DfVersionFooter`, `DfDeleteAccountTile`) + **`df_funnel`** (`DfSubscriptionSettingsSection`) + **`df_notifications`** (`DfNotificationToggleTile`) | Structured settings scaffold with theme mode/locale pickers, legal links, account deletion, and pluggable subscription/notification tiles. |
+| **App Shell & Navigation** | **`df_app_shell`** (`DfNavShell`, `DfNavDestination`, `DfThemeModeController`, `DfLocaleController`, `sharedPreferencesProvider`) | Adaptive navigation shell (bottom bar on mobile, navigation rail on tablet/desktop) with SharedPreferences-backed theme mode and locale persistence. |
+| **Error & Crash Reporting** | **`df_error_reporting`** (`DfErrorReporting.install`, `DfErrorSink`, `NoopErrorSink`, `RecordingErrorSink`) + **`df_error_reporting_firebase`** (`FirebaseErrorSink`) | Unifies Flutter framework and platform errors to an injectable sink; `df_error_reporting_firebase` provides the Firebase Crashlytics sink. |
+| **API Client & Networking** | **`df_api`** (`DfApiClient`, `DfTokenProvider`, `DfApiException`, `mapDioError`) | Core HTTP client with Bearer token injection, single 401 retry, and unified Dio error mapping. |
+| **Courses & Learning** | **`df_courses`** (`CourseScreen`, `CourseProgressNotifier`, `CourseChapter`) | Stepped course player with pluggable chapter renderers (reading, checklist, red flags, quiz) and optional gating. |
 | **UI Widgets** | **`df_ui_widgets`** (`DfFilterChipBar`, `DfTypingIndicator`, `QuickActionChip`, `SummaryBulletList`, `BrandedAppBar`, `NumberedStepList`, `SuccessBanner`, etc.) | Domain-agnostic components fully styled with `context.df` tokens. |
 | **Theming & Design** | **`df_theme`** (`DfTheme`, `DfBrand`, `context.df`) | Unified token system for palettes, spacing, typography, shape, and motion. |
 

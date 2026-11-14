@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 
 /// Strings used by [DfTypingIndicator].
 class DfTypingIndicatorStrings {
-  const DfTypingIndicatorStrings({
-    this.label = 'Thinking…',
-  });
+  const DfTypingIndicatorStrings({this.label = 'Thinking…'});
 
   /// The text displayed next to the pulsing dots.
   final String label;
@@ -116,12 +114,14 @@ class _DfTypingIndicatorState extends State<DfTypingIndicator>
     final theme = Theme.of(context);
 
     final effectiveLabel = widget.label ?? widget.strings.label;
-    final effectiveBg = widget.backgroundColor ??
+    final effectiveBg =
+        widget.backgroundColor ??
         df.colors.surfaceElevated.withValues(alpha: 0.6);
     final effectiveDotColor = widget.dotColor ?? df.colors.brand.base;
-    final effectiveMargin = widget.margin ??
-        EdgeInsets.symmetric(vertical: df.spacing.xs);
-    final effectivePadding = widget.padding ??
+    final effectiveMargin =
+        widget.margin ?? EdgeInsets.symmetric(vertical: df.spacing.xs);
+    final effectivePadding =
+        widget.padding ??
         EdgeInsets.symmetric(
           horizontal: df.spacing.md,
           vertical: df.spacing.sm,
@@ -152,7 +152,8 @@ class _DfTypingIndicatorState extends State<DfTypingIndicator>
             SizedBox(width: df.spacing.sm),
             Text(
               effectiveLabel,
-              style: widget.textStyle ??
+              style:
+                  widget.textStyle ??
                   theme.textTheme.bodySmall?.copyWith(
                     color: df.colors.textSecondary,
                   ),
@@ -163,10 +164,7 @@ class _DfTypingIndicatorState extends State<DfTypingIndicator>
     );
 
     if (widget.alignment != null) {
-      return Align(
-        alignment: widget.alignment!,
-        child: bubble,
-      );
+      return Align(alignment: widget.alignment!, child: bubble);
     }
     return bubble;
   }

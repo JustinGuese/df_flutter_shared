@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../lib/src/prompt_chain.dart';
+import 'package:df_feedback_prompt/df_feedback_prompt.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -70,11 +70,12 @@ void main() {
       expect(shown, equals(['p1']));
     });
 
-    test('shows only one prompt per event and respects scheduler spacing', () async {
-      final shown = <String>[];
+    test(
+      'shows only one prompt per event and respects scheduler spacing',
+      () async {
+        final shown = <String>[];
 
-      final chain = DfPromptChain(
-        [
+        final chain = DfPromptChain([
           DfPrompt(
             id: 'first',
             priority: 10,
@@ -91,25 +92,24 @@ void main() {
               return true;
             },
           ),
-        ],
-        scheduler: DfPromptScheduler(minEventsBetween: 5),
-      );
+        ], scheduler: DfPromptScheduler(minEventsBetween: 5));
 
-      // Event 5: first prompt should show, exactly one prompt displayed
-      final r1 = await chain.run(5);
-      expect(r1, isTrue);
-      expect(shown, equals(['first']));
+        // Event 5: first prompt should show, exactly one prompt displayed
+        final r1 = await chain.run(5);
+        expect(r1, isTrue);
+        expect(shown, equals(['first']));
 
-      // Event 6: less than 5 events since last prompt (5), so scheduler blocks
-      final r2 = await chain.run(6);
-      expect(r2, isFalse);
-      expect(shown, equals(['first']));
+        // Event 6: less than 5 events since last prompt (5), so scheduler blocks
+        final r2 = await chain.run(6);
+        expect(r2, isFalse);
+        expect(shown, equals(['first']));
 
-      // Event 10: 5 events have elapsed (10 - 5 >= 5), so next prompt can show
-      final r3 = await chain.run(10);
-      expect(r3, isTrue);
-      expect(shown, equals(['first', 'first']));
-    });
+        // Event 10: 5 events have elapsed (10 - 5 >= 5), so next prompt can show
+        final r3 = await chain.run(10);
+        expect(r3, isTrue);
+        expect(shown, equals(['first', 'first']));
+      },
+    );
 
     test('cooldown blocks repeated prompt display until expired', () async {
       final shown = <String>[];
@@ -119,7 +119,10 @@ void main() {
       final primaryPrompt = DfPrompt(
         id: 'primary',
         priority: 10,
-        cooldown: const DfCooldown(key: cooldownKey, duration: cooldownDuration),
+        cooldown: const DfCooldown(
+          key: cooldownKey,
+          duration: cooldownDuration,
+        ),
         show: (_) {
           shown.add('primary');
           return true;
@@ -135,10 +138,10 @@ void main() {
         },
       );
 
-      final chain = DfPromptChain(
-        [primaryPrompt, fallbackPrompt],
-        scheduler: DfPromptScheduler(minEventsBetween: 5),
-      );
+      final chain = DfPromptChain([
+        primaryPrompt,
+        fallbackPrompt,
+      ], scheduler: DfPromptScheduler(minEventsBetween: 5));
 
       // First run at event 5: primary should show and mark cooldown
       final r1 = await chain.run(5);
@@ -152,7 +155,10 @@ void main() {
       expect(shown, equals(['primary', 'fallback']));
 
       // If cooldown is reset, primary is eligible again at event 15
-      await const DfCooldown(key: cooldownKey, duration: cooldownDuration).reset();
+      await const DfCooldown(
+        key: cooldownKey,
+        duration: cooldownDuration,
+      ).reset();
       final r3 = await chain.run(15);
       expect(r3, isTrue);
       expect(shown, equals(['primary', 'fallback', 'primary']));
@@ -176,10 +182,10 @@ void main() {
         },
       );
 
-      final chain = DfPromptChain(
-        [decliningPrompt, fallbackPrompt],
-        scheduler: DfPromptScheduler(minEventsBetween: 5),
-      );
+      final chain = DfPromptChain([
+        decliningPrompt,
+        fallbackPrompt,
+      ], scheduler: DfPromptScheduler(minEventsBetween: 5));
 
       final result = await chain.run(5);
       expect(result, isTrue);
@@ -193,11 +199,7 @@ void main() {
       var allowSpecial = false;
 
       final chain = DfPromptChain([
-        DfPrompt(
-          id: 'needs_10',
-          minEvents: 10,
-          show: (_) => true,
-        ),
+        DfPrompt(id: 'needs_10', minEvents: 10, show: (_) => true),
         DfPrompt(
           id: 'needs_flag',
           canShow: (_) => allowSpecial,
@@ -221,15 +223,9 @@ void main() {
       addTearDown(container.dispose);
 
       final scheduler = container.read(dfPromptSchedulerFamily(3).notifier);
-      final chain = DfPromptChain(
-        [
-          DfPrompt(
-            id: 'p',
-            show: (_) => true,
-          ),
-        ],
-        scheduler: scheduler,
-      );
+      final chain = DfPromptChain([
+        DfPrompt(id: 'p', show: (_) => true),
+      ], scheduler: scheduler);
 
       expect(await chain.run(1), isTrue);
       expect(container.read(dfPromptSchedulerFamily(3)), 1);

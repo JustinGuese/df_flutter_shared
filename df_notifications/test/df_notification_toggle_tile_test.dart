@@ -32,32 +32,33 @@ void main() {
   });
 
   group('DfNotificationToggleTile', () {
-    testWidgets('shows spinner while loading pref, then switch reflecting initial state',
-        (tester) async {
-      SharedPreferences.setMockInitialValues({
-        DfNotificationToggleTile.defaultNotificationPrefKey: true,
-      });
+    testWidgets(
+      'shows spinner while loading pref, then switch reflecting initial state',
+      (tester) async {
+        SharedPreferences.setMockInitialValues({
+          DfNotificationToggleTile.defaultNotificationPrefKey: true,
+        });
 
-      await tester.pumpWidget(_buildSubject());
+        await tester.pumpWidget(_buildSubject());
 
-      // While loading the preference, a spinner is visible.
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.byType(Switch), findsNothing);
+        // While loading the preference, a spinner is visible.
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+        expect(find.byType(Switch), findsNothing);
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Once loaded, the switch is visible and turned on.
-      expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.byType(Switch), findsOneWidget);
-      final switchWidget = tester.widget<Switch>(find.byType(Switch));
-      expect(switchWidget.value, isTrue);
-    });
+        // Once loaded, the switch is visible and turned on.
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+        expect(find.byType(Switch), findsOneWidget);
+        final switchWidget = tester.widget<Switch>(find.byType(Switch));
+        expect(switchWidget.value, isTrue);
+      },
+    );
 
-    testWidgets('granted -> persisted true + onEnabled + enabled snackbar',
-        (tester) async {
-      SharedPreferences.setMockInitialValues({
-        'test_pref': false,
-      });
+    testWidgets('granted -> persisted true + onEnabled + enabled snackbar', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({'test_pref': false});
 
       var onEnabledCalled = false;
       var requestPermissionCalled = false;
@@ -91,11 +92,10 @@ void main() {
       expect(find.text('Notifications enabled.'), findsOneWidget);
     });
 
-    testWidgets('denied -> stays off + permission denied snackbar',
-        (tester) async {
-      SharedPreferences.setMockInitialValues({
-        'test_pref': false,
-      });
+    testWidgets('denied -> stays off + permission denied snackbar', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({'test_pref': false});
 
       var onEnabledCalled = false;
 
@@ -127,36 +127,36 @@ void main() {
       );
     });
 
-    testWidgets('disable path -> persisted false + onDisabled + disabled snackbar',
-        (tester) async {
-      SharedPreferences.setMockInitialValues({
-        'test_pref': true,
-      });
+    testWidgets(
+      'disable path -> persisted false + onDisabled + disabled snackbar',
+      (tester) async {
+        SharedPreferences.setMockInitialValues({'test_pref': true});
 
-      var onDisabledCalled = false;
+        var onDisabledCalled = false;
 
-      await tester.pumpWidget(
-        _buildSubject(
-          prefKey: 'test_pref',
-          onDisabled: () async {
-            onDisabledCalled = true;
-          },
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          _buildSubject(
+            prefKey: 'test_pref',
+            onDisabled: () async {
+              onDisabledCalled = true;
+            },
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+        expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
 
-      // Tap to disable.
-      await tester.tap(find.byType(Switch));
-      await tester.pumpAndSettle();
+        // Tap to disable.
+        await tester.tap(find.byType(Switch));
+        await tester.pumpAndSettle();
 
-      expect(onDisabledCalled, isTrue);
+        expect(onDisabledCalled, isTrue);
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool('test_pref'), isFalse);
-      expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
-      expect(find.text('Notifications disabled.'), findsOneWidget);
-    });
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getBool('test_pref'), isFalse);
+        expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+        expect(find.text('Notifications disabled.'), findsOneWidget);
+      },
+    );
   });
 }

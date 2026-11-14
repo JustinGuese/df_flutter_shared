@@ -19,6 +19,20 @@ class DfRevenueCatStrings {
     this.webDialogButtonLabel = 'Got it',
   });
 
+  /// German strings.
+  const DfRevenueCatStrings.de({
+    this.upgradeLabel = 'Auf Pro upgraden',
+    this.trialStartTemplate = '{days} Tage kostenlos testen',
+    this.trialTryTemplate = 'Pro {days} Tage kostenlos testen',
+    this.webDialogTitle = 'Premium-Abonnement',
+    this.webDialogDescription =
+        'Premium-Abonnements werden über die mobilen App Stores verwaltet.',
+    this.webDialogInstruction =
+        'Lade die App auf dein Smartphone herunter, um das Abonnement abzuschließen und dich anzumelden. '
+        'Dein Abonnement wird automatisch auf allen Geräten synchronisiert.',
+    this.webDialogButtonLabel = 'Verstanden',
+  });
+
   /// Default label for upgrade buttons when no trial is available.
   final String upgradeLabel;
 

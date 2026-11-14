@@ -30,6 +30,7 @@
 /// ```
 library;
 
+export 'src/billing_strings.dart';
 export 'src/checkout_launcher.dart';
 export 'src/checkout_links.dart';
 export 'src/debug_billing.dart';

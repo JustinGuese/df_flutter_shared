@@ -14,6 +14,13 @@ class DfTrialEndingReminderStrings {
         'Your subscription renews unless you cancel in your store settings.',
   });
 
+  /// German strings constructor.
+  const DfTrialEndingReminderStrings.de({
+    this.title = 'Dein kostenloser Testzeitraum endet bald',
+    this.body =
+        'Dein Abonnement verlängert sich, sofern du nicht in den Store-Einstellungen kündigst.',
+  });
+
   final String title;
   final String body;
 }
@@ -78,10 +85,7 @@ abstract final class DfTrialEndingReminder {
   }
 
   /// Cancels any scheduled trial-ending reminder.
-  static Future<void> cancel({
-    int? id,
-    DfReminderService? service,
-  }) async {
+  static Future<void> cancel({int? id, DfReminderService? service}) async {
     final s = service ?? DfReminderService();
     await s.init();
     await s.cancel(id ?? defaultId);

@@ -28,8 +28,34 @@ class DfSubscriptionSettingsStrings {
         'Please manage subscriptions in your device settings',
     this.webFallbackMessage =
         'Subscription management is not supported on web.',
-    this.appleSubscriptionUrl =
-        'https://apps.apple.com/account/subscriptions',
+    this.appleSubscriptionUrl = 'https://apps.apple.com/account/subscriptions',
+    this.googlePlaySubscriptionUrl =
+        'https://play.google.com/store/account/subscriptions',
+  });
+
+  /// German strings.
+  const DfSubscriptionSettingsStrings.de({
+    this.sectionHeader = 'Abonnement',
+    this.manageSubscriptionTitle = 'Abonnement verwalten',
+    this.manageSubscriptionSubtitle =
+        'Tarif wechseln, Abrechnung einsehen oder kündigen',
+    this.customerCenterTitle = 'Kundencenter',
+    this.customerCenterSubtitle = 'Abonnementstatus & Verlauf anzeigen',
+    this.restorePurchasesTitle = 'Käufe wiederherstellen',
+    this.restorePurchasesSubtitle =
+        'Frühere Käufe aus dem App Store / Google Play synchronisieren',
+    this.restoreSuccessMessage = 'Käufe erfolgreich wiederhergestellt! 🎉',
+    this.restoreNotFoundMessage =
+        'Kein aktives Abonnement zur Wiederherstellung gefunden.',
+    this.restoreErrorMessagePrefix = 'Fehler beim Wiederherstellen: ',
+    this.customerCenterErrorMessagePrefix = 'Kundencenter-Fehler: ',
+    this.storeLinkErrorMessagePrefix =
+        'Store-Link konnte nicht geöffnet werden: ',
+    this.storeLinkFallbackMessage =
+        'Bitte verwalte Abonnements in den Einstellungen deines Geräts',
+    this.webFallbackMessage =
+        'Abonnementverwaltung wird im Web nicht unterstützt.',
+    this.appleSubscriptionUrl = 'https://apps.apple.com/account/subscriptions',
     this.googlePlaySubscriptionUrl =
         'https://play.google.com/store/account/subscriptions',
   });
@@ -162,7 +188,7 @@ class DfSubscriptionSettingsSection extends StatelessWidget {
 
   /// Optional listener or interceptor for SnackBar notifications.
   final void Function(BuildContext context, String message, bool isError)?
-      onShowSnackBar;
+  onShowSnackBar;
 
   /// Additional custom rows inserted below the standard tiles.
   final List<Widget> extraRows;
@@ -193,9 +219,7 @@ class DfSubscriptionSettingsSection extends StatelessWidget {
       SnackBar(
         content: Text(
           message,
-          style: isError
-              ? TextStyle(color: df.colors.textOnBrand)
-              : null,
+          style: isError ? TextStyle(color: df.colors.textOnBrand) : null,
         ),
         backgroundColor: isError ? df.colors.error.base : null,
       ),
@@ -305,18 +329,15 @@ class DfSubscriptionSettingsSection extends StatelessWidget {
             child: Text(
               headerText,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: df.colors.textSecondary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
+                color: df.colors.textSecondary,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
             ),
           ),
         if (showManageSubscription)
           ListTile(
-            leading: Icon(
-              Icons.settings_outlined,
-              color: df.colors.info.base,
-            ),
+            leading: Icon(Icons.settings_outlined, color: df.colors.info.base),
             title: Text(strings.manageSubscriptionTitle),
             subtitle: Text(strings.manageSubscriptionSubtitle),
             trailing: Icon(
@@ -328,10 +349,7 @@ class DfSubscriptionSettingsSection extends StatelessWidget {
           ),
         if (showCustomerCenter)
           ListTile(
-            leading: Icon(
-              Icons.person_outline,
-              color: df.colors.brand.base,
-            ),
+            leading: Icon(Icons.person_outline, color: df.colors.brand.base),
             title: Text(strings.customerCenterTitle),
             subtitle: Text(strings.customerCenterSubtitle),
             trailing: Icon(
@@ -343,10 +361,7 @@ class DfSubscriptionSettingsSection extends StatelessWidget {
           ),
         if (showRestorePurchases)
           ListTile(
-            leading: Icon(
-              Icons.restore,
-              color: df.colors.accent.base,
-            ),
+            leading: Icon(Icons.restore, color: df.colors.accent.base),
             title: Text(strings.restorePurchasesTitle),
             subtitle: Text(strings.restorePurchasesSubtitle),
             trailing: Icon(

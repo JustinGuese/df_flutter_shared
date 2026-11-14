@@ -1,5 +1,6 @@
 library;
 
+export 'package:df_api/df_api.dart';
 export 'src/api_client.dart';
 export 'src/auth_analytics.dart' show DfAuthMethod, dfBindAnalyticsIdentity;
 export 'src/auth_config.dart';

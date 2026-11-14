@@ -1,10 +1,13 @@
 # df_billing
 
-Subscription entitlement and checkout launching — the state layer behind
-[`df_paywall`](../df_paywall), which is UI-only.
+Subscription entitlement and checkout launching — the backend state layer behind
+[`df_funnel`](../df_funnel) (and historically [`df_paywall`](../df_paywall)).
 
-`df_billing` answers *"is this user premium?"* and *"open the payment page"*.
-`df_paywall` answers *"what does the upsell look like"*.
+`df_billing` answers *"is this user premium according to our backend?"* (`dfIsPremiumProvider`)
+and *"open the payment page"* (`DfCheckout`). In modern apps, `df_funnel` coordinates the
+complete user journey and unifies backend subscriptions with store receipts via `dfEffectivePremiumProvider`.
+
+Part of Layer 2 (L2) in the `df_flutter_shared` architecture.
 
 No Stripe SDK. Every DF app bills through hosted Payment Links plus a backend
 webhook, so the client only ever needs to open a URL — which also keeps this

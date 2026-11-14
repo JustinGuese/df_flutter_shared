@@ -15,12 +15,14 @@ class _MockPresenter implements DfPaywallPresenter {
   DfPaywallResult paywallResult;
   DfPaywallResult exitOfferResult;
   bool throwOnPaywall;
+  int callCount = 0;
 
   @override
   Future<DfPaywallResult> presentPaywall({
     String? placement,
     bool force = false,
   }) async {
+    callCount++;
     if (throwOnPaywall) {
       throw Exception('SDK failure');
     }
@@ -219,6 +221,84 @@ void main() {
         'placement': 'broken_placement',
         'result': 'error',
       });
+    });
+  });
+
+  group('DfPaywallLauncher silent restore', () {
+    for (final closed in [DfPaywallResult.error, DfPaywallResult.cancelled]) {
+      testWidgets('${closed.name} + owned subscription becomes restored', (
+        tester,
+      ) async {
+        late BuildContext ctx;
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (c) {
+                ctx = c;
+                return const Placeholder();
+              },
+            ),
+          ),
+        );
+        var hook = false;
+        final result = await DfPaywallLauncher.show(
+          ctx,
+          placement: 'launch_gate',
+          presenter: _MockPresenter(paywallResult: closed),
+          restore: () async => true,
+          onPurchased: (_) => hook = true,
+        );
+        expect(result, DfPaywallResult.restored);
+        expect(hook, isTrue);
+      });
+    }
+
+    testWidgets('restores BEFORE presenting: owned user never sees paywall', (
+      tester,
+    ) async {
+      late BuildContext ctx;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (c) {
+              ctx = c;
+              return const Placeholder();
+            },
+          ),
+        ),
+      );
+      final presenter = _MockPresenter(
+        paywallResult: DfPaywallResult.purchased,
+      );
+      final result = await DfPaywallLauncher.show(
+        ctx,
+        placement: 'launch_gate',
+        presenter: presenter,
+        restore: () async => true,
+      );
+      expect(result, DfPaywallResult.restored);
+      expect(presenter.callCount, 0);
+    });
+
+    testWidgets('keeps cancelled when nothing to restore', (tester) async {
+      late BuildContext ctx;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (c) {
+              ctx = c;
+              return const Placeholder();
+            },
+          ),
+        ),
+      );
+      final result = await DfPaywallLauncher.show(
+        ctx,
+        placement: 'launch_gate',
+        presenter: _MockPresenter(paywallResult: DfPaywallResult.cancelled),
+        restore: () async => false,
+      );
+      expect(result, DfPaywallResult.cancelled);
     });
   });
 }

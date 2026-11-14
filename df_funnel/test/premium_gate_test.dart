@@ -11,11 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Widget _buildTestApp(Widget child) {
   return ProviderScope(
-    child: MaterialApp(
-      home: Scaffold(
-        body: child,
-      ),
-    ),
+    child: MaterialApp(home: Scaffold(body: child)),
   );
 }
 
@@ -158,57 +154,58 @@ void main() {
       expect(paywallCalled, isFalse);
     });
 
-    testWidgets('returns true on purchase and false on cancel when unentitled', (
-      tester,
-    ) async {
-      bool? purchaseResult;
-      bool? cancelResult;
+    testWidgets(
+      'returns true on purchase and false on cancel when unentitled',
+      (tester) async {
+        bool? purchaseResult;
+        bool? cancelResult;
 
-      await tester.pumpWidget(
-        _buildTestApp(
-          Consumer(
-            builder: (context, ref, _) {
-              return Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      purchaseResult = await requirePremium(
-                        context,
-                        ref,
-                        'buy',
-                        (ctx, {placement}) async => DfPaywallResult.purchased,
-                        () => false,
-                      );
-                    },
-                    child: const Text('Buy'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      cancelResult = await requirePremium(
-                        context,
-                        ref,
-                        'cancel',
-                        (ctx, {placement}) async => DfPaywallResult.cancelled,
-                        () => false,
-                      );
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                ],
-              );
-            },
+        await tester.pumpWidget(
+          _buildTestApp(
+            Consumer(
+              builder: (context, ref, _) {
+                return Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        purchaseResult = await requirePremium(
+                          context,
+                          ref,
+                          'buy',
+                          (ctx, {placement}) async => DfPaywallResult.purchased,
+                          () => false,
+                        );
+                      },
+                      child: const Text('Buy'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        cancelResult = await requirePremium(
+                          context,
+                          ref,
+                          'cancel',
+                          (ctx, {placement}) async => DfPaywallResult.cancelled,
+                          () => false,
+                        );
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('Buy'));
-      await tester.pumpAndSettle();
-      expect(purchaseResult, isTrue);
+        await tester.tap(find.text('Buy'));
+        await tester.pumpAndSettle();
+        expect(purchaseResult, isTrue);
 
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-      expect(cancelResult, isFalse);
-    });
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
+        expect(cancelResult, isFalse);
+      },
+    );
   });
 
   group('DfUpsellSheet cooldown', () {

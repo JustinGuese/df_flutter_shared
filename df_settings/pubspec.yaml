@@ -1,0 +1,28 @@
+name: df_settings
+description: Reusable settings scaffold, groups, tiles, legal links, and account deletion for DataFortress apps.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.29.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  df_theme:
+    git:
+      url: https://github.com/JustinGuese/df_flutter_shared.git
+      path: df_theme
+      ref: main
+  df_ui_widgets:
+    git:
+      url: https://github.com/JustinGuese/df_flutter_shared.git
+      path: df_ui_widgets
+      ref: main
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

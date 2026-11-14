@@ -14,6 +14,12 @@ class DfDailyReminderStrings {
     this.body = 'Take a moment to check in today.',
   });
 
+  /// German strings constructor.
+  const DfDailyReminderStrings.de({
+    this.title = 'Tägliche Erinnerung',
+    this.body = 'Nimm dir kurz Zeit für deinen heutigen Check-in.',
+  });
+
   final String title;
   final String body;
 }

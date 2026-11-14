@@ -48,8 +48,8 @@ class DfRevenueCatAuthSyncHandler {
 /// Provider supplying the [DfRevenueCatAuthSyncHandler], overridable in tests.
 final dfRevenueCatAuthSyncHandlerProvider =
     Provider<DfRevenueCatAuthSyncHandler>((ref) {
-  return const DfRevenueCatAuthSyncHandler();
-});
+      return const DfRevenueCatAuthSyncHandler();
+    });
 
 /// UID for which [dfAuthRevenueCatSyncProvider] last finished its
 /// `logIn` -> `isPro` -> `restore` sequence (null until the first one).
@@ -62,8 +62,9 @@ class DfAuthSyncedUid extends Notifier<String?> {
 }
 
 /// See [DfAuthSyncedUid].
-final dfAuthSyncedUidProvider =
-    NotifierProvider<DfAuthSyncedUid, String?>(DfAuthSyncedUid.new);
+final dfAuthSyncedUidProvider = NotifierProvider<DfAuthSyncedUid, String?>(
+  DfAuthSyncedUid.new,
+);
 
 /// True once RevenueCat has finished syncing the signed-in user (or nobody is
 /// signed in).
@@ -79,60 +80,58 @@ final dfAuthSyncSettledProvider = Provider<bool>((ref) {
   return ref.watch(dfAuthSyncedUidProvider) == user.uid;
 });
 
-void _setupAuthRevenueCatSync(
-  Ref ref,
-  DfAuthSyncCallback? onSynced,
-) {
+void _setupAuthRevenueCatSync(Ref ref, DfAuthSyncCallback? onSynced) {
   final handler = ref.watch(dfRevenueCatAuthSyncHandlerProvider);
 
-  ref.listen<AsyncValue<User?>>(
-    authStateChangesProvider,
-    (previous, next) async {
-      if (next.isLoading) return;
+  ref.listen<AsyncValue<User?>>(authStateChangesProvider, (
+    previous,
+    next,
+  ) async {
+    if (next.isLoading) return;
 
-      final prevUser = previous?.value;
-      final nextUser = next.value;
+    final prevUser = previous?.value;
+    final nextUser = next.value;
 
-      if (nextUser != null) {
-        if (prevUser?.uid != nextUser.uid) {
-          try {
-            await handler.logIn(nextUser.uid);
-            final pro = await handler.isPro();
-            if (!pro) {
-              await handler.restore();
-            }
-            ref.invalidate(dfRevenueCatCustomerInfoProvider);
-            ref.invalidate(dfSubscriptionProvider);
-            if (onSynced != null) {
-              await onSynced();
-            }
-          } catch (e) {
-            debugPrint('df_funnel: RevenueCat auth sync failed: $e');
-          } finally {
-            // Mark even on failure so a flaky network never leaves the
-            // "settled" gate closed forever; callers then see the real state.
-            if (ref.read(currentUserProvider)?.uid == nextUser.uid) {
-              ref.read(dfAuthSyncedUidProvider.notifier).mark(nextUser.uid);
-            }
+    if (nextUser != null) {
+      if (prevUser?.uid != nextUser.uid) {
+        try {
+          await handler.logIn(nextUser.uid);
+          final pro = await handler.isPro();
+          if (!pro) {
+            await handler.restore();
+          }
+          ref.invalidate(dfRevenueCatCustomerInfoProvider);
+          ref.invalidate(dfSubscriptionProvider);
+          if (onSynced != null) {
+            await onSynced();
+          }
+        } catch (e) {
+          debugPrint('df_funnel: RevenueCat auth sync failed: $e');
+        } finally {
+          // Mark even on failure so a flaky network never leaves the
+          // "settled" gate closed forever; callers then see the real state.
+          if (ref.read(currentUserProvider)?.uid == nextUser.uid) {
+            ref.read(dfAuthSyncedUidProvider.notifier).mark(nextUser.uid);
           }
         }
-      } else if (prevUser != null) {
-        await handler.logOut();
-        try {
-          await ref.read(dfSubscriptionProvider.notifier).clearCache();
-        } catch (_) {}
-        try {
-          ref.read(dfDebugPremiumOverrideProvider.notifier).set(null);
-        } catch (_) {}
-        ref.invalidate(dfSubscriptionProvider);
       }
-    },
-    fireImmediately: true,
-  );
+    } else if (prevUser != null) {
+      await handler.logOut();
+      try {
+        await ref.read(dfSubscriptionProvider.notifier).clearCache();
+      } catch (_) {}
+      try {
+        ref.read(dfDebugPremiumOverrideProvider.notifier).set(null);
+      } catch (_) {}
+      ref.invalidate(dfSubscriptionProvider);
+    }
+  }, fireImmediately: true);
 }
 
-final _dfAuthRevenueCatSyncFamily =
-    Provider.family<void, DfAuthSyncCallback?>((ref, onSynced) {
+final _dfAuthRevenueCatSyncFamily = Provider.family<void, DfAuthSyncCallback?>((
+  ref,
+  onSynced,
+) {
   _setupAuthRevenueCatSync(ref, onSynced);
 });
 

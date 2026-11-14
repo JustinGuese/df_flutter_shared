@@ -34,8 +34,9 @@ void main() {
   }
 
   group('DfLaunchGate', () {
-    testWidgets('fresh-install runs onboarding, paywall, login, then home',
-        (tester) async {
+    testWidgets('fresh-install runs onboarding, paywall, login, then home', (
+      tester,
+    ) async {
       SharedPreferences.setMockInitialValues({});
       final config = DfFunnelConfig(
         loginMode: DfLoginMode.optional,
@@ -51,12 +52,17 @@ void main() {
       await tester.pumpAndSettle();
 
       // 2. Onboarding step is shown and emits tutorialBegin
-      expect(find.byKey(const Key('df_funnel_onboarding_step')), findsOneWidget);
+      expect(
+        find.byKey(const Key('df_funnel_onboarding_step')),
+        findsOneWidget,
+      );
       expect(analytics.names, contains(DfEvents.tutorialBegin));
       expect(analytics.names, isNot(contains(DfEvents.tutorialComplete)));
 
       // Complete onboarding
-      await tester.tap(find.byKey(const Key('df_funnel_onboarding_complete_button')));
+      await tester.tap(
+        find.byKey(const Key('df_funnel_onboarding_complete_button')),
+      );
       await tester.pumpAndSettle();
 
       // Emitted tutorialComplete and moved to paywall step
@@ -64,12 +70,17 @@ void main() {
       expect(find.byKey(const Key('df_funnel_paywall_step')), findsOneWidget);
 
       // Complete paywall step
-      await tester.tap(find.byKey(const Key('df_funnel_paywall_continue_button')));
+      await tester.tap(
+        find.byKey(const Key('df_funnel_paywall_continue_button')),
+      );
       await tester.pumpAndSettle();
 
       // 3. Login step is shown with skip option
       expect(find.byKey(const Key('df_funnel_login_step')), findsOneWidget);
-      expect(find.byKey(const Key('df_funnel_login_skip_button')), findsOneWidget);
+      expect(
+        find.byKey(const Key('df_funnel_login_skip_button')),
+        findsOneWidget,
+      );
 
       // Complete login step
       await tester.tap(find.byKey(const Key('df_funnel_login_submit_button')));
@@ -95,10 +106,15 @@ void main() {
       await tester.pumpAndSettle();
 
       // Starts at onboarding
-      expect(find.byKey(const Key('df_funnel_onboarding_step')), findsOneWidget);
+      expect(
+        find.byKey(const Key('df_funnel_onboarding_step')),
+        findsOneWidget,
+      );
 
       // Complete onboarding
-      await tester.tap(find.byKey(const Key('df_funnel_onboarding_complete_button')));
+      await tester.tap(
+        find.byKey(const Key('df_funnel_onboarding_complete_button')),
+      );
       await tester.pumpAndSettle();
 
       // Paywall should be completely skipped, going straight home
@@ -120,7 +136,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Finish onboarding
-      await tester.tap(find.byKey(const Key('df_funnel_onboarding_complete_button')));
+      await tester.tap(
+        find.byKey(const Key('df_funnel_onboarding_complete_button')),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('df_funnel_paywall_step')), findsOneWidget);
@@ -151,8 +169,9 @@ void main() {
         expect(find.text('HOME_SCREEN'), findsOneWidget);
       });
 
-      testWidgets('optional mode shows skippable screen and allows skip',
-          (tester) async {
+      testWidgets('optional mode shows skippable screen and allows skip', (
+        tester,
+      ) async {
         const config = DfFunnelConfig(loginMode: DfLoginMode.optional);
         SharedPreferences.setMockInitialValues({
           config.onboardingCompletedKey: true,
@@ -176,8 +195,9 @@ void main() {
         expect(prefs.getBool(config.loginCompletedKey), isTrue);
       });
 
-      testWidgets('required mode blocks progression until completed',
-          (tester) async {
+      testWidgets('required mode blocks progression until completed', (
+        tester,
+      ) async {
         const config = DfFunnelConfig(loginMode: DfLoginMode.required);
         SharedPreferences.setMockInitialValues({
           config.onboardingCompletedKey: true,
@@ -188,10 +208,15 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byKey(const Key('df_funnel_login_step')), findsOneWidget);
-        expect(find.byKey(const Key('df_funnel_login_skip_button')), findsNothing);
+        expect(
+          find.byKey(const Key('df_funnel_login_skip_button')),
+          findsNothing,
+        );
 
         // Sign in to unblock
-        await tester.tap(find.byKey(const Key('df_funnel_login_submit_button')));
+        await tester.tap(
+          find.byKey(const Key('df_funnel_login_submit_button')),
+        );
         await tester.pumpAndSettle();
 
         expect(find.text('HOME_SCREEN'), findsOneWidget);
@@ -201,8 +226,9 @@ void main() {
     });
 
     group('resume after partial flow', () {
-      testWidgets('resumes from paywall when onboarding is already done',
-          (tester) async {
+      testWidgets('resumes from paywall when onboarding is already done', (
+        tester,
+      ) async {
         const config = DfFunnelConfig(loginMode: DfLoginMode.deferred);
         SharedPreferences.setMockInitialValues({
           config.onboardingCompletedKey: true,
@@ -211,12 +237,16 @@ void main() {
         await tester.pumpWidget(buildGate(config: config));
         await tester.pumpAndSettle();
 
-        expect(find.byKey(const Key('df_funnel_onboarding_step')), findsNothing);
+        expect(
+          find.byKey(const Key('df_funnel_onboarding_step')),
+          findsNothing,
+        );
         expect(find.byKey(const Key('df_funnel_paywall_step')), findsOneWidget);
       });
 
-      testWidgets('resumes from login when onboarding and paywall are done',
-          (tester) async {
+      testWidgets('resumes from login when onboarding and paywall are done', (
+        tester,
+      ) async {
         const config = DfFunnelConfig(loginMode: DfLoginMode.required);
         SharedPreferences.setMockInitialValues({
           config.onboardingCompletedKey: true,
@@ -226,13 +256,17 @@ void main() {
         await tester.pumpWidget(buildGate(config: config));
         await tester.pumpAndSettle();
 
-        expect(find.byKey(const Key('df_funnel_onboarding_step')), findsNothing);
+        expect(
+          find.byKey(const Key('df_funnel_onboarding_step')),
+          findsNothing,
+        );
         expect(find.byKey(const Key('df_funnel_paywall_step')), findsNothing);
         expect(find.byKey(const Key('df_funnel_login_step')), findsOneWidget);
       });
 
-      testWidgets('resumes straight home when all steps are already done',
-          (tester) async {
+      testWidgets('resumes straight home when all steps are already done', (
+        tester,
+      ) async {
         const config = DfFunnelConfig(loginMode: DfLoginMode.required);
         SharedPreferences.setMockInitialValues({
           config.onboardingCompletedKey: true,
@@ -243,7 +277,10 @@ void main() {
         await tester.pumpWidget(buildGate(config: config));
         await tester.pumpAndSettle();
 
-        expect(find.byKey(const Key('df_funnel_onboarding_step')), findsNothing);
+        expect(
+          find.byKey(const Key('df_funnel_onboarding_step')),
+          findsNothing,
+        );
         expect(find.byKey(const Key('df_funnel_paywall_step')), findsNothing);
         expect(find.byKey(const Key('df_funnel_login_step')), findsNothing);
         expect(find.text('HOME_SCREEN'), findsOneWidget);

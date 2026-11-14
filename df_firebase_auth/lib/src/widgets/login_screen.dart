@@ -1,3 +1,4 @@
+import 'package:df_theme/df_theme.dart';
 import 'package:df_ui_widgets/df_ui_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart'
@@ -263,6 +264,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final df = context.df;
     final config = ref.watch(authConfigProvider);
     final s = widget.strings;
 
@@ -388,7 +390,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           minimumSize: const Size(double.infinity, 48),
                           backgroundColor: Colors.white,
                           foregroundColor: Colors.black87,
-                          side: const BorderSide(color: Color(0xFFDADADA)),
+                          side: BorderSide(color: df.colors.border),
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),

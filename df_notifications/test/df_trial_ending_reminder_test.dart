@@ -50,30 +50,33 @@ void main() {
   });
 
   group('DfTrialEndingReminder', () {
-    test('skips scheduling when notifications preference is disabled or missing', () async {
-      final now = DateTime(2026, 5, 10, 12, 0);
-      final trialEnd = now.add(const Duration(days: 7));
+    test(
+      'skips scheduling when notifications preference is disabled or missing',
+      () async {
+        final now = DateTime(2026, 5, 10, 12, 0);
+        final trialEnd = now.add(const Duration(days: 7));
 
-      // 1. Missing pref -> no-op
-      final resultUnset = await DfTrialEndingReminder.schedule(
-        trialEnd,
-        service: service,
-        now: () => now,
-      );
-      expect(resultUnset, isNull);
-      expect(service.scheduled, isEmpty);
+        // 1. Missing pref -> no-op
+        final resultUnset = await DfTrialEndingReminder.schedule(
+          trialEnd,
+          service: service,
+          now: () => now,
+        );
+        expect(resultUnset, isNull);
+        expect(service.scheduled, isEmpty);
 
-      // 2. Explicitly disabled pref -> no-op
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('notifications_enabled', false);
-      final resultDisabled = await DfTrialEndingReminder.schedule(
-        trialEnd,
-        service: service,
-        now: () => now,
-      );
-      expect(resultDisabled, isNull);
-      expect(service.scheduled, isEmpty);
-    });
+        // 2. Explicitly disabled pref -> no-op
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('notifications_enabled', false);
+        final resultDisabled = await DfTrialEndingReminder.schedule(
+          trialEnd,
+          service: service,
+          now: () => now,
+        );
+        expect(resultDisabled, isNull);
+        expect(service.scheduled, isEmpty);
+      },
+    );
 
     test('skips scheduling when fire time is less than 1 hour away', () async {
       final prefs = await SharedPreferences.getInstance();
@@ -117,7 +120,10 @@ void main() {
       );
 
       expect(scheduled, isNotNull);
-      expect(scheduled!.scheduledAt, trialEnd.subtract(const Duration(days: 2)));
+      expect(
+        scheduled!.scheduledAt,
+        trialEnd.subtract(const Duration(days: 2)),
+      );
       expect(scheduled.repeat, DfReminderRepeat.none);
       expect(scheduled.id, DfTrialEndingReminder.defaultId);
       expect(service.scheduled.length, 1);

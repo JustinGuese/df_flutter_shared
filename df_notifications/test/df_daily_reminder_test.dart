@@ -77,43 +77,49 @@ void main() {
       expect(service.scheduled.first.scheduledAt, DateTime(2026, 5, 11, 8, 0));
     });
 
-    test('restoreIfEnabled is a no-op when pref is disabled or missing', () async {
-      final reminder = DfDailyReminder(
-        id: 1000,
-        service: service,
-      );
+    test(
+      'restoreIfEnabled is a no-op when pref is disabled or missing',
+      () async {
+        final reminder = DfDailyReminder(id: 1000, service: service);
 
-      // Missing pref -> no-op
-      final restoredUnset = await reminder.restoreIfEnabled('notifications_enabled');
-      expect(restoredUnset, isFalse);
-      expect(service.scheduled, isEmpty);
+        // Missing pref -> no-op
+        final restoredUnset = await reminder.restoreIfEnabled(
+          'notifications_enabled',
+        );
+        expect(restoredUnset, isFalse);
+        expect(service.scheduled, isEmpty);
 
-      // Explicitly disabled pref -> no-op
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('notifications_enabled', false);
-      final restoredDisabled = await reminder.restoreIfEnabled('notifications_enabled');
-      expect(restoredDisabled, isFalse);
-      expect(service.scheduled, isEmpty);
+        // Explicitly disabled pref -> no-op
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('notifications_enabled', false);
+        final restoredDisabled = await reminder.restoreIfEnabled(
+          'notifications_enabled',
+        );
+        expect(restoredDisabled, isFalse);
+        expect(service.scheduled, isEmpty);
 
-      // Enabled pref -> schedules
-      await prefs.setBool('notifications_enabled', true);
-      final restoredEnabled = await reminder.restoreIfEnabled('notifications_enabled');
-      expect(restoredEnabled, isTrue);
-      expect(service.scheduled.length, 1);
-    });
+        // Enabled pref -> schedules
+        await prefs.setBool('notifications_enabled', true);
+        final restoredEnabled = await reminder.restoreIfEnabled(
+          'notifications_enabled',
+        );
+        expect(restoredEnabled, isTrue);
+        expect(service.scheduled.length, 1);
+      },
+    );
 
-    test('cancel removes scheduled reminder and delegates to service', () async {
-      final reminder = DfDailyReminder(
-        id: 1000,
-        service: service,
-      );
+    test(
+      'cancel removes scheduled reminder and delegates to service',
+      () async {
+        final reminder = DfDailyReminder(id: 1000, service: service);
 
-      await reminder.ensure();
-      expect(service.scheduled.length, 1);
+        await reminder.ensure();
+        expect(service.scheduled.length, 1);
 
-      await reminder.cancel();
-      expect(service.cancelled, contains(1000));
-      expect(service.scheduled, isEmpty);
-    });
+        await reminder.cancel();
+        expect(service.cancelled, contains(1000));
+        expect(service.scheduled, isEmpty);
+      },
+    );
   });
 }

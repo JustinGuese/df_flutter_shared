@@ -1,0 +1,19 @@
+name: df_error_reporting
+description: >-
+  Core error reporting contract for DataFortress apps — an error sink interface,
+  framework and platform error wiring, and test sinks. No crash SDKs.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.29.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

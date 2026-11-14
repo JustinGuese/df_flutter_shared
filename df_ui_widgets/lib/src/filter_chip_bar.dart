@@ -50,7 +50,8 @@ class DfFilterChipBar<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final df = context.df;
-    final effectivePadding = padding ??
+    final effectivePadding =
+        padding ??
         EdgeInsets.symmetric(
           horizontal: df.spacing.md,
           vertical: df.spacing.sm,
@@ -63,8 +64,9 @@ class DfFilterChipBar<T> extends StatelessWidget {
       separatorBuilder: (_, _) => SizedBox(width: effectiveSpacing),
       itemBuilder: (context, index) {
         final item = items[index];
-        final label =
-            labelBuilder != null ? labelBuilder!(item) : item.toString();
+        final label = labelBuilder != null
+            ? labelBuilder!(item)
+            : item.toString();
         final isSelected = item == selected;
 
         return _DfFilterPill(
@@ -135,11 +137,9 @@ class _DfFilterPill extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: selected
-                      ? df.colors.textOnBrand
-                      : df.colors.textSecondary,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                ),
+              color: selected ? df.colors.textOnBrand : df.colors.textSecondary,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            ),
           ),
         ),
       ),

@@ -1,0 +1,18 @@
+name: df_api
+description: HTTP client abstraction with Bearer token injection, 401 retry, and error mapping for DataFortress apps.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.29.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.7.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
