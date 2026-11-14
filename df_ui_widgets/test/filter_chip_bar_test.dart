@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('DfFilterChipBar', () {
-    testWidgets('renders items and invokes onSelected callback', (tester) async {
+    testWidgets('renders items and invokes onSelected callback', (
+      tester,
+    ) async {
       String? selectedItem;
       final items = ['All', 'Tech', 'Design', 'Business'];
 

@@ -17,6 +17,7 @@ export 'src/skeleton.dart';
 export 'src/quick_action_chip.dart';
 export 'src/summary_bullet_list.dart';
 export 'src/keyword_chip_list.dart';
+export 'src/text_parsing.dart';
 export 'src/numbered_step_list.dart';
 export 'src/success_banner.dart';
 
