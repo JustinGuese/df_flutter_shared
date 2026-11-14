@@ -27,6 +27,11 @@ dependencies:
       url: https://github.com/JustinGuese/df_flutter_shared.git
       path: df_analytics_core
       ref: main
+  df_api:
+    git:
+      url: https://github.com/JustinGuese/df_flutter_shared.git
+      path: df_api
+      ref: main
   df_theme:
     git:
       url: https://github.com/JustinGuese/df_flutter_shared.git
