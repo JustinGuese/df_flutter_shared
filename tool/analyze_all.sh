@@ -8,6 +8,9 @@ set -uo pipefail
 
 cd "$(dirname "$0")/.." || exit 1
 
+# Check architecture layer boundaries
+"$(dirname "$0")/check_layers.sh" "$@" || exit 1
+
 if [ $# -gt 0 ]; then
   packages=("$@")
 else
