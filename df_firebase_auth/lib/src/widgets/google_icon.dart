@@ -25,6 +25,12 @@ class GoogleIcon extends StatelessWidget {
   }
 }
 
+/// Fallback painter for the Google "G" logo.
+///
+/// NOTE: The literal brand hex colours below (#4285F4, #EA4335, #FBBC05,
+/// #34A853) are the documented exception to the design system token rule;
+/// standard third-party brand marks must maintain their exact official brand
+/// colours.
 class _GoogleIconPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
