@@ -23,6 +23,16 @@ abstract final class DfPaywallLauncher {
   /// - On cancel, checks if [placement] is in `config.exitOfferAfter` and triggers
   ///   the exit offer at most once per install.
   /// - On successful purchase or restore, invokes [onPurchased].
+  /// - Before presenting, silently tries [restore] (unless [restoreFirst] is
+  ///   false): a reinstalled/new-device user whose store account already owns
+  ///   the subscription must never see the paywall, and buying again would
+  ///   fail with "product already active". On success the result is
+  ///   [DfPaywallResult.restored] and no paywall is shown.
+  /// - If the paywall closes with `cancelled` or `error`, silently tries
+  ///   [restore] (default [DfRevenueCat.restore]) first: the store account may
+  ///   already own the subscription (reinstall, new device, store
+  ///   `ITEM_ALREADY_OWNED`), in which case the result becomes
+  ///   [DfPaywallResult.restored].
   static Future<DfPaywallResult> show(
     BuildContext context, {
     required String placement,
@@ -32,6 +42,8 @@ abstract final class DfPaywallLauncher {
     FutureOr<void> Function(BuildContext context)? onWeb,
     DfPurchaseCallback? onPurchased,
     DfRevenueCatStrings strings = const DfRevenueCatStrings(),
+    Future<bool> Function()? restore,
+    bool restoreFirst = true,
   }) async {
     DfAnalyticsCore.track(DfEvents.paywallOpened, {'placement': placement});
 
@@ -54,6 +66,15 @@ abstract final class DfPaywallLauncher {
     }
 
     try {
+      if (restoreFirst && await _silentRestore(restore)) {
+        DfAnalyticsCore.track(DfEvents.paywallResult, {
+          'placement': placement,
+          'result': DfPaywallResult.restored.name,
+        });
+        if (context.mounted) await onPurchased?.call(context);
+        return DfPaywallResult.restored;
+      }
+      if (!context.mounted) return DfPaywallResult.notPresented;
       final activePresenter = presenter ?? DfRevenueCat.presenter;
       final result = await activePresenter.presentPaywall(
         placement: placement,
@@ -67,7 +88,18 @@ abstract final class DfPaywallLauncher {
       if (result.isSuccess && context.mounted) {
         await onPurchased?.call(context);
         return result;
-      } else if (result == DfPaywallResult.cancelled) {
+      }
+      if ((result == DfPaywallResult.cancelled ||
+              result == DfPaywallResult.error) &&
+          await _silentRestore(restore)) {
+        DfAnalyticsCore.track(DfEvents.paywallResult, {
+          'placement': placement,
+          'result': DfPaywallResult.restored.name,
+        });
+        if (context.mounted) await onPurchased?.call(context);
+        return DfPaywallResult.restored;
+      }
+      if (result == DfPaywallResult.cancelled) {
         if (!context.mounted) return result;
         return await _maybeExitOffer(
           context,
@@ -86,6 +118,16 @@ abstract final class DfPaywallLauncher {
         'result': 'error',
       });
       return DfPaywallResult.error;
+    }
+  }
+
+  static Future<bool> _silentRestore(Future<bool> Function()? restore) async {
+    try {
+      if (restore == null && !DfRevenueCat.isSdkInitialized) return false;
+      return await (restore ?? DfRevenueCat.restore)();
+    } catch (e) {
+      debugPrint('Silent restore failed: $e');
+      return false;
     }
   }
 

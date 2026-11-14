@@ -40,6 +40,10 @@ abstract final class DfRevenueCat {
   /// Whether [DfRevenueCat] has been configured.
   static bool get isConfigured => _config != null;
 
+  /// Whether [initialize] has been called (the native SDK is, or is being,
+  /// configured).
+  static bool get isSdkInitialized => _ready != null;
+
   /// Sets the active [DfRevenueCatConfig] without configuring the SDK.
   static void configure(DfRevenueCatConfig config) => _config = config;
 
