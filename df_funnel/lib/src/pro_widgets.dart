@@ -35,6 +35,29 @@ class DfFunnelStrings {
     this.perkAskAnyStoryBody = 'One tap from the article to the answer.',
   });
 
+  /// German strings.
+  const DfFunnelStrings.de({
+    this.proPillLabel = 'Pro kostenlos testen',
+    this.heroEyebrow = 'PRO',
+    this.heroTitle = 'Brief Tech News Pro',
+    this.heroSubtitle = 'Keine Werbung. Ein KI-Analyst für jede Story.',
+    this.heroCta = 'Pro 14 Tage kostenlos testen',
+    this.upsellEyebrow = 'PRO',
+    this.upsellTitle = 'Mehr lesen, weniger Werbung sehen.',
+    this.upsellCta = 'Auf Pro upgraden',
+    this.upsellLater = 'Vielleicht später',
+    this.lockedTitle = 'Mit Pro freischalten',
+    this.lockedSubtitle = 'Tippen, um auf Premium zu upgraden',
+    this.lockedAction = 'Upgraden',
+    this.perkZeroAdsTitle = 'Keine Werbung',
+    this.perkZeroAdsBody = 'Keine Banner, keine gesponserten Beiträge.',
+    this.perkAiAnalystTitle = 'KI-Nachrichtenanalyst',
+    this.perkAiAnalystBody =
+        'Mit einem Experten über die Nachrichten sprechen.',
+    this.perkAskAnyStoryTitle = 'Fragen zu jedem Artikel stellen',
+    this.perkAskAnyStoryBody = 'Mit einem Tippen vom Artikel zur Antwort.',
+  });
+
   final String proPillLabel;
   final String heroEyebrow;
   final String heroTitle;
@@ -96,7 +119,8 @@ class DfProPill extends StatelessWidget {
         shape: const StadiumBorder(),
         child: InkWell(
           customBorder: const StadiumBorder(),
-          onTap: onTap ??
+          onTap:
+              onTap ??
               () {
                 if (paywallPresenter != null) {
                   paywallPresenter!(context, placement: placement);
@@ -114,9 +138,9 @@ class DfProPill extends StatelessWidget {
                 Text(
                   strings.proPillLabel,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: df.colors.textOnBrand,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    color: df.colors.textOnBrand,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
@@ -180,13 +204,15 @@ class DfProHeroCard extends ConsumerWidget {
             SizedBox(height: df.spacing.xs),
             Text(
               subtitle ?? strings.heroSubtitle,
-              style:
-                  text.bodyMedium?.copyWith(color: on.withValues(alpha: 0.9)),
+              style: text.bodyMedium?.copyWith(
+                color: on.withValues(alpha: 0.9),
+              ),
             ),
           ],
           SizedBox(height: df.spacing.md),
           FilledButton(
-            onPressed: onTap ??
+            onPressed:
+                onTap ??
                 () {
                   if (paywallPresenter != null) {
                     paywallPresenter!(context, placement: placement);
@@ -271,23 +297,25 @@ class DfUpsellSheet extends ConsumerWidget {
     final df = context.df;
     final text = Theme.of(context).textTheme;
 
-    final resolvedPerks = perks ?? [
-      DfPerkItem(
-        icon: Icons.block_rounded,
-        title: strings.perkZeroAdsTitle,
-        body: strings.perkZeroAdsBody,
-      ),
-      DfPerkItem(
-        icon: Icons.auto_awesome,
-        title: strings.perkAiAnalystTitle,
-        body: strings.perkAiAnalystBody,
-      ),
-      DfPerkItem(
-        icon: Icons.forum_outlined,
-        title: strings.perkAskAnyStoryTitle,
-        body: strings.perkAskAnyStoryBody,
-      ),
-    ];
+    final resolvedPerks =
+        perks ??
+        [
+          DfPerkItem(
+            icon: Icons.block_rounded,
+            title: strings.perkZeroAdsTitle,
+            body: strings.perkZeroAdsBody,
+          ),
+          DfPerkItem(
+            icon: Icons.auto_awesome,
+            title: strings.perkAiAnalystTitle,
+            body: strings.perkAiAnalystBody,
+          ),
+          DfPerkItem(
+            icon: Icons.forum_outlined,
+            title: strings.perkAskAnyStoryTitle,
+            body: strings.perkAskAnyStoryBody,
+          ),
+        ];
 
     return Container(
       padding: EdgeInsets.all(df.spacing.lg),

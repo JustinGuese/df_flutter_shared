@@ -17,6 +17,17 @@ class DfSignInSheetStrings {
     this.appleFailedMessage = 'Apple Sign-In failed: {error}',
   });
 
+  /// German strings.
+  const DfSignInSheetStrings.de({
+    this.title = 'Fortschritt geräteübergreifend speichern',
+    this.subtitle = 'Melde dich sicher mit Google oder Apple an, um deine Daten synchron zu halten.',
+    this.googleButton = 'Weiter mit Google',
+    this.appleButton = 'Weiter mit Apple',
+    this.notNowButton = 'Nicht jetzt',
+    this.googleFailedMessage = 'Google-Anmeldung fehlgeschlagen: {error}',
+    this.appleFailedMessage = 'Apple-Anmeldung fehlgeschlagen: {error}',
+  });
+
   /// Main headline at the top of the sheet.
   final String title;
 

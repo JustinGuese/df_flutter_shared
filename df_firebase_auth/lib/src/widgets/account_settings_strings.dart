@@ -32,6 +32,31 @@ class DfAccountSettingsStrings {
     this.versionLabel = 'Version',
   });
 
+  /// German strings.
+  const DfAccountSettingsStrings.de({
+    this.eyebrow = 'Einstellungen',
+    this.title = 'Konto',
+    this.signedInAs = 'Angemeldet als',
+    this.contactSupport = 'Support kontaktieren',
+    this.website = 'Website',
+    this.privacyPolicy = 'Datenschutz',
+    this.terms = 'Nutzungsbedingungen',
+    this.signOut = 'Abmelden',
+    this.signOutConfirmTitle = 'Abmelden?',
+    this.signOutConfirmBody = 'Du musst dich auf diesem Gerät erneut anmelden, um wieder auf deine Daten zuzugreifen.',
+    this.cancel = 'Abbrechen',
+    this.deleteAccount = 'Konto löschen',
+    this.keepAccount = 'Konto behalten',
+    this.deleteConfirmTitle = 'Konto löschen?',
+    this.deleteConfirmBody = 'Dadurch werden dein Konto und alle zugehörigen Daten auf allen Geräten entfernt. Das kann nicht rückgängig gemacht werden.',
+    this.deleteFailed =
+        'Das Konto konnte nicht gelöscht werden. Versuch es erneut.',
+    this.supportMailSubject = 'Support-Anfrage',
+    this.noMailApp = 'Auf diesem Gerät ist keine Mail-App eingerichtet.',
+    this.couldNotOpenLink = 'Der Link konnte nicht geöffnet werden.',
+    this.versionLabel = 'Version',
+  });
+
   final String eyebrow;
   final String title;
   final String signedInAs;
