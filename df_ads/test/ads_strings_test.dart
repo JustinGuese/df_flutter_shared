@@ -21,6 +21,16 @@ void main() {
       expect(strings.removeAds, 'Werbung entfernen');
     });
 
+    test('German strings (.de) has no empty field', () {
+      const strings = DfAdsStrings.de();
+      expect(strings.advertisementEyebrow.isNotEmpty, isTrue);
+      expect(strings.sponsoredLabel.isNotEmpty, isTrue);
+      expect(strings.removeAds.isNotEmpty, isTrue);
+      expect(strings.advertisementEyebrow, 'WERBUNG');
+      expect(strings.sponsoredLabel, 'Gesponsert');
+      expect(strings.removeAds, 'Werbung entfernen');
+    });
+
     test('fill replaces placeholder tokens correctly', () {
       expect(
         DfAdsStrings.fill('Ad #{number} of {total}', {'number': 1, 'total': 3}),

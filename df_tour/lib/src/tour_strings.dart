@@ -25,6 +25,26 @@ class DfTourStrings {
     this.progressLabel = '{done}/{total}',
   });
 
+  /// German strings constructor.
+  const DfTourStrings.de({
+    this.skipLabel = 'Überspringen',
+    this.tapForNextLabel = 'Tippen für weiter',
+    this.tapToFinishLabel = 'Tippen zum Abschließen',
+    this.hubTitle = 'Deine Tour',
+    this.hubSubtitle =
+        'Ein paar kurze Schritte durch die App – und warum sich jeder einzelne lohnt.',
+    this.hubAllDoneTitle = 'Alles erledigt',
+    this.hubAllDoneMessage =
+        'Alle Schritte sind abgeschlossen. Du kannst die Tour jederzeit '
+        'über den Hilfe-Button erneut öffnen.',
+    this.replayLabel = 'Wiederholen',
+    this.continueLaterLabel = 'Später fortsetzen',
+    this.closeLabel = 'Schließen',
+    this.defaultCtaLabel = 'Ansehen',
+    this.helpTooltip = 'Tour starten',
+    this.progressLabel = '{done}/{total}',
+  });
+
   /// Substitutes `{done}` and `{total}` in [progressLabel].
   String progress({required int done, required int total}) => progressLabel
       .replaceAll('{done}', '$done')

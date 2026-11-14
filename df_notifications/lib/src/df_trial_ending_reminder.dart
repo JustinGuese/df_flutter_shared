@@ -14,6 +14,13 @@ class DfTrialEndingReminderStrings {
         'Your subscription renews unless you cancel in your store settings.',
   });
 
+  /// German strings constructor.
+  const DfTrialEndingReminderStrings.de({
+    this.title = 'Dein kostenloser Testzeitraum endet bald',
+    this.body =
+        'Dein Abonnement verlängert sich, sofern du nicht in den Store-Einstellungen kündigst.',
+  });
+
   final String title;
   final String body;
 }

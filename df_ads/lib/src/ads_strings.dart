@@ -11,6 +11,13 @@ class DfAdsStrings {
     this.removeAds = 'Remove ads',
   });
 
+  /// German strings constructor.
+  const DfAdsStrings.de({
+    this.advertisementEyebrow = 'WERBUNG',
+    this.sponsoredLabel = 'Gesponsert',
+    this.removeAds = 'Werbung entfernen',
+  });
+
   /// Eyebrow label shown at the top of an ad card.
   final String advertisementEyebrow;
 
