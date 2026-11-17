@@ -67,6 +67,6 @@ class MobileAudioCaptureBackend implements AudioCaptureBackend {
       return <XFile>[];
     }
 
-    return <XFile>[XFile.fileSystem(path: path)];
+    return <XFile>[XFile(path)];
   }
 }
