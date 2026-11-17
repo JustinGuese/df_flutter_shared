@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:df_theme/df_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../course_models.dart';
 import '../course_strings.dart';

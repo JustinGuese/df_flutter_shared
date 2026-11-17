@@ -2,7 +2,7 @@ import 'dart:async' show Timer;
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Parses a comma-separated string of keywords into a list of trimmed keywords.
 /// Empty keywords are filtered out.

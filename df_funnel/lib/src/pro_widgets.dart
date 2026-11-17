@@ -1,7 +1,7 @@
 import 'package:df_feedback_prompt/df_feedback_prompt.dart' show DfCooldown;
 import 'package:df_revenuecat/df_revenuecat.dart' hide DfPaywallPresenter;
 import 'package:df_theme/df_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

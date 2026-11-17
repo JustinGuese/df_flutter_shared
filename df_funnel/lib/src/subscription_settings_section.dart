@@ -2,7 +2,7 @@ import 'package:df_billing/df_billing.dart';
 import 'package:df_revenuecat/df_revenuecat.dart';
 import 'package:df_theme/df_theme.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Strings used across [DfSubscriptionSettingsSection].
 ///

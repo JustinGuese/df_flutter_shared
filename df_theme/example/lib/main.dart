@@ -1,6 +1,6 @@
 import 'package:df_theme/df_theme.dart';
 import 'package:df_ui_widgets/df_ui_widgets.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'brands.dart';
 import 'sections/color_section.dart';

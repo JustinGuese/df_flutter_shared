@@ -4,12 +4,13 @@ version: 0.1.1
 publish_to: 'none'
 
 environment:
-  sdk: '>=3.10.0 <4.0.0'
-  flutter: '>=3.29.0'
+  sdk: ^3.13.0
+  flutter: '>=3.50.0'
 
 dependencies:
   flutter:
     sdk: flutter
+  material_ui: ^1.11.1
   # Sibling packages are git deps on this repo's `main` — the exact description
   # the apps use. See df_onboarding/pubspec.yaml for why not `path:`.
   df_analytics_core:

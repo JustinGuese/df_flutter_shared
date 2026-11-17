@@ -16,8 +16,8 @@ class DfShape {
     this.pill = 999,
     double? button,
     double? input,
-  }) : _button = button,
-       _input = input;
+  }) : _button = button, // ignore: prefer_initializing_formals
+       _input = input; // ignore: prefer_initializing_formals
 
   /// Square-ish, for apps whose identity rejects rounding (pixel-art, terminal).
   const DfShape.sharp()
