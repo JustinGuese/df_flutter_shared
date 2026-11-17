@@ -152,7 +152,7 @@ class DesktopAudioCaptureBackend implements AudioCaptureBackend {
       bitsPerSample: _bitsPerSample,
     );
     await file.writeAsBytes(wavBytes, flush: true);
-    files.add(XFile(file.path));
+    files.add(XFile.fileSystem(path: file.path));
 
     return files;
   }

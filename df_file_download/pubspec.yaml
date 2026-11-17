@@ -16,7 +16,7 @@ dependencies:
   # app. That is why this lives in its own package instead of df_core_utils —
   # see README.md ("Android permissions"). Only depend on this package if the
   # app really does hand files to the user.
-  open_filex: ^4.7.0
+  open_filex: ^5.0.0
   path_provider: ^2.1.5
 
 dev_dependencies:

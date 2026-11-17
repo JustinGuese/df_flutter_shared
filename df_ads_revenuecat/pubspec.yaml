@@ -19,7 +19,7 @@ dependencies:
       url: https://github.com/JustinGuese/df_flutter_shared.git
       path: df_ads
       ref: main
-  purchases_admob_flutter: ^10.18.1
+  purchases_admob_flutter: ^11.0.3
 
 dev_dependencies:
   flutter_test:

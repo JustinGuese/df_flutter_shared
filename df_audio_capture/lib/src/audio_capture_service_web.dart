@@ -3,6 +3,7 @@ import 'dart:js_interop';
 import 'dart:typed_data';
 
 import 'package:cross_file/cross_file.dart';
+import 'package:cross_file_web/cross_file_web.dart';
 import 'package:web/web.dart' as web;
 import 'package:record/record.dart';
 
@@ -61,7 +62,11 @@ class WebAudioCaptureBackend implements AudioCaptureBackend {
     final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
     final name = 'meeting-$timestamp-web-mic.webm';
 
-    return <XFile>[XFile.fromData(bytes, name: name, mimeType: 'audio/webm')];
+    return <XFile>[
+      ScopedStorageXFile.fromCreationParams(
+        WebScopedStorageXFileCreationParams.fromBytes(bytes, fileName: name),
+      ),
+    ];
   }
 
   /// Reads back the `blob:` URL that the recorder hands us on stop.

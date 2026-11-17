@@ -10,12 +10,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  record: ^6.2.0
+  record: ^7.2.0
   desktop_audio_capture:
     git:
       url: https://github.com/JustinGuese/desktop_audio_capture
       ref: main
-  cross_file: ^0.3.4
+  cross_file: ^0.4.0
+  cross_file_web: ^1.1.0
   path: ^1.9.0
   web: ^1.1.0
 

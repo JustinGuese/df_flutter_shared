@@ -11,8 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.0.3
-  purchases_flutter: ^10.18.1
-  purchases_ui_flutter: ^10.18.1
+  purchases_flutter: ^11.0.3
+  purchases_ui_flutter: ^11.0.3
   shared_preferences: ^2.3.2
   # Sibling packages are git deps on this repo's `main` — the exact description
   # the apps use. A `path: ../df_x` here would reach a consuming app as a git

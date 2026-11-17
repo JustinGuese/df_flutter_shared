@@ -18,7 +18,7 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^3.0.3
   dio: ^5.7.0
-  record: ^6.2.0
+  record: ^7.2.0
   path_provider: ^2.1.0
   web: ^1.0.0
   # Sibling packages are git deps on this repo's `main` — the exact description

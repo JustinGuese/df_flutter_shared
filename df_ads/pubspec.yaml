@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_mobile_ads: ^8.0.0
+  google_mobile_ads: ^9.2.0
   # Sibling packages are git deps on this repo's `main` — the exact description
   # the apps use. A `path: ../df_x` here would reach a consuming app as a git
   # dep pinned to a commit, which pub then refuses to unify with the app's own
