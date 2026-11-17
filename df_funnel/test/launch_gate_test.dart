@@ -1,7 +1,6 @@
 import 'package:df_analytics_core/df_analytics_core.dart';
 import 'package:df_analytics_core/testing.dart';
 import 'package:df_funnel/src/contracts.dart';
-import 'package:df_funnel/src/funnel_state.dart';
 import 'package:df_funnel/src/launch_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

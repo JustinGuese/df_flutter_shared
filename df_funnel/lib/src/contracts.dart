@@ -49,6 +49,7 @@ class DfFunnelConfig {
     this.loginMode = DfLoginMode.deferred,
     this.paywallPlacement = 'onboarding',
     this.paywallPresenter,
+    this.paywallSkippable = true,
     this.entitlementReader,
     this.onboardingCompletedKey = 'df_funnel_onboarding_completed',
     this.paywallCompletedKey = 'df_funnel_paywall_completed',
@@ -66,6 +67,12 @@ class DfFunnelConfig {
 
   /// Optional callback seam to present the paywall.
   final DfPaywallPresenter? paywallPresenter;
+
+  /// Whether the user may skip the paywall and continue in free mode.
+  ///
+  /// When false, skip affordances are hidden and [DfFunnelNotifier.skipStep]
+  /// ignores [DfFunnelStep.paywall]. Defaults to true.
+  final bool paywallSkippable;
 
   /// Optional callback seam to query premium entitlement status.
   final DfEntitlementReader? entitlementReader;
@@ -85,6 +92,7 @@ class DfFunnelConfig {
     DfLoginMode? loginMode,
     String? paywallPlacement,
     DfPaywallPresenter? paywallPresenter,
+    bool? paywallSkippable,
     DfEntitlementReader? entitlementReader,
     String? onboardingCompletedKey,
     String? paywallCompletedKey,
@@ -95,6 +103,7 @@ class DfFunnelConfig {
       loginMode: loginMode ?? this.loginMode,
       paywallPlacement: paywallPlacement ?? this.paywallPlacement,
       paywallPresenter: paywallPresenter ?? this.paywallPresenter,
+      paywallSkippable: paywallSkippable ?? this.paywallSkippable,
       entitlementReader: entitlementReader ?? this.entitlementReader,
       onboardingCompletedKey:
           onboardingCompletedKey ?? this.onboardingCompletedKey,
@@ -112,6 +121,7 @@ class DfFunnelConfig {
           loginMode == other.loginMode &&
           paywallPlacement == other.paywallPlacement &&
           paywallPresenter == other.paywallPresenter &&
+          paywallSkippable == other.paywallSkippable &&
           entitlementReader == other.entitlementReader &&
           onboardingCompletedKey == other.onboardingCompletedKey &&
           paywallCompletedKey == other.paywallCompletedKey &&
@@ -123,6 +133,7 @@ class DfFunnelConfig {
     loginMode,
     paywallPlacement,
     paywallPresenter,
+    paywallSkippable,
     entitlementReader,
     onboardingCompletedKey,
     paywallCompletedKey,

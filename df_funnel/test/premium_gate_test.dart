@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:df_funnel/src/contracts.dart';
 import 'package:df_funnel/src/premium_gate.dart';
-import 'package:df_funnel/src/pro_widgets.dart';
-import 'package:df_theme/df_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -54,7 +54,7 @@ DfLaunchGate(
 
 #### `DfFunnelStep`
 - `onboarding`: First-launch walkthrough or carousel.
-- `paywall`: Subscription offering screen (automatically skipped if user is already premium).
+- `paywall`: Subscription offering screen (automatically skipped if user is already premium). Skippable by default; see [Free mode](#free-mode-skippable-paywall).
 - `login`: User authentication / account recovery.
 
 #### `DfLoginMode`
@@ -63,6 +63,38 @@ DfLaunchGate(
 - `deferred`: Skips sign-in during launch; auth is requested on demand when accessing gated features.
 
 ---
+
+### Free mode (skippable paywall)
+
+`DfFunnelConfig.paywallSkippable` controls whether users can skip the paywall and use the app for free.
+
+| Value | Behavior |
+|-------|----------|
+| `true` (default) | The default paywall step shows a "Maybe Later" button. Skipping marks the paywall step complete and the funnel moves on to login/home. |
+| `false` | Paywall is forced. The skip button is hidden and `skipStep(DfFunnelStep.paywall)` / `completePaywall(skipped: true)` are ignored. Only a real `completePaywall()` advances. |
+
+```dart
+const DfFunnelConfig(
+  steps: [DfFunnelStep.onboarding, DfFunnelStep.paywall, DfFunnelStep.login],
+  paywallSkippable: false, // force the paywall; omit or true for free mode
+)
+```
+
+**Custom paywall builders** (`DfLaunchGate.paywallBuilder`) only receive `onComplete`, so they must wire the skip themselves. `DfFunnelScope` wraps the step's content, so read it from a context *below* the builder, e.g. inside a `Builder`:
+
+```dart
+paywallBuilder: (context, onComplete) => Builder(
+  builder: (scopeContext) {
+    final scope = DfFunnelScope.of(scopeContext);
+    return MyPaywall(
+      onUnlocked: onComplete,
+      onSkip: scope.canSkipPaywall ? scope.skipPaywall : null,
+    );
+  },
+),
+```
+
+**Your app's own guards must honor the flag too.** The funnel persists the paywall step as done forever once skipped, so any "live guard" that re-checks entitlement (route redirects, entitlement gates around home) should skip the premium requirement when `config.paywallSkippable` is true. Otherwise free users who skipped get bounced back to the paywall.
 
 ## 2. Unified Premium State & Auth Sync
 

@@ -190,7 +190,10 @@ class DfFunnelNotifier extends Notifier<DfFunnelState> {
   }
 
   /// Marks paywall completed or skipped and moves to the next step.
+  ///
+  /// A skip is ignored when [DfFunnelConfig.paywallSkippable] is false.
   Future<void> completePaywall({bool skipped = false}) async {
+    if (skipped && !config.paywallSkippable) return;
     final p = _prefs ?? await SharedPreferences.getInstance();
     _prefs = p;
     await p.setBool(config.paywallCompletedKey, true);

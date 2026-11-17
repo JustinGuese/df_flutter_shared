@@ -1,5 +1,4 @@
 import 'package:df_notifications/df_notifications.dart';
-import 'package:df_notifications/src/df_trial_ending_reminder.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

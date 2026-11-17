@@ -47,6 +47,14 @@ class DfFunnelScope extends InheritedWidget {
   void completePaywall({bool skipped = false}) =>
       notifier.completePaywall(skipped: skipped);
 
+  /// Whether the paywall may be skipped (free mode), per
+  /// [DfFunnelConfig.paywallSkippable].
+  bool get canSkipPaywall => notifier.config.paywallSkippable;
+
+  /// Skips the paywall to continue in free mode. No-op unless
+  /// [canSkipPaywall].
+  void skipPaywall() => notifier.completePaywall(skipped: true);
+
   /// Marks login completed.
   void completeLogin({bool skipped = false}) =>
       notifier.completeLogin(skipped: skipped);
@@ -67,7 +75,7 @@ class DfFunnelScope extends InheritedWidget {
 ///
 /// Steps are executed in the order defined by [DfFunnelConfig.steps]:
 /// 1. Onboarding: persists done flag and emits tutorialBegin / tutorialComplete events.
-/// 2. Paywall: skippable; skipped automatically if already pro via [DfFunnelConfig.entitlementReader].
+/// 2. Paywall: skippable unless [DfFunnelConfig.paywallSkippable] is false; skipped automatically if already pro via [DfFunnelConfig.entitlementReader].
 /// 3. Login: handled according to [DfLoginMode] (required blocks, optional shows skippable, deferred skips).
 /// 4. Home: built via [homeBuilder] once all funnel steps are satisfied.
 class DfLaunchGate extends ConsumerStatefulWidget {
@@ -146,6 +154,7 @@ class _DfLaunchGateState extends ConsumerState<DfLaunchGate> {
                 config: effectiveConfig,
                 onComplete: () => notifier.completePaywall(),
                 onSkip: () => notifier.completePaywall(skipped: true),
+                skippable: effectiveConfig.paywallSkippable,
               );
         case DfFunnelStep.login:
           content =
@@ -270,11 +279,13 @@ class _DefaultPaywallStep extends StatefulWidget {
     required this.config,
     required this.onComplete,
     required this.onSkip,
+    required this.skippable,
   });
 
   final DfFunnelConfig config;
   final VoidCallback onComplete;
   final VoidCallback onSkip;
+  final bool skippable;
 
   @override
   State<_DefaultPaywallStep> createState() => _DefaultPaywallStepState();
@@ -359,15 +370,17 @@ class _DefaultPaywallStepState extends State<_DefaultPaywallStep> {
                 onPressed: _isInvoking ? null : _handlePaywall,
                 child: Text(_isInvoking ? 'Loading...' : 'View Plans'),
               ),
-              SizedBox(height: df.spacing.sm),
-              TextButton(
-                key: const Key('df_funnel_paywall_skip_button'),
-                onPressed: widget.onSkip,
-                child: Text(
-                  'Maybe Later',
-                  style: TextStyle(color: df.colors.textSecondary),
+              if (widget.skippable) ...[
+                SizedBox(height: df.spacing.sm),
+                TextButton(
+                  key: const Key('df_funnel_paywall_skip_button'),
+                  onPressed: widget.onSkip,
+                  child: Text(
+                    'Maybe Later',
+                    style: TextStyle(color: df.colors.textSecondary),
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
