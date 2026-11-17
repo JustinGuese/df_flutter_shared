@@ -36,7 +36,7 @@ dependencies:
 Wrap your home screen with `FeedbackPromptListener`:
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:df_feedback_prompt/df_feedback_prompt.dart';
 

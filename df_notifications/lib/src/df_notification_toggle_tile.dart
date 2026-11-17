@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:df_theme/df_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'df_notification_strings.dart';
@@ -243,6 +243,7 @@ class _DfNotificationToggleTileState extends State<DfNotificationToggleTile> {
           )
         : Switch.adaptive(
             value: _enabled,
+            // ignore: deprecated_member_use
             activeColor: df.colors.brand.base,
             onChanged: _handleToggle,
           );

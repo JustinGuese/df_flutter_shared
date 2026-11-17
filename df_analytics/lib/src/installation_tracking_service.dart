@@ -3,7 +3,7 @@ import 'package:df_analytics_core/df_analytics_core.dart';
 import 'package:facebook_app_events/facebook_app_events.dart';
 import 'package:flutter/foundation.dart'
     show kIsWeb, defaultTargetPlatform, TargetPlatform, kDebugMode, debugPrint;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'analytics_config.dart';
@@ -107,6 +107,7 @@ class InstallationTrackingService {
 
         if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
           try {
+            // ignore: deprecated_member_use
             await FacebookAppEvents().setAdvertiserTracking(
               enabled: trackingEnabled,
             );

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:df_revenuecat/df_revenuecat.dart' hide DfPaywallPresenter;
 import 'package:df_theme/df_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'contracts.dart';

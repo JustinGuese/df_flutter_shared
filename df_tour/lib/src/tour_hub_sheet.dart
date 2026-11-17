@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:df_theme/df_theme.dart';
 import 'package:df_ui_widgets/df_ui_widgets.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'tour_hub_header.dart';

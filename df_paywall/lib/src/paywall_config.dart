@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// All copy and visual configuration for the paywall widgets.
 /// Create one instance per app and pass it to every paywall component.

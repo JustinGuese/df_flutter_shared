@@ -1,5 +1,5 @@
 import 'package:df_funnel/src/subscription_settings_section.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _buildTestWidget(Widget child) {

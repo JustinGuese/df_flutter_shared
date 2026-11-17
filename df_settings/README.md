@@ -47,7 +47,7 @@ dependencies:
 
 ```dart
 import 'package:df_settings/df_settings.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});

@@ -1,5 +1,5 @@
 import 'package:df_theme/df_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Wraps a scrollable and overlays a "there's more below" affordance: a soft
 /// gradient fade at the bottom edge plus a gently bouncing chevron. Both

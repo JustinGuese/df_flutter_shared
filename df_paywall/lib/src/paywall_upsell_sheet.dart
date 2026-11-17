@@ -1,5 +1,5 @@
 import 'package:df_theme/df_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'paywall_config.dart';
 
 /// Shows a modal bottom sheet with the premium upsell UI.

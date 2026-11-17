@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' show TimeOfDay;
+import 'package:material_ui/material_ui.dart' show TimeOfDay;
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persisted on/off + time-of-day for a single "remind me daily at HH:MM"

@@ -3,7 +3,7 @@
 // This shows how psychdiary uses df_whisper_speech for voice-to-text in chat and diary entry forms.
 
 import 'package:df_whisper_speech/df_whisper_speech.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // ============================================================================

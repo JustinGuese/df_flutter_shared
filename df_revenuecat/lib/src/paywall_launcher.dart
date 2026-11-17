@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:df_analytics_core/df_analytics_core.dart';
 import 'package:df_theme/df_theme.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'revenuecat_service.dart';

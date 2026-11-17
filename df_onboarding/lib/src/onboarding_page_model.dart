@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Model for a single onboarding page (icon, title, subtitle, features, gradient, emoji).
 @immutable

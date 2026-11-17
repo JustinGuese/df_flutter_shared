@@ -35,7 +35,7 @@ dependencies:
 
 ```dart
 import 'package:df_ai_consent/df_ai_consent.dart' as pkg;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 final _consentService = pkg.AiDataConsentService(
   consentKey: 'myapp_ai_data_consent_given',

@@ -1,5 +1,5 @@
 import 'package:df_theme/df_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import 'swipe_deck.dart';
@@ -15,17 +15,17 @@ class DfSwipeActionBar extends StatelessWidget {
     this.onUndo,
     this.onPass,
     this.onOpen,
-    VoidCallback? onRead,
+    this.onRead,
     this.onLike,
     this.controller,
     this.strings = const DfSwipeStrings(),
     this.enableHaptics = true,
-  }) : _onRead = onRead;
+  });
 
   final VoidCallback? onUndo;
   final VoidCallback? onPass;
   final VoidCallback? onOpen;
-  final VoidCallback? _onRead;
+  final VoidCallback? onRead;
   final VoidCallback? onLike;
   final DfSwipeDeckController? controller;
   final DfSwipeStrings strings;
@@ -33,7 +33,7 @@ class DfSwipeActionBar extends StatelessWidget {
 
   VoidCallback? get _undoAction => onUndo ?? controller?.undo;
   VoidCallback? get _passAction => onPass ?? controller?.pass;
-  VoidCallback? get _openAction => onOpen ?? _onRead ?? controller?.open;
+  VoidCallback? get _openAction => onOpen ?? onRead ?? controller?.open;
   VoidCallback? get _likeAction => onLike ?? controller?.like;
 
   @override

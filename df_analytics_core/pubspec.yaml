@@ -6,8 +6,8 @@ version: 0.1.0
 publish_to: 'none'
 
 environment:
-  sdk: '>=3.10.0 <4.0.0'
-  flutter: '>=3.29.0'
+  sdk: ^3.13.0
+  flutter: '>=3.50.0'
 
 # Deliberately nothing but Flutter: df_onboarding, df_firebase_auth, df_tour and
 # df_ai_consent depend on this, and anything added here is forced on every app
@@ -15,6 +15,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  material_ui: ^1.11.1
 
 dev_dependencies:
   flutter_test:
